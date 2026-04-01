@@ -8,7 +8,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-/* (keep the same CSS as before – we will reuse it) */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#07111f;--bg2:#0b1728;--panel:rgba(13,25,45,.88);--panel2:rgba(17,34,59,.95);--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.08);--border:rgba(255,255,255,.10);--text:#e7edf7;--muted:#90a0ba;--primary:#31d968;--primary2:#1fc857;--danger:#ef4444;--warning:#f59e0b;--info:#38bdf8;--shadow:0 20px 60px rgba(0,0,0,.32)}
 body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
@@ -898,12 +897,14 @@ async function loadAdminData() {
         const transactions = await fetchJSON('/api/admin/transactions');
         const resets = await fetchJSON('/api/admin/resets');
 
+        // Admin stats grid: show SMSBower Cost, Total Revenue, Total Profit
         $('admin-stats-grid').innerHTML = `
             <div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">${stats.todayRevenue} PKR</div></div>
             <div class="stat-card"><div class="sl">Today Orders</div><div class="sv">${stats.todayOrders}</div></div>
             <div class="stat-card"><div class="sl">Total Users</div><div class="sv">${stats.totalUsers}</div></div>
             <div class="stat-card"><div class="sl">Active Orders</div><div class="sv">${stats.activeOrders}</div></div>
             <div class="stat-card"><div class="sl">Success Rate</div><div class="sv">${stats.todaySuccessRate}%</div></div>
+            <div class="stat-card"><div class="sl">SMSBower Cost</div><div class="sv">${stats.totalCost} PKR</div></div>
             <div class="stat-card"><div class="sl">Total Revenue</div><div class="sv">${stats.totalRevenue} PKR</div></div>
             <div class="stat-card"><div class="sl">Total Profit</div><div class="sv">${stats.totalProfit} PKR</div></div>
         `;
@@ -911,7 +912,7 @@ async function loadAdminData() {
         $('admin-orders-list').innerHTML = orders.length ? orders.map(o => `
             <div class="admin-card">
                 <strong>${o.user_email}</strong>
-                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
+                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Cost: ${(o.provider_cost_usd * 280).toFixed(0)} PKR, Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
             </div>
         `).join('') : '<div class="sub-text">No orders yet.</div>';
 
