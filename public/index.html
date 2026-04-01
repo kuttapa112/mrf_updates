@@ -13,15 +13,6 @@
 body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
 body{min-height:100vh;font-family:'Inter',sans-serif;color:var(--text);background:linear-gradient(140deg,var(--bg),var(--bg2));overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
-.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
-.blob-1{width:400px;height:400px;background:rgba(34,197,94,.15);top:-100px;left:-100px;animation:bfloat 25s ease-in-out infinite}
-.blob-2{width:350px;height:350px;background:rgba(56,189,248,.12);bottom:-80px;right:-80px;animation:bfloat 20s ease-in-out infinite reverse}
-.blob-3{width:250px;height:250px;background:rgba(168,85,247,.08);top:50%;left:50%;animation:bfloat 30s ease-in-out infinite 5s}
-@keyframes bfloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-30px,50px) scale(.9)}75%{transform:translate(40px,20px) scale(1.05)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
-@keyframes confettiFall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
 .app-shell{position:relative;z-index:1;padding:18px}
 .dashboard{display:grid;grid-template-columns:250px 1fr 330px;gap:14px;min-height:calc(100vh - 36px)}
 .glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:24px}
@@ -71,7 +62,6 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .btn-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1f1300}
 .btn-info{background:linear-gradient(135deg,#67e8f9,#38bdf8);color:#062132}
 .btn-google{width:100%;padding:11px 14px;border-radius:14px;background:#fff;color:#111827;border:1px solid #d1d5db}
-.btn-reject{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff}
 .right-panel{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
 .right-panel::-webkit-scrollbar{width:3px}.right-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
 .panel-block{padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
@@ -110,8 +100,6 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .admin-card{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:6px;font-size:12px}
 .admin-meta{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}
 .admin-actions{display:flex;gap:5px;flex-wrap:wrap}
-.admin-profit{color:var(--primary);font-weight:800;font-size:12px}
-.admin-cost{color:var(--muted);font-size:10px}
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .stat-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
 .stat-card .sv{font-size:20px;font-weight:800;margin-top:4px}
@@ -170,7 +158,9 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .theme-toggle{position:fixed;right:14px;top:14px;z-index:2500;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer;font-weight:700;font-size:11px}
 .hidden{display:none!important}
 .notif-bar{display:none;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;animation:pulse 1s infinite;margin-bottom:8px}
-.confetti-piece{position:fixed;width:8px;height:8px;z-index:9999;pointer-events:none;border-radius:2px;animation:confettiFall var(--dur) ease-in forwards}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
 @media(max-width:1100px){.dashboard{grid-template-columns:220px 1fr}.right-panel{grid-column:1/-1;position:static;max-height:none;order:1}.main{order:2}}
 @media(max-width:860px){.dashboard{grid-template-columns:1fr}.sidebar{position:fixed;left:14px;top:14px;bottom:14px;width:min(280px,calc(100vw - 28px));transform:translateX(-120%);transition:.25s;z-index:2200;max-height:none}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.topbar-mobile{display:flex}.theme-toggle{top:auto;bottom:14px}.hero{flex-direction:column}.hero-stats{width:100%;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.payment-grid,.timeline,.button-group,.action-row{grid-template-columns:1fr}.right-panel{order:1}.main{order:2}}
 @media(max-width:600px){.app-shell{padding:10px}.dashboard{gap:8px}.main,.right-panel,.sidebar{padding:10px}.hero{padding:12px}.hero h2{font-size:20px}.country-grid{grid-template-columns:1fr}.modal{padding:8px}.modal-content{padding:12px}.number-display{font-size:18px}.otp-code .value{font-size:24px}.toast-wrap{right:8px;left:8px;bottom:8px}.toast{min-width:auto;max-width:none}}
@@ -179,9 +169,6 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <body>
 <button class="theme-toggle" id="theme-toggle">🌗</button>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
-<div class="blob blob-3"></div>
 
 <div class="app-shell">
 <div class="topbar-mobile">
@@ -194,40 +181,26 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <div class="brand"><div class="brand-mark">M</div><div><h1>MRF SMS</h1><p>Premium OTP Portal</p></div></div>
 <div class="nav-card">
 <div class="nav-label">Services</div>
-
 <button class="nav-item active" data-service="whatsapp">
-<span class="nav-icon" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.47 14.38c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.074-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118 5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 01-3.48-8.413v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z"/></svg></span>
-<span>WhatsApp</span>
+<span class="nav-icon"><span>📱</span></span><span>WhatsApp</span>
 </button>
-
 <button class="nav-item" data-service="facebook">
-<span class="nav-icon" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
-<span>Facebook</span>
+<span class="nav-icon"><span>📘</span></span><span>Facebook</span>
 </button>
-
 <button class="nav-item" data-service="instagram">
-<span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span>
-<span>Instagram</span>
+<span class="nav-icon"><span>📸</span></span><span>Instagram</span>
 </button>
-
 <button class="nav-item" data-service="snapchat">
-<span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.2 2C6.6 2 2 6.4 2 11.8c0 1.5.3 3 .8 4.3l-2.4 4.9h4.8c.45 0 .82-.37.82-.82v-2.5c0-.45-.37-.82-.82-.82H9.2c-.45 0-.82.37-.82.82v2.5c0-.45.37-.82-.82-.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37.82-.82.82v2.65c0 .45.37.82.82.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z"/><circle cx="9.5" cy="14.5" r="1.5"/><circle cx="14.5" cy="14.5" r="1.5"/><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82h-7.72c-.45 0-.82-.37-.82-.82V15.1c0-.45.37-.82-.82-.82h7.72z"/></svg></span>
-<span>Snapchat</span>
+<span class="nav-icon"><span>👻</span></span><span>Snapchat</span>
 </button>
-
 <button class="nav-item" data-service="google">
-<span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82H9.18c-.45 0-.82.37-.82.82v2.65h7.72c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#4285F4"/><path d="M5.08 5.08h10.4c3.36 0 6.08 2.72 6.08 6.08s-2.72 6.08-6.08 6.08c0-.64.1-1.25-.1-1.84l2.2-4.5H5.08c-3.36 0-6.08-2.72-6.08-6.08 0-.64.1-1.25.28-1.84l2.2-4.5z" fill="#34A853"/><path d="M17.36 15.1H9.18c0-.45.37-.82-.82-.82v-2.65h7.72c.45 0 .82-.37.82-.82.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37-.82-.82-.82.82v2.65c0 .45.37.82.37.82.82h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#FBBC05"/><path d="M17.36 12.25H9.18c0 .45.37.82.82.82v2.83h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#EA4335"/></svg></span>
-<span>Google / Gmail</span>
+<span class="nav-icon"><span>📧</span></span><span>Google</span>
 </button>
-
 <button class="nav-item" data-service="tiktok">
-<span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/></svg></span>
-<span>TikTok</span>
+<span class="nav-icon"><span>🎵</span></span><span>TikTok</span>
 </button>
-
 <button class="nav-item" id="contact-btn">
-<span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:16px">💬</span></span>
-<span>Contact Support</span>
+<span class="nav-icon"><span>💬</span></span><span>Contact Support</span>
 </button>
 </div>
 </aside>
@@ -236,7 +209,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <section class="hero">
 <div>
 <h2 id="hero-title">Available WhatsApp Numbers</h2>
-<p>Lowest-price providers try honge. 10 second per tier. Wait calmly.</p>
+<p>Lowest-price providers are tried first. Wait calmly while we find the best number for you.</p>
 <div class="hero-badges">
 <div class="hero-badge">Auto OTP</div>
 <div class="hero-badge">Manual Check</div>
@@ -342,7 +315,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 </div>
 </div>
 
-<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px;">Searching Number</h3><p style="color:var(--muted);font-size:12px;">10 second per tier. Please wait 10-60 seconds.</p></div></div></div>
+<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px;">Searching Number</h3><p style="color:var(--muted);font-size:12px;">We are trying the cheapest providers first. Please wait 10‑60 seconds.</p></div></div></div>
 
 <div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password"></div><button class="btn btn-primary" id="save-password-btn">Save Password</button></div></div></div>
 
@@ -897,7 +870,6 @@ async function loadAdminData() {
         const transactions = await fetchJSON('/api/admin/transactions');
         const resets = await fetchJSON('/api/admin/resets');
 
-        // Admin stats grid: show SMSBower Cost, Total Revenue, Total Profit
         $('admin-stats-grid').innerHTML = `
             <div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">${stats.todayRevenue} PKR</div></div>
             <div class="stat-card"><div class="sl">Today Orders</div><div class="sv">${stats.todayOrders}</div></div>
@@ -912,7 +884,7 @@ async function loadAdminData() {
         $('admin-orders-list').innerHTML = orders.length ? orders.map(o => `
             <div class="admin-card">
                 <strong>${o.user_email}</strong>
-                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Cost: ${(o.provider_cost_usd * 280).toFixed(0)} PKR, Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
+                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
             </div>
         `).join('') : '<div class="sub-text">No orders yet.</div>';
 
@@ -1070,7 +1042,6 @@ if (localStorage.getItem('mrf-theme') === 'light') document.body.classList.add('
 
 // Service selection
 document.querySelectorAll('.nav-item[data-service]').forEach(item => {
-    if (item.id === 'contact-btn') return;
     item.addEventListener('click', () => {
         document.querySelectorAll('.nav-item[data-service]').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
