@@ -95,7 +95,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 .order-item{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
 .order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
 .order-country{font-size:13px;font-weight:700}
-.order-status-pill{padding:5px 7px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.ospill{padding:5px 7px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 .order-number-small{font-size:11px;color:var(--muted);margin-bottom:6px;word-break:break-all}
 .order-actions{display:flex;gap:5px;flex-wrap:wrap}
 .mini-btn{padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:10px;font-weight:700}
@@ -187,363 +187,68 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <button class="nav-item" data-service="instagram"><span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span><span>Instagram</span></button>
 <button class="nav-item" data-service="snapchat"><span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.214.12-.042.239-.075.34-.096.237-.05.426-.037.553.04.23.143.338.45.322.915-.03.87-.87 1.762-1.647 2.08-.067.028-.15.063-.243.101-.276.114-.66.273-.758.405-.046.062-.068.18-.04.394.075.544.51 1.083 1.056 1.76.336.418.718.892 1.108 1.452.406.58.733 1.212.971 1.877.216.602.29 1.078.22 1.413-.06.288-.22.498-.473.627-.17.086-.363.13-.575.13-.168 0-.352-.028-.543-.083l-.075-.022c-.32-.093-.677-.196-.97-.196-.15 0-.276.02-.376.058-.387.144-.55.536-.738.983-.057.133-.116.27-.18.403-.236.48-.527.93-.864 1.337-.3.364-.63.652-.98.858a2.7 2.7 0 01-1.398.41c-.46 0-.912-.12-1.343-.355a5.3 5.3 0 01-.66-.426 4.63 4.63 0 00-.48-.312 1.68 1.68 0 00-.78-.196c-.28 0-.552.068-.806.203a4.1 4.1 0 00-.446.276c-.24.162-.477.33-.742.457a2.87 2.87 0 01-1.262.3c-.522 0-.998-.156-1.414-.462-.348-.255-.644-.602-.878-1.03-.17-.31-.312-.63-.438-.917-.052-.12-.102-.236-.152-.345-.178-.383-.34-.664-.638-.76a1.2 1.2 0 00-.392-.063c-.29 0-.628.088-.95.174l-.086.023c-.194.053-.38.08-.552.08-.36 0-.58-.128-.663-.38-.13-.398-.02-1.04.327-1.916.234-.58.563-1.14.978-1.667.34-.426.695-.81 1.056-1.143.405-.374.72-.756.936-1.135.177-.312.213-.51.1-.672-.086-.122-.3-.234-.632-.332-.14-.042-.284-.078-.428-.113-.31-.078-.632-.16-.892-.268-.236-.098-.418-.222-.54-.37-.12-.145-.178-.314-.17-.502.017-.348.232-.656.638-.917.157-.1.34-.182.526-.252.072-.026.145-.05.218-.072.258-.082.52-.166.73-.29.2-.118.324-.26.37-.427.042-.153.012-.35-.094-.617-.16-.404-.46-.904-.892-1.487C6.63 3.96 4.856 3.547 2.9 3.547c-.48 0-.95.033-1.392.098C1.06 3.693.75 3.7.5 3.7c-.16 0-.28-.015-.355-.044C.02 3.6 0 3.485 0 3.372c0-.164.066-.338.196-.52C.457 2.45 1.18 2.1 2.11 1.9c.69-.142 1.472-.215 2.323-.215.36 0 .728.013 1.093.038.532.036 1.09.054 1.66.054.613 0 1.14-.024 1.567-.07.634-.068 1.16-.175 1.61-.323.355-.116.72-.278 1.085-.44.356-.158.724-.322 1.098-.46C12.03.833 12.12.793 12.206.793z"/></svg></span><span>Snapchat</span></button>
 <button class="nav-item" data-service="google"><span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></span><span>Google / Gmail</span></button>
-<button class="nav-item" data-service="tiktok"><span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#fff"/></svg></span><span>TikTok</span></button>
+<button class="nav-item" data-service="tiktok"><span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/></svg></span><span>TikTok</span></button>
 <button class="nav-item" id="contact-btn"><span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:16px">💬</span></span><span>Contact Support</span></button>
 </div>
 </aside>
-
 <main class="main glass">
-<section class="hero">
-<div>
-<h2 id="hero-title">Available WhatsApp Numbers</h2>
-<p>Lowest-price providers try honge. 10 second per tier. Wait calmly.</p>
-<div class="hero-badges">
-<div class="hero-badge">Auto OTP</div>
-<div class="hero-badge">Manual Check</div>
-<div class="hero-badge">1 Min Lock</div>
-<div class="hero-badge">MRF SMS</div>
-</div>
-</div>
-<div class="hero-stats">
-<div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div>
-<div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div>
-</div>
-</section>
-<section class="toolbar">
-<div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div>
-<div style="display:flex;gap:6px;flex-wrap:wrap">
-<button class="chip active" data-filter="all">All</button>
-<button class="chip" data-filter="cheap">Budget</button>
-<button class="chip" data-filter="premium">Premium</button>
-</div>
-</section>
-<section>
-<div class="section-title"><h3>Number Catalog</h3></div>
-<div class="country-grid" id="country-list"></div>
-</section>
-<section id="admin-panel" class="admin-panel">
-<h3>Admin Panel <span id="payment-badge" class="badge hidden">0</span></h3>
-<div class="stat-grid" id="admin-stats-grid"></div>
-<div class="admin-grid">
-<div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div>
-<div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div>
-<div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div>
-</div>
-</section>
+<section class="hero"><div><h2 id="hero-title">Available WhatsApp Numbers</h2><p>Lowest-price providers try honge. Please wait patiently.</p><div class="hero-badges"><div class="hero-badge">Auto OTP</div><div class="hero-badge">Manual Check</div><div class="hero-badge">1 Min Lock</div><div class="hero-badge">MRF SMS</div></div></div><div class="hero-stats"><div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div><div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div></div></section>
+<section class="toolbar"><div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="chip active" data-filter="all">All</button><button class="chip" data-filter="cheap">Budget</button><button class="chip" data-filter="premium">Premium</button></div></section>
+<section><div class="section-title"><h3>Number Catalog</h3></div><div class="country-grid" id="country-list"></div></section>
+<section id="admin-panel" class="admin-panel"><h3>Admin Panel <span id="payment-badge" class="badge hidden">0</span></h3><div class="stat-grid" id="admin-stats-grid"></div><div class="admin-grid"><div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div><div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div><div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div></div></section>
 </main>
-
 <aside class="right-panel glass">
 <div id="login-prompt">
 <div class="top-auth-card"><h3>Login / Sign Up</h3><p>Premium OTP service.</p></div>
-<div class="auth-switch">
-<button class="auth-tab active" id="show-login-tab">Login</button>
-<button class="auth-tab" id="show-register-tab">Sign Up</button>
+<div class="auth-switch"><button class="auth-tab active" id="show-login-tab">Login</button><button class="auth-tab" id="show-register-tab">Sign Up</button></div>
+<div class="panel-block" id="login-form-wrap"><div class="auth-form"><div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email address"></div><div class="input-wrap"><span>🔐</span><input type="password" id="login-password" placeholder="Password"></div><button class="btn btn-primary" id="login-btn">Login to Dashboard</button><button class="btn btn-google" id="google-login-btn">🔐 Continue with Google</button><div class="forgot-link" id="forgot-btn">Forgot Password?</div></div></div>
+<div class="panel-block hidden" id="register-form-wrap"><div class="auth-form"><div class="input-wrap"><span>👤</span><input type="text" id="reg-name" placeholder="Full name"></div><div class="input-wrap"><span>📧</span><input type="email" id="reg-email" placeholder="Email"></div><div class="input-wrap"><span>🔒</span><input type="password" id="reg-password" placeholder="Password (min 6)"></div><button class="btn btn-primary" id="register-btn">Create Account</button></div></div>
+<div class="panel-block hidden" id="forgot-form-wrap"><div class="auth-form"><h3 style="font-size:15px;margin-bottom:6px">Reset Password</h3><div class="input-wrap"><span>📧</span><input type="email" id="forgot-email" placeholder="Your email address"></div><button class="btn btn-primary" id="forgot-submit-btn">Send Reset Link</button><div class="forgot-link" id="back-to-login">Back to Login</div></div></div>
 </div>
-<div class="panel-block" id="login-form-wrap">
-<div class="auth-form">
-<div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email address"></div>
-<div class="input-wrap"><span>🔐</span><input type="password" id="login-password" placeholder="Password"></div>
-<button class="btn btn-primary" id="login-btn">Login to Dashboard</button>
-<button class="btn btn-google" id="google-login-btn">🔐 Continue with Google</button>
-<div class="forgot-link" id="forgot-btn">Forgot Password?</div>
-</div>
-</div>
-<div class="panel-block hidden" id="register-form-wrap">
-<div class="auth-form">
-<div class="input-wrap"><span>👤</span><input type="text" id="reg-name" placeholder="Full name"></div>
-<div class="input-wrap"><span>📧</span><input type="email" id="reg-email" placeholder="Email"></div>
-<div class="input-wrap"><span>🔒</span><input type="password" id="reg-password" placeholder="Password (min 6)"></div>
-<button class="btn btn-primary" id="register-btn">Create Account</button>
-</div>
-</div>
-<div class="panel-block hidden" id="forgot-form-wrap">
-<div class="auth-form">
-<h3 style="font-size:15px;margin-bottom:6px">Reset Password</h3>
-<div class="input-wrap"><span>📧</span><input type="email" id="forgot-email" placeholder="Your email address"></div>
-<button class="btn btn-primary" id="forgot-submit-btn">Send Reset Link</button>
-<div class="forgot-link" id="back-to-login">Back to Login</div>
-</div>
-</div>
-</div>
-
 <div id="user-info" class="hidden">
-<div class="balance-card">
-<div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div>
-<div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div>
-</div>
-<div class="account-card">
-<div class="account-header">
-<div class="account-heading"><h3>Account</h3><p>Your profile</p></div>
-<button class="account-toggle-btn" id="account-toggle-btn">+</button>
-</div>
-<div class="account-content hidden" id="account-details-content">
-<div class="account-row"><div class="account-label">Name</div><div class="account-value" id="account-name">-</div></div>
-<div class="account-row"><div class="account-label">Email</div><div class="account-value" id="account-email">-</div></div>
-<div class="account-row"><div class="account-label">Password</div><div class="account-value">********</div></div>
-<div class="account-row"><div class="account-label">Referral</div><div class="account-value" id="account-referral">-</div></div>
-<button class="btn btn-soft wide-btn" id="open-password-modal">Change Password</button>
-</div>
-</div>
-<div class="panel-block">
-<div class="section-title"><h3 style="font-size:15px">Active Orders</h3></div>
-<div class="orders-list" id="active-orders-list"></div>
-</div>
+<div class="balance-card"><div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div><div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div></div>
+<div class="account-card"><div class="account-header"><div class="account-heading"><h3>Account</h3><p>Your profile</p></div><button class="account-toggle-btn" id="account-toggle-btn">+</button></div><div class="account-content hidden" id="account-details-content"><div class="account-row"><div class="account-label">Name</div><div class="account-value" id="account-name">-</div></div><div class="account-row"><div class="account-label">Email</div><div class="account-value" id="account-email">-</div></div><div class="account-row"><div class="account-label">Password</div><div class="account-value">********</div></div><div class="account-row"><div class="account-label">Referral</div><div class="account-value" id="account-referral">-</div></div><button class="btn btn-soft wide-btn" id="open-password-modal">Change Password</button></div></div>
+<div class="panel-block"><div class="section-title"><h3 style="font-size:15px">Active Orders</h3></div><div class="orders-list" id="active-orders-list"></div></div>
 </div>
 </aside>
 </div>
 </div>
 
-<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Searching Number</h3><p style="color:var(--muted);font-size:12px">10 second per tier. Please wait 10-60 seconds.</p></div></div></div>
-
+<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Searching Number...</h3><p style="color:var(--muted);font-size:12px">This can take up to 60 seconds. Please DO NOT close this window.</p></div></div></div>
 <div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password (min 6)"></div><button class="btn btn-primary" id="save-password-btn">Save Password</button></div></div></div>
-
-<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div>
-<div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa only</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div>
-<form id="addFundsForm" class="deposit-form" enctype="multipart/form-data">
-<div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div>
-<div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div>
-<button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit Payment</button>
-</form></div></div>
-
+<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div><div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa only</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div><form id="addFundsForm" class="deposit-form" enctype="multipart/form-data"><div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div><div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div><button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit Payment</button></form></div></div>
 <div id="order-modal" class="modal"><div class="modal-content">
 <div class="modal-header"><div><h3>Order Details</h3><p>Auto OTP checking active.</p></div><button class="close-x" id="close-order-modal">✕</button></div>
-<div class="order-head">
-<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Order</div>
-<div style="font-size:17px;font-weight:800;margin-top:5px" id="order-country-title">...</div>
-<div class="order-badges"><span class="pill green" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div>
-<div class="pill" id="order-created-pill">Live</div>
-</div>
-<div class="order-number-box">
-<div class="number-line"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Number</div><div class="number-display" id="order-number">Loading...</div></div>
-<button class="btn btn-soft" id="copy-number-btn">Copy</button>
-</div>
+<div class="order-head"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Order</div><div style="font-size:17px;font-weight:800;margin-top:5px" id="order-country-title">...</div><div class="order-badges"><span class="pill green" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div><div class="pill" id="order-created-pill">Live</div></div>
+<div class="order-number-box"><div class="number-line"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Number</div><div class="number-display" id="order-number">Loading...</div></div><button class="btn btn-soft" id="copy-number-btn">Copy</button></div>
 <div class="timeline"><div class="timeline-box"><div class="t-label">Expiry</div><div class="t-value" id="order-timer">25:00</div></div><div class="timeline-box"><div class="t-label">Cancel Unlock</div><div class="t-value" id="order-cancel-timer">01:00</div></div></div>
 <div class="otp-state" id="order-waiting"><div class="otp-wait"><div class="small-ring"></div><div><div style="font-weight:700;font-size:13px">Waiting for OTP...</div><div style="color:var(--muted);font-size:12px">Auto-check every 5s.</div></div></div></div>
 <div class="otp-code" id="order-otp"><div class="label">Received OTP</div><div class="value" id="otp-value">------</div></div>
 <button class="btn btn-info wide-btn" id="check-otp-manual">Check OTP Now</button>
 <div class="button-group" id="order-buttons"></div>
 </div></div>
-
 <div class="toast-wrap" id="toast-wrap"></div>
-
 <script>
 function $(id){return document.getElementById(id)}
-function toast(msg,type='info',dur=4000){const w=$('toast-wrap'),el=document.createElement('div');el.className='toast '+type;el.textContent=msg;w.appendChild(el);setTimeout(()=>el.remove(),dur)}
-async function fetchJSON(url,opts={}){const r=await fetch(url,{...opts,credentials:'include'});if(!r.ok)throw new Error(await r.text());return r.json()}
-function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copied!','success')).catch(()=>toast('Copy failed','error'))}
-function playDing(){try{const a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(1320,a.currentTime+.08);o.frequency.exponentialRampToValueAtTime(880,a.currentTime+.25);g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.4);o.start();o.stop(a.currentTime+.4)}catch(e){}}
-function showConfetti(){const c=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa'];for(let i=0;i<50;i++){const d=document.createElement('div');d.className='confetti-piece';d.style.left=Math.random()*100+'vw';d.style.background=c[Math.floor(Math.random()*c.length)];d.style.setProperty('--dur',(1.5+Math.random()*2)+'s');d.style.width=(6+Math.random()*8)+'px';d.style.height=(6+Math.random()*8)+'px';d.style.borderRadius=Math.random()>.5?'50%':'2px';document.body.appendChild(d);setTimeout(()=>d.remove(),4000)}}
+function toast(msg,type,dur){type=type||'info';dur=dur||4000;var w=$('toast-wrap'),el=document.createElement('div');el.className='toast '+type;el.textContent=msg;w.appendChild(el);setTimeout(function(){el.remove()},dur)}
+function fetchJSON(url,opts){opts=opts||{};return fetch(url,Object.assign({},opts,{credentials:'include'})).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t)});return r.json()})}
+function copyText(t){navigator.clipboard.writeText(t).then(function(){toast('Copied!','success')}).catch(function(){toast('Copy failed','error')})}
+function playDing(){try{var a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(1320,a.currentTime+.08);o.frequency.exponentialRampToValueAtTime(880,a.currentTime+.25);g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.4);o.start();o.stop(a.currentTime+.4)}catch(e){}}
+function showConfetti(){var c=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa'];for(var i=0;i<50;i++){var d=document.createElement('div');d.className='confetti-piece';d.style.left=Math.random()*100+'vw';d.style.background=c[Math.floor(Math.random()*c.length)];d.style.setProperty('--dur',(1.5+Math.random()*2)+'s');d.style.width=(6+Math.random()*8)+'px';d.style.height=(6+Math.random()*8)+'px';d.style.borderRadius=Math.random()>.5?'50%':'2px';document.body.appendChild(d);setTimeout(function(){d.remove()},4000)}}
 
-let currentUser=null,activeOrder=null,otpInterval=null,timerInterval=null,adminRefresh=null,lastPending=0,allCountries=[],currentFilter='all',currentService='whatsapp';
-const SVC_META={whatsapp:{label:'WhatsApp',api:'/api/countries'},facebook:{label:'Facebook',api:'/api/facebook/countries'},instagram:{label:'Instagram',api:'/api/instagram/countries'},snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},google:{label:'Google / Gmail',api:'/api/google/countries'},tiktok:{label:'TikTok',api:'/api/tiktok/countries'}};
+var currentUser=null,activeOrder=null,otpInterval=null,timerInterval=null,adminRefresh=null,lastPending=0,allCountries=[],currentFilter='all',currentService='whatsapp';
+var SVC_META={whatsapp:{label:'WhatsApp',api:'/api/countries'},facebook:{label:'Facebook',api:'/api/facebook/countries'},instagram:{label:'Instagram',api:'/api/instagram/countries'},snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},google:{label:'Google / Gmail',api:'/api/google/countries'},tiktok:{label:'TikTok',api:'/api/tiktok/countries'}};
 
-const sidebar=$('sidebar'),overlay=$('sidebar-overlay');
- $('hamburger').addEventListener('click',()=>sidebar.classList.add('open'));
-overlay.addEventListener('click',()=>sidebar.classList.remove('open'));
+var sidebar=$('sidebar'),overlay=$('sidebar-overlay');
+ $('hamburger').addEventListener('click',function(){sidebar.classList.add('open')});
+overlay.addEventListener('click',function(){sidebar.classList.remove('open')});
 
 function renderCountries(){
-    let list=[...allCountries];
-    const s=$('country-search').value.trim().toLowerCase();
-    if(s)list=list.filter(c=>c.name.toLowerCase().includes(s));
-    if(currentFilter==='cheap')list=list.filter(c=>c.price<=250);
-    else if(currentFilter==='premium')list=list.filter(c=>c.price>=300);
-    const ct=$('country-list');
+    var list=allCountries.slice();
+    var s=$('country-search').value.trim().toLowerCase();
+    if(s)list=list.filter(function(c){return c.name.toLowerCase().indexOf(s)>=0});
+    if(currentFilter==='cheap')list=list.filter(function(c){return c.price<=250});
+    else if(currentFilter==='premium')list=list.filter(function(c){return c.price>=300});
+    var ct=$('country-list');
     if(!list.length){ct.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px"><h3>No country found</h3></div>';return}
-    ct.innerHTML=list.map(c=>'<div class="country-card" data-id="'+c.countryId+'" data-name="'+c.name+'" data-price="'+c.price+'"><div class="country-top"><div class="country-flag">'+c.flag+'</div><div class="status-pill">Available</div></div><div class="country-name">'+c.name+'</div><div class="country-code">'+c.code+'</div><div class="country-price">'+c.price+' PKR</div><button class="btn btn-primary buy-btn">Buy Number</button></div>').join('');
-    document.querySelectorAll('.buy-btn').forEach(btn=>{btn.addEventListener('click',e=>{const card=e.target.closest('.country-card');orderCountry(card.dataset.name,Number(card.dataset.price),Number(card.dataset.id))})})
-}
-
-async function loadCountries(){try{allCountries=await fetchJSON(SVC_META[currentService].api);renderCountries()}catch(e){toast('Failed to load countries','error')}}
-
-async function orderCountry(name,price,id){
-    if(!currentUser){toast('Please login first','error');return}
-    $('processing-modal').style.display='flex';
-    try{
-        const res=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({countryName:name,price,countryId:id,service:currentService}),credentials:'include'});
-        $('processing-modal').style.display='none';
-        if(!res.ok)throw new Error(await res.text());
-        const data=await res.json();
-        // data = { id, number, activationId }
-        toast('Number purchased!','success');
-        showConfetti();playDing();
-        await refreshUser();
-        // Open modal with the number we already got
-        openOrderModal(data.id,data.number);
-    }catch(e){$('processing-modal').style.display='none';toast(e.message,'error')}
-}
-
-function stopIntervals(){if(otpInterval)clearInterval(otpInterval);if(timerInterval)clearInterval(timerInterval);otpInterval=null;timerInterval=null}
-
-function updateOrderVis(o){
-    $('order-country-title').innerText=(o.country||'')+' \u2022 '+(o.service_name||'Number');
-    $('order-status-pill').innerText=(o.order_status||'active').replace(/_/g,' ').toUpperCase();
-    $('order-price-pill').innerText=o.price+' PKR';
-    $('order-created-pill').innerText=new Date(o.created_at).toLocaleString();
-    // FIX: Show number immediately - don't wait for API
-    const phone=o.phone_number||'';
-    $('order-number').innerText=phone||'Loading...';
-    if(o.otp_code){$('otp-value').innerText=o.otp_code;$('order-otp').style.display='block';$('order-waiting').style.display='none'}
-    else{$('order-otp').style.display='none';$('order-waiting').style.display='block'}
-    updateOrderBtns(o);updateTimer(o)
-}
-
-function updateTimer(o){
-    const now=new Date(),exp=new Date(o.expires_at||new Date(o.created_at).getTime()+25*60000),cancelAt=new Date(o.cancel_available_at||new Date(o.created_at).getTime()+60000);
-    const ed=Math.max(0,exp-now),cdd=Math.max(0,cancelAt-now);
-    $('order-timer').innerText=ed<=0?'Expired':Math.floor(ed/60000)+':'+String(Math.floor((ed%60000)/1000)).padStart(2,'0');
-    $('order-cancel-timer').innerText=cdd<=0?'Unlocked':Math.floor(cdd/60000)+':'+String(Math.floor((cdd%60000)/1000)).padStart(2,'0')
-}
-
-function updateOrderBtns(o){
-    const ct=$('order-buttons');ct.innerHTML='';
-    if(o.otp_code){ct.innerHTML='<button class="btn btn-primary" id="complete-order-btn">Complete Order</button><button class="btn btn-soft" id="close-order-btn">Close</button><button class="btn btn-info" id="copy-otp-btn">Copy OTP</button>';
-    $('complete-order-btn').onclick=async()=>{try{await fetch('/api/orders/'+o.id+'/complete',{method:'POST',credentials:'include'});toast('Order completed','success');closeOrderModal();refreshUser()}catch(e){toast(e.message,'error')}};
-    $('close-order-btn').onclick=closeOrderModal;$('copy-otp-btn').onclick=()=>copyText(o.otp_code);return}
-    if(o.order_status!=='active'&&o.order_status!=='otp_received'){ct.innerHTML='<button class="btn btn-soft" id="close-order-btn">Close</button>';$('close-order-btn').onclick=closeOrderModal;return}
-    const can=new Date()>=new Date(o.cancel_available_at);
-    ct.innerHTML='<button class="btn btn-warning" id="replace-order-btn">Replace Number</button><button class="btn btn-danger" id="cancel-order-btn" '+(can?'':'disabled')+'>'+(can?'Cancel & Refund':'Cancel Locked')+'</button><button class="btn btn-soft" id="close-order-btn">Close</button>';
-    $('replace-order-btn').onclick=async()=>{if(!confirm('Replace number?'))return;try{const r=await fetch('/api/orders/'+o.id+'/replace',{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());const rd=await r.json();toast('Replaced!','success');openOrderModal(o.id,rd.number);refreshUser()}catch(e){toast(e.message,'error')}};
-    if(can){$('cancel-order-btn').onclick=async()=>{if(!confirm('Cancel and refund?'))return;try{const r=await fetch('/api/orders/'+o.id+'/cancel',{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Cancelled','success');closeOrderModal();refreshUser()}catch(e){toast(e.message,'error')}}}
-    $('close-order-btn').onclick=closeOrderModal
-}
-
-async function pollOtp(id,silent=false){
-    try{const data=await fetchJSON('/api/orders/'+id+'/otp');
-    if(data.received){const order=await fetchJSON('/api/orders/'+id);activeOrder=order;updateOrderVis(order);stopIntervals();playDing();toast('OTP received!','success');refreshUser();return true}
-    if(data.expired){const order=await fetchJSON('/api/orders/'+id);activeOrder=order;updateOrderVis(order);stopIntervals();toast('Order expired','error');refreshUser();return true}
-    return false}catch(e){if(!silent)toast('OTP check failed','error');return false}
-}
-
-// FIX: openOrderModal now accepts optional immediateNumber to show number right away
-async function openOrderModal(id,immediateNumber){
-    try{
-        // First set the number immediately if we have it
-        if(immediateNumber){$('order-number').innerText=immediateNumber}
-        $('order-modal').style.display='flex';
-        $('order-status-pill').innerText='ACTIVE';
-        $('order-number-box').style.display='block';
-
-        const order=await fetchJSON('/api/orders/'+id);
-        activeOrder=order;
-        updateOrderVis(order);
-        stopIntervals();
-        otpInterval=setInterval(async()=>{if(activeOrder)await pollOtp(activeOrder.id,true)},5000);
-        timerInterval=setInterval(async()=>{if(!activeOrder)return;try{const u=await fetchJSON('/api/orders/'+activeOrder.id);activeOrder=u;updateOrderVis(u);if(new Date()>=new Date(u.expires_at)&&!u.otp_received&&u.order_status==='active'){await fetch('/api/orders/'+u.id+'/expire',{method:'POST',credentials:'include'});const ref=await fetchJSON('/api/orders/'+u.id);activeOrder=ref;updateOrderVis(ref);refreshUser()}if(u.otp_code||u.order_status==='cancelled'||u.order_status==='completed')stopIntervals()}catch(e){}},1000)
-    }catch(e){toast('Could not load order','error')}
-}
-
-function closeOrderModal(){$('order-modal').style.display='none';stopIntervals();activeOrder=null}
-
-async function login(){
-    const btn=$('login-btn'),orig=btn.innerHTML;btn.innerHTML='Signing in...';btn.disabled=true;
-    try{const email=$('login-email').value.trim().toLowerCase(),password=$('login-password').value;
-    if(!email||!password)throw new Error('Email and password required');
-    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password}),credentials:'include'});
-    if(!r.ok)throw new Error(await r.text());await checkAuth();toast('Logged in!','success');$('login-email').value='';$('login-password').value=''}
-    catch(e){toast(e.message,'error')}finally{btn.innerHTML=orig;btn.disabled=false}
-}
-
-async function register(){
-    const btn=$('register-btn'),orig=btn.innerHTML;btn.innerHTML='Creating...';btn.disabled=true;
-    try{const name=$('reg-name').value.trim(),email=$('reg-email').value.trim().toLowerCase(),password=$('reg-password').value;
-    if(!name)throw new Error('Name required');if(!email)throw new Error('Email required');if(!password||password.length<6)throw new Error('Password min 6 chars');
-    const r=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password}),credentials:'include'});
-    if(!r.ok)throw new Error(await r.text());toast('Account created! Please login.','success');showLoginForm();$('reg-name').value='';$('reg-email').value='';$('reg-password').value=''}
-    catch(e){toast(e.message,'error')}finally{btn.innerHTML=orig;btn.disabled=false}
-}
-
-async function forgotPassword(){
-    const btn=$('forgot-submit-btn'),orig=btn.innerHTML;btn.innerHTML='Sending...';btn.disabled=true;
-    try{const email=$('forgot-email').value.trim().toLowerCase();if(!email)throw new Error('Email required');
-    const r=await fetch('/api/forgot-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email}),credentials:'include'});
-    if(!r.ok)throw new Error(await r.text());toast('Reset link sent','info');$('forgot-email').value='';backToLogin()}
-    catch(e){toast(e.message,'error')}finally{btn.innerHTML=orig;btn.disabled=false}
-}
-
-async function changePassword(){
-    const btn=$('save-password-btn'),orig=btn.innerHTML;btn.innerHTML='Saving...';btn.disabled=true;
-    try{const cur=$('current-password').value,nu=$('new-password').value;
-    if(!cur||!nu)throw new Error('Both passwords required');if(nu.length<6)throw new Error('New password min 6 chars');
-    const r=await fetch('/api/change-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:cur,newPassword:nu}),credentials:'include'});
-    if(!r.ok)throw new Error(await r.text());toast('Password changed!','success');$('password-modal').style.display='none';$('current-password').value='';$('new-password').value=''}
-    catch(e){toast(e.message,'error')}finally{btn.innerHTML=orig;btn.disabled=false}
-}
-
-async function logout(){await fetch('/api/logout',{method:'GET',credentials:'include'});currentUser=null;$('user-info').classList.add('hidden');$('login-prompt').classList.remove('hidden');$('admin-panel').style.display='none';if(adminRefresh)clearInterval(adminRefresh);adminRefresh=null;stopIntervals();toast('Logged out','success')}
-
-async function refreshUser(){
-    if(!currentUser)return;
-    try{
-        const user=await fetchJSON('/api/me');currentUser=user;
-        $('user-balance').innerText=user.balance;$('account-name').innerText=user.name||'-';$('account-email').innerText=user.email;$('account-referral').innerText=user.referralCode||'-';
-        const orders=await fetchJSON('/api/orders');
-        const active=orders.filter(o=>o.order_status==='active'||o.order_status==='otp_received');
-        const ct=$('active-orders-list');
-        if(!active.length){ct.innerHTML='<div class="sub-text">No active orders.</div>'}
-        else{ct.innerHTML=active.map(o=>'<div class="order-item"><div class="order-top"><div class="order-country">'+o.service_type.toUpperCase()+' '+o.country+'</div><div class="order-status-pill">'+(o.otp_code?'OTP Ready':'Waiting')+'</div></div><div class="order-number-small">'+(o.phone_number||'Loading...')+'</div><div class="order-actions"><button class="mini-btn view-order-btn" data-id="'+o.id+'">View Details</button>'+(o.phone_number?'<button class="mini-btn copy-order-btn" data-number="'+o.phone_number+'">Copy Number</button>':'')+'</div></div>').join('');
-        document.querySelectorAll('.view-order-btn').forEach(b=>{b.onclick=()=>openOrderModal(b.dataset.id)});
-        document.querySelectorAll('.copy-order-btn').forEach(b=>{b.onclick=()=>copyText(b.dataset.number)})}
-        if(user.role==='admin'){$('admin-panel').style.display='block';await loadAdminData();if(!adminRefresh)adminRefresh=setInterval(()=>{if(currentUser&&currentUser.role==='admin')loadAdminData()},10000)}
-        else{$('admin-panel').style.display='none';if(adminRefresh)clearInterval(adminRefresh);adminRefresh=null}
-    }catch(e){toast('Failed to refresh','error')}
-}
-
-async function checkAuth(){try{const user=await fetchJSON('/api/me');currentUser=user;$('login-prompt').classList.add('hidden');$('user-info').classList.remove('hidden');await refreshUser()}catch{currentUser=null;$('login-prompt').classList.remove('hidden');$('user-info').classList.add('hidden')}}
-
-async function loadAdminData(){
-    try{
-        const stats=await fetchJSON('/api/admin/stats'),orders=await fetchJSON('/api/admin/orders'),transactions=await fetchJSON('/api/admin/transactions'),resets=await fetchJSON('/api/admin/resets');
-        $('admin-stats-grid').innerHTML='<div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">'+stats.todayRevenue+' PKR</div></div><div class="stat-card"><div class="sl">Today Orders</div><div class="sv">'+stats.todayOrders+'</div></div><div class="stat-card"><div class="sl">Total Users</div><div class="sv">'+stats.totalUsers+'</div></div><div class="stat-card"><div class="sl">Active Orders</div><div class="sv">'+stats.activeOrders+'</div></div><div class="stat-card"><div class="sl">Success Rate</div><div class="sv">'+stats.todaySuccessRate+'%</div></div><div class="stat-card"><div class="sl">SMSBower Cost</div><div class="sv">'+stats.totalCost+' PKR</div></div><div class="stat-card"><div class="sl">Total Revenue</div><div class="sv">'+stats.totalRevenue+' PKR</div></div><div class="stat-card"><div class="sl">Total Profit</div><div class="sv">'+stats.totalProfit+' PKR</div></div>';
-        $('admin-orders-list').innerHTML=orders.length?orders.map(o=>'<div class="admin-card"><strong>'+o.user_email+'</strong><div class="admin-meta">'+o.service_type.toUpperCase()+' '+o.country+' \u2022 '+o.price+' PKR<br>Cost: '+(o.provider_cost_usd*280).toFixed(0)+' PKR, Profit: '+(o.price-(o.provider_cost_usd*280)).toFixed(0)+' PKR<br>Number: '+(o.phone_number||'N/A')+'</div></div>').join(''):'<div class="sub-text">No orders yet.</div>';
-        const badge=$('payment-badge');
-        if(transactions.length){badge.classList.remove('hidden');badge.innerText=transactions.length;if(transactions.length>lastPending)toast(transactions.length+' pending payment(s)','success',6000)}else{badge.classList.add('hidden')}
-        lastPending=transactions.length;
-        $('admin-tx-list').innerHTML=transactions.length?transactions.map(t=>'<div class="admin-card"><strong>'+t.user_email+'</strong><div class="admin-meta">Amount: '+t.amount+' PKR</div><div class="admin-actions"><a href="/uploads/'+t.screenshot+'" target="_blank" class="mini-btn">View Screenshot</a><button class="mini-btn approve-btn" data-id="'+t.id+'">Approve</button><button class="mini-btn reject-btn" data-id="'+t.id+'">Reject</button></div></div>').join(''):'<div class="sub-text">No pending payments.</div>';
-        document.querySelectorAll('.approve-btn').forEach(b=>{b.onclick=async()=>{try{const r=await fetch('/api/admin/transactions/'+b.dataset.id+'/approve',{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Approved','success');await loadAdminData();if(currentUser)refreshUser()}catch(e){toast(e.message,'error')}}});
-        document.querySelectorAll('.reject-btn').forEach(b=>{b.onclick=async()=>{try{const r=await fetch('/api/admin/transactions/'+b.dataset.id+'/reject',{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Rejected','success');await loadAdminData()}catch(e){toast(e.message,'error')}}});
-        $('admin-resets-list').innerHTML=resets.length?resets.map(r=>'<div class="admin-card"><strong>'+r.email+'</strong><div class="admin-meta">Expires: '+new Date(r.reset_token_expires).toLocaleString()+'</div></div>').join(''):'<div class="sub-text">No pending resets.</div>'
-    }catch(e){toast('Admin data load failed','error')}
-}
-
-function showLoginForm(){$('show-login-tab').classList.add('active');$('show-register-tab').classList.remove('active');$('login-form-wrap').classList.remove('hidden');$('register-form-wrap').classList.add('hidden');$('forgot-form-wrap').classList.add('hidden')}
-function showRegisterForm(){$('show-register-tab').classList.add('active');$('show-login-tab').classList.remove('active');$('register-form-wrap').classList.remove('hidden');$('login-form-wrap').classList.add('hidden');$('forgot-form-wrap').classList.add('hidden')}
-function showForgotForm(){$('login-form-wrap').classList.add('hidden');$('register-form-wrap').classList.add('hidden');$('forgot-form-wrap').classList.remove('hidden')}
-function backToLogin(){showLoginForm()}
-
- $('show-login-tab').addEventListener('click',showLoginForm);
- $('show-register-tab').addEventListener('click',showRegisterForm);
- $('login-btn').addEventListener('click',login);
- $('register-btn').addEventListener('click',register);
- $('google-login-btn').addEventListener('click',()=>window.location.href='/api/auth/google');
- $('forgot-btn').addEventListener('click',showForgotForm);
- $('back-to-login').addEventListener('click',backToLogin);
- $('forgot-submit-btn').addEventListener('click',forgotPassword);
- $('open-password-modal').addEventListener('click',()=>$('password-modal').style.display='flex');
- $('close-password-modal').addEventListener('click',()=>$('password-modal').style.display='none');
- $('save-password-btn').addEventListener('click',changePassword);
- $('account-toggle-btn').addEventListener('click',()=>{const c=$('account-details-content');if(c.classList.contains('hidden')){c.classList.remove('hidden');$('account-toggle-btn').innerText='\u2212'}else{c.classList.add('hidden');$('account-toggle-btn').innerText='+'}});
- $('logout-btn').addEventListener('click',logout);
- $('add-money-btn').addEventListener('click',()=>$('payment-modal').style.display='flex');
- $('close-payment-modal').addEventListener('click',()=>$('payment-modal').style.display='none');
- $('close-order-modal').addEventListener('click',closeOrderModal);
- $('check-otp-manual').addEventListener('click',async()=>{if(activeOrder)await pollOtp(activeOrder.id,false)});
- $('copy-number-btn').addEventListener('click',()=>{const n=$('order-number').innerText;if(n&&n!=='Loading...'&&n!=='Processing...')copyText(n)});
- $('contact-btn').addEventListener('click',()=>toast('Support loading...','info'));
- $('addFundsForm').addEventListener('submit',async e=>{e.preventDefault();const btn=$('submit-payment-btn'),orig=btn.innerHTML;btn.innerHTML='Submitting...';btn.disabled=true;
-try{const fd=new FormData(e.target),r=await fetch('/api/add-funds',{method:'POST',body:fd,credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Payment submitted','success');$('payment-modal').style.display='none';e.target.reset()}catch(e){toast(e.message,'error')}finally{btn.innerHTML=orig;btn.disabled=false}});
-
- $('theme-toggle').addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('mrf-theme',document.body.classList.contains('light')?'light':'dark')});
-if(localStorage.getItem('mrf-theme')==='light')document.body.classList.add('light');
-
-document.querySelectorAll('.nav-item[data-service]').forEach(item=>{if(item.id==='contact-btn')return;
-item.addEventListener('click',()=>{document.querySelectorAll('.nav-item[data-service]').forEach(i=>i.classList.remove('active'));item.classList.add('active');currentService=item.dataset.service;const m=SVC_META[currentService];$('hero-title').innerText='Available '+m.label+' Numbers';$('hero-svc').innerText=m.label;allCountries=[];$('country-list').innerHTML='';$('country-search').value='';currentFilter='all';document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));document.querySelector('.chip[data-filter="all"]').classList.add('active');loadCountries();sidebar.classList.remove('open')})});
-
-document.querySelectorAll('.chip').forEach(chip=>{chip.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');currentFilter=chip.dataset.filter;renderCountries()})});
- $('country-search').addEventListener('input',renderCountries);
-
-window.addEventListener('click',e=>{if(e.target===$('payment-modal'))$('payment-modal').style.display='none';if(e.target===$('order-modal'))closeOrderModal();if(e.target===$('processing-modal'))$('processing-modal').style.display='none';if(e.target===$('password-modal'))$('password-modal').style.display='none'});
-
-loadCountries();checkAuth();
-</script>
-</body>
-</html>
+    ct.innerHTML=list
