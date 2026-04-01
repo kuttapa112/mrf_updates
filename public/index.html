@@ -1,254 +1,442 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
-<title>MRF SMS – Premium OTP Portal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#07111f;--bg2:#0b1728;--panel:rgba(13,25,45,.88);--panel2:rgba(17,34,59,.95);--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.08);--border:rgba(255,255,255,.10);--text:#e7edf7;--muted:#90a0ba;--primary:#31d968;--primary2:#1fc857;--danger:#ef4444;--warning:#f59e0b;--info:#38bdf8;--shadow:0 20px 60px rgba(0,0,0,.32)}
-body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
-body{min-height:100vh;font-family:'Inter',sans-serif;color:var(--text);background:linear-gradient(140deg,var(--bg),var(--bg2));overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
-.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
-.blob-1{width:400px;height:400px;background:rgba(34,197,94,.15);top:-100px;left:-100px;animation:bf 25s ease-in-out infinite}
-.blob-2{width:350px;height:350px;background:rgba(56,189,248,.12);bottom:-80px;right:-80px;animation:bf 20s ease-in-out infinite reverse}
-.blob-3{width:250px;height:250px;background:rgba(168,85,247,.08);top:50%;left:50%;animation:bf 30s ease-in-out infinite 5s}
-@keyframes bf{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-30px,50px) scale(.9)}75%{transform:translate(40px,20px) scale(1.05)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
-@keyframes confFall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
-.app-shell{position:relative;z-index:1;padding:18px}
-.dashboard{display:grid;grid-template-columns:250px 1fr 330px;gap:14px;min-height:calc(100vh - 36px)}
-.glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:24px}
-.sidebar{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-.brand{display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.14),rgba(56,189,248,.10));border:1px solid rgba(255,255,255,.12)}
-.brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:800;background:linear-gradient(135deg,#31d968,#1fc857);color:#04210f;box-shadow:0 8px 20px rgba(34,197,94,.28);flex-shrink:0}
-.brand h1{font-size:15px;font-weight:800;line-height:1.1}.brand p{margin-top:2px;color:var(--muted);font-size:10px}
-.nav-card{padding:10px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.nav-label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding:0 6px}
-.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--text);cursor:pointer;transition:.25s;font-size:12.5px;font-weight:600}
-.nav-item:hover{background:var(--card2);border-color:var(--border);transform:translateY(-1px)}
-.nav-item.active{background:linear-gradient(135deg,rgba(74,222,128,.20),rgba(56,189,248,.18));border-color:rgba(74,222,128,.22)}
-.nav-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;overflow:hidden}
-.nav-icon svg{width:20px;height:20px}
-.main{padding:14px;overflow:hidden}
-.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;padding:16px;border-radius:22px;background:radial-gradient(circle at top right,rgba(74,222,128,.18),transparent 28%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--border)}
-.hero h2{font-size:24px;font-weight:800;letter-spacing:-.03em;margin-bottom:5px}
-.hero p{color:var(--muted);line-height:1.5;max-width:680px;font-size:12px}
-.hero-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.hero-badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:11px;font-weight:600}
-.hero-stats{min-width:180px;display:grid;gap:8px}
-.mini-stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
-.mini-stat .label{color:var(--muted);font-size:10px;margin-bottom:4px}.mini-stat .value{font-size:18px;font-weight:800}
-.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.search-wrap{display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.search-wrap input{flex:1;border:none;outline:none;background:transparent;color:var(--text);font-size:12px}
-.search-wrap input::placeholder{color:var(--muted)}
-.chip{padding:8px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-weight:600;font-size:11px;cursor:pointer;transition:.2s}
-.chip:hover,.chip.active{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.14)}
-.section-title{margin-bottom:10px}.section-title h3{font-size:16px;font-weight:800}
-.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.country-card{padding:14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border);transition:.25s;box-shadow:0 10px 30px rgba(0,0,0,.14)}
-.country-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.22)}
-.country-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.country-flag{width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--border)}
-.status-pill{padding:5px 7px;border-radius:999px;background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.18);color:#99f6b4;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.country-name{font-size:15px;font-weight:700;margin-bottom:3px}
-.country-code{color:var(--muted);font-size:11px;margin-bottom:12px}
-.country-price{font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.04em}
-.btn{border:none;outline:none;cursor:pointer;transition:.22s;font-weight:700;font-family:inherit}
-.btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
-.btn-primary{width:100%;padding:11px 14px;border-radius:14px;color:#04210f;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 8px 18px rgba(34,197,94,.26)}
-.btn-soft{padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text)}
-.btn-danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff}
-.btn-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1f1300}
-.btn-info{background:linear-gradient(135deg,#67e8f9,#38bdf8);color:#062132}
-.btn-google{width:100%;padding:11px 14px;border-radius:14px;background:#fff;color:#111827;border:1px solid #d1d5db}
-.right-panel{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.right-panel::-webkit-scrollbar{width:3px}.right-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-.panel-block{padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.top-auth-card{padding:14px;border-radius:20px;background:radial-gradient(circle at top left,rgba(74,222,128,.18),transparent 25%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.top-auth-card h3{font-size:16px;font-weight:800;margin-bottom:4px}.top-auth-card p{color:var(--muted);line-height:1.4;font-size:12px}
-.auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin:12px 0}
-.auth-tab{padding:9px;border-radius:10px;border:none;background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:12px}
-.auth-tab.active{background:rgba(74,222,128,.16);color:#bcf7d2}
-.auth-form{display:flex;flex-direction:column;gap:8px}
-.input-wrap{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.input-wrap input{flex:1;border:none;background:transparent;outline:none;color:var(--text);font-size:12px}
-.input-wrap input::placeholder{color:var(--muted)}
-.sub-text{margin-top:2px;font-size:10px;color:var(--muted);line-height:1.3}
-.forgot-link{color:var(--info);font-size:11px;font-weight:600;cursor:pointer;text-align:center;padding:4px 0;display:block}
-.forgot-link:hover{text-decoration:underline}
-.balance-card{padding:16px;border-radius:20px;background:radial-gradient(circle at top right,rgba(74,222,128,.20),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.balance-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
-.balance-top .label{color:var(--muted);font-size:11px;margin-bottom:4px}
-.balance-amount{font-size:30px;font-weight:800;letter-spacing:-.05em;color:var(--primary);line-height:1}
-.balance-chip{padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--border);font-size:10px;font-weight:700}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
-.orders-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.order-item{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
-.order-country{font-size:13px;font-weight:700}
-.ospill{padding:5px 7px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
-.order-number-small{font-size:11px;color:var(--muted);margin-bottom:6px;word-break:break-all}
-.order-actions{display:flex;gap:5px;flex-wrap:wrap}
-.mini-btn{padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:10px;font-weight:700}
-.admin-panel{display:none;margin-top:14px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
-.admin-panel h3{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:16px;font-weight:800}
-.badge{min-width:18px;height:18px;border-radius:999px;display:inline-grid;place-items:center;padding:0 5px;background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff;font-size:9px;font-weight:800}
-.admin-grid{display:grid;gap:12px}
-.admin-section{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
-.admin-section h4{font-size:13px;margin-bottom:8px;font-weight:700}
-.admin-card{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:6px;font-size:12px}
-.admin-meta{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}
-.admin-actions{display:flex;gap:5px;flex-wrap:wrap}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
-.stat-card .sv{font-size:20px;font-weight:800;margin-top:4px}
-.stat-card .sl{color:var(--muted);font-size:10px}
-.account-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.account-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.account-heading h3{font-size:15px}.account-heading p{font-size:11px;color:var(--muted)}
-.account-toggle-btn{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:20px;font-weight:800;cursor:pointer;line-height:1;flex-shrink:0}
-.account-toggle-btn:hover{background:rgba(255,255,255,.09)}
-.account-content{margin-top:10px}
-.account-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
-.account-row:last-child{border-bottom:none}
-.account-label{color:var(--muted);font-size:11px}
-.account-value{font-weight:700;text-align:right;word-break:break-all;font-size:12px}
-.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(4px);z-index:3000;padding:14px;justify-content:center;align-items:center}
-.modal-content{width:min(640px,100%);max-height:88vh;overflow:auto;border-radius:22px;background:var(--panel2);border:1px solid var(--border);box-shadow:var(--shadow);padding:16px}
-.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
-.modal-header h3{font-size:20px;font-weight:800}
-.modal-header p{color:var(--muted);margin-top:3px;font-size:12px}
-.close-x{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:15px;cursor:pointer}
-.processing-wrap{text-align:center;padding:20px 8px}
-.ring{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;border:4px solid rgba(255,255,255,.08);border-top-color:var(--primary);animation:spin .9s linear infinite}
-.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}
-.payment-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.payment-box strong{display:block;margin-bottom:4px;font-size:12px}
-.payment-box p{color:var(--muted);font-size:11px;line-height:1.4}
-.deposit-form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.file-input{padding:10px;border:1px dashed var(--border);border-radius:14px;background:rgba(255,255,255,.04)}
-.order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
-.order-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.pill{padding:7px 9px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:10px;font-weight:700}
-.pill.green{background:#22c55e!important;border-color:#16a34a!important;color:#fff!important}
-.order-number-box{padding:14px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.10),rgba(56,189,248,.08));border:1px solid rgba(255,255,255,.12);margin-bottom:10px}
-.number-line{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.number-display{font-size:22px;font-weight:800;letter-spacing:-.03em;word-break:break-all}
-.otp-state{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
-.otp-wait{display:flex;align-items:center;gap:10px}
-.small-ring{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:var(--info);animation:spin .8s linear infinite;flex-shrink:0}
-.otp-code{display:none;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(74,222,128,.16),rgba(56,189,248,.12));border:1px solid rgba(74,222,128,.24);margin-bottom:10px}
-.otp-code .label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
-.otp-code .value{font-size:28px;font-weight:800;letter-spacing:.2em}
-.timeline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.timeline-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.timeline-box .t-label{color:var(--muted);font-size:10px;margin-bottom:4px}
-.timeline-box .t-value{font-size:18px;font-weight:800}
-.button-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
-.button-group .btn{padding:10px 12px;border-radius:14px;font-size:12px}
-.wide-btn{width:100%;margin-top:8px;padding:10px 14px;border-radius:14px}
-.toast-wrap{position:fixed;right:14px;bottom:14px;z-index:5000;display:flex;flex-direction:column;gap:6px}
-.toast{min-width:240px;max-width:340px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);backdrop-filter:blur(16px);color:#fff;animation:slideUp .25s}
-.toast.success{background:rgba(34,197,94,.95)}.toast.error{background:rgba(239,68,68,.95)}.toast.info{background:rgba(56,189,248,.95)}
-.topbar-mobile{display:none;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.topbar-brand{font-size:16px;font-weight:800}
-.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:transparent;z-index:2000}
-.theme-toggle{position:fixed;right:14px;top:14px;z-index:2500;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer;font-weight:700;font-size:11px}
-.hidden{display:none!important}
-.confetti-piece{position:fixed;width:8px;height:8px;z-index:9999;pointer-events:none;border-radius:2px;animation:confFall var(--dur) ease-in forwards}
-@media(max-width:1100px){.dashboard{grid-template-columns:220px 1fr}.right-panel{grid-column:1/-1;position:static;max-height:none;order:1}.main{order:2}}
-@media(max-width:860px){.dashboard{grid-template-columns:1fr}.sidebar{position:fixed;left:14px;top:14px;bottom:14px;width:min(280px,calc(100vw - 28px));transform:translateX(-120%);transition:.25s;z-index:2200;max-height:none}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.topbar-mobile{display:flex}.theme-toggle{top:auto;bottom:14px}.hero{flex-direction:column}.hero-stats{width:100%;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.payment-grid,.timeline,.button-group,.action-row{grid-template-columns:1fr}.right-panel{order:1}.main{order:2}}
-@media(max-width:600px){.app-shell{padding:10px}.dashboard{gap:8px}.main,.right-panel,.sidebar{padding:10px}.hero{padding:12px}.hero h2{font-size:20px}.country-grid{grid-template-columns:1fr}.modal{padding:8px}.modal-content{padding:12px}.number-display{font-size:18px}.otp-code .value{font-size:24px}.toast-wrap{right:8px;left:8px;bottom:8px}.toast{min-width:auto;max-width:none}}
-</style>
-</head>
-<body>
-<button class="theme-toggle" id="theme-toggle">🌗</button>
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
-<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
-<div class="app-shell">
-<div class="topbar-mobile"><button class="icon-btn" id="hamburger">☰</button><div class="topbar-brand">MRF SMS</div></div>
-<div class="dashboard">
-<aside class="sidebar glass" id="sidebar">
-<div class="brand"><div class="brand-mark">M</div><div><h1>MRF SMS</h1><p>Premium OTP Portal</p></div></div>
-<div class="nav-card">
-<div class="nav-label">Services</div>
-<button class="nav-item active" data-service="whatsapp"><span class="nav-icon" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span><span>WhatsApp</span></button>
-<button class="nav-item" data-service="facebook"><span class="nav-icon" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span><span>Facebook</span></button>
-<button class="nav-item" data-service="instagram"><span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span><span>Instagram</span></button>
-<button class="nav-item" data-service="snapchat"><span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.206.793c.99 0 4.347.276 5.93 3.821.529 1.193.403 3.219.299 4.847l-.003.06c-.012.18-.022.345-.03.51.075.045.203.09.401.09.3-.016.659-.12.922-.214.12-.042.239-.075.34-.096.237-.05.426-.037.553.04.23.143.338.45.322.915-.03.87-.87 1.762-1.647 2.08-.067.028-.15.063-.243.101-.276.114-.66.273-.758.405-.046.062-.068.18-.04.394.075.544.51 1.083 1.056 1.76.336.418.718.892 1.108 1.452.406.58.733 1.212.971 1.877.216.602.29 1.078.22 1.413-.06.288-.22.498-.473.627-.17.086-.363.13-.575.13-.168 0-.352-.028-.543-.083l-.075-.022c-.32-.093-.677-.196-.97-.196-.15 0-.276.02-.376.058-.387.144-.55.536-.738.983-.057.133-.116.27-.18.403-.236.48-.527.93-.864 1.337-.3.364-.63.652-.98.858a2.7 2.7 0 01-1.398.41c-.46 0-.912-.12-1.343-.355a5.3 5.3 0 01-.66-.426 4.63 4.63 0 00-.48-.312 1.68 1.68 0 00-.78-.196c-.28 0-.552.068-.806.203a4.1 4.1 0 00-.446.276c-.24.162-.477.33-.742.457a2.87 2.87 0 01-1.262.3c-.522 0-.998-.156-1.414-.462-.348-.255-.644-.602-.878-1.03-.17-.31-.312-.63-.438-.917-.052-.12-.102-.236-.152-.345-.178-.383-.34-.664-.638-.76a1.2 1.2 0 00-.392-.063c-.29 0-.628.088-.95.174l-.086.023c-.194.053-.38.08-.552.08-.36 0-.58-.128-.663-.38-.13-.398-.02-1.04.327-1.916.234-.58.563-1.14.978-1.667.34-.426.695-.81 1.056-1.143.405-.374.72-.756.936-1.135.177-.312.213-.51.1-.672-.086-.122-.3-.234-.632-.332-.14-.042-.284-.078-.428-.113-.31-.078-.632-.16-.892-.268-.236-.098-.418-.222-.54-.37-.12-.145-.178-.314-.17-.502.017-.348.232-.656.638-.917.157-.1.34-.182.526-.252.072-.026.145-.05.218-.072.258-.082.52-.166.73-.29.2-.118.324-.26.37-.427.042-.153.012-.35-.094-.617-.16-.404-.46-.904-.892-1.487C6.63 3.96 4.856 3.547 2.9 3.547c-.48 0-.95.033-1.392.098C1.06 3.693.75 3.7.5 3.7c-.16 0-.28-.015-.355-.044C.02 3.6 0 3.485 0 3.372c0-.164.066-.338.196-.52C.457 2.45 1.18 2.1 2.11 1.9c.69-.142 1.472-.215 2.323-.215.36 0 .728.013 1.093.038.532.036 1.09.054 1.66.054.613 0 1.14-.024 1.567-.07.634-.068 1.16-.175 1.61-.323.355-.116.72-.278 1.085-.44.356-.158.724-.322 1.098-.46C12.03.833 12.12.793 12.206.793z"/></svg></span><span>Snapchat</span></button>
-<button class="nav-item" data-service="google"><span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg></span><span>Google / Gmail</span></button>
-<button class="nav-item" data-service="tiktok"><span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 0010.86-4.48V6.27a8.16 8.16 0 005.58 2.17V4.98a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/></svg></span><span>TikTok</span></button>
-<button class="nav-item" id="contact-btn"><span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:16px">💬</span></span><span>Contact Support</span></button>
-</div>
-</aside>
-<main class="main glass">
-<section class="hero"><div><h2 id="hero-title">Available WhatsApp Numbers</h2><p>Lowest-price providers try honge. Please wait patiently.</p><div class="hero-badges"><div class="hero-badge">Auto OTP</div><div class="hero-badge">Manual Check</div><div class="hero-badge">1 Min Lock</div><div class="hero-badge">MRF SMS</div></div></div><div class="hero-stats"><div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div><div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div></div></section>
-<section class="toolbar"><div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div><div style="display:flex;gap:6px;flex-wrap:wrap"><button class="chip active" data-filter="all">All</button><button class="chip" data-filter="cheap">Budget</button><button class="chip" data-filter="premium">Premium</button></div></section>
-<section><div class="section-title"><h3>Number Catalog</h3></div><div class="country-grid" id="country-list"></div></section>
-<section id="admin-panel" class="admin-panel"><h3>Admin Panel <span id="payment-badge" class="badge hidden">0</span></h3><div class="stat-grid" id="admin-stats-grid"></div><div class="admin-grid"><div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div><div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div><div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div></div></section>
-</main>
-<aside class="right-panel glass">
-<div id="login-prompt">
-<div class="top-auth-card"><h3>Login / Sign Up</h3><p>Premium OTP service.</p></div>
-<div class="auth-switch"><button class="auth-tab active" id="show-login-tab">Login</button><button class="auth-tab" id="show-register-tab">Sign Up</button></div>
-<div class="panel-block" id="login-form-wrap"><div class="auth-form"><div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email address"></div><div class="input-wrap"><span>🔐</span><input type="password" id="login-password" placeholder="Password"></div><button class="btn btn-primary" id="login-btn">Login to Dashboard</button><button class="btn btn-google" id="google-login-btn">🔐 Continue with Google</button><div class="forgot-link" id="forgot-btn">Forgot Password?</div></div></div>
-<div class="panel-block hidden" id="register-form-wrap"><div class="auth-form"><div class="input-wrap"><span>👤</span><input type="text" id="reg-name" placeholder="Full name"></div><div class="input-wrap"><span>📧</span><input type="email" id="reg-email" placeholder="Email"></div><div class="input-wrap"><span>🔒</span><input type="password" id="reg-password" placeholder="Password (min 6)"></div><button class="btn btn-primary" id="register-btn">Create Account</button></div></div>
-<div class="panel-block hidden" id="forgot-form-wrap"><div class="auth-form"><h3 style="font-size:15px;margin-bottom:6px">Reset Password</h3><div class="input-wrap"><span>📧</span><input type="email" id="forgot-email" placeholder="Your email address"></div><button class="btn btn-primary" id="forgot-submit-btn">Send Reset Link</button><div class="forgot-link" id="back-to-login">Back to Login</div></div></div>
-</div>
-<div id="user-info" class="hidden">
-<div class="balance-card"><div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div><div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div></div>
-<div class="account-card"><div class="account-header"><div class="account-heading"><h3>Account</h3><p>Your profile</p></div><button class="account-toggle-btn" id="account-toggle-btn">+</button></div><div class="account-content hidden" id="account-details-content"><div class="account-row"><div class="account-label">Name</div><div class="account-value" id="account-name">-</div></div><div class="account-row"><div class="account-label">Email</div><div class="account-value" id="account-email">-</div></div><div class="account-row"><div class="account-label">Password</div><div class="account-value">********</div></div><div class="account-row"><div class="account-label">Referral</div><div class="account-value" id="account-referral">-</div></div><button class="btn btn-soft wide-btn" id="open-password-modal">Change Password</button></div></div>
-<div class="panel-block"><div class="section-title"><h3 style="font-size:15px">Active Orders</h3></div><div class="orders-list" id="active-orders-list"></div></div>
-</div>
-</aside>
-</div>
-</div>
+const express = require('express');
+const session = require('express-session');
+const multer = require('multer');
+const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const { Pool } = require('pg');
+const pgSession = require('connect-pg-simple')(session);
 
-<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px">Searching Number...</h3><p style="color:var(--muted);font-size:12px">This can take up to 60 seconds. Please DO NOT close this window.</p></div></div></div>
-<div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password (min 6)"></div><button class="btn btn-primary" id="save-password-btn">Save Password</button></div></div></div>
-<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div><div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa only</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div><form id="addFundsForm" class="deposit-form" enctype="multipart/form-data"><div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div><div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div><button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit Payment</button></form></div></div>
-<div id="order-modal" class="modal"><div class="modal-content">
-<div class="modal-header"><div><h3>Order Details</h3><p>Auto OTP checking active.</p></div><button class="close-x" id="close-order-modal">✕</button></div>
-<div class="order-head"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Order</div><div style="font-size:17px;font-weight:800;margin-top:5px" id="order-country-title">...</div><div class="order-badges"><span class="pill green" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div><div class="pill" id="order-created-pill">Live</div></div>
-<div class="order-number-box"><div class="number-line"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em">Number</div><div class="number-display" id="order-number">Loading...</div></div><button class="btn btn-soft" id="copy-number-btn">Copy</button></div>
-<div class="timeline"><div class="timeline-box"><div class="t-label">Expiry</div><div class="t-value" id="order-timer">25:00</div></div><div class="timeline-box"><div class="t-label">Cancel Unlock</div><div class="t-value" id="order-cancel-timer">01:00</div></div></div>
-<div class="otp-state" id="order-waiting"><div class="otp-wait"><div class="small-ring"></div><div><div style="font-weight:700;font-size:13px">Waiting for OTP...</div><div style="color:var(--muted);font-size:12px">Auto-check every 5s.</div></div></div></div>
-<div class="otp-code" id="order-otp"><div class="label">Received OTP</div><div class="value" id="otp-value">------</div></div>
-<button class="btn btn-info wide-btn" id="check-otp-manual">Check OTP Now</button>
-<div class="button-group" id="order-buttons"></div>
-</div></div>
-<div class="toast-wrap" id="toast-wrap"></div>
-<script>
-function $(id){return document.getElementById(id)}
-function toast(msg,type,dur){type=type||'info';dur=dur||4000;var w=$('toast-wrap'),el=document.createElement('div');el.className='toast '+type;el.textContent=msg;w.appendChild(el);setTimeout(function(){el.remove()},dur)}
-function fetchJSON(url,opts){opts=opts||{};return fetch(url,Object.assign({},opts,{credentials:'include'})).then(function(r){if(!r.ok)return r.text().then(function(t){throw new Error(t)});return r.json()})}
-function copyText(t){navigator.clipboard.writeText(t).then(function(){toast('Copied!','success')}).catch(function(){toast('Copy failed','error')})}
-function playDing(){try{var a=new AudioContext(),o=a.createOscillator(),g=a.createGain();o.connect(g);g.connect(a.destination);o.type='sine';o.frequency.setValueAtTime(880,a.currentTime);o.frequency.exponentialRampToValueAtTime(1320,a.currentTime+.08);o.frequency.exponentialRampToValueAtTime(880,a.currentTime+.25);g.gain.setValueAtTime(.25,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.4);o.start();o.stop(a.currentTime+.4)}catch(e){}}
-function showConfetti(){var c=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa'];for(var i=0;i<50;i++){var d=document.createElement('div');d.className='confetti-piece';d.style.left=Math.random()*100+'vw';d.style.background=c[Math.floor(Math.random()*c.length)];d.style.setProperty('--dur',(1.5+Math.random()*2)+'s');d.style.width=(6+Math.random()*8)+'px';d.style.height=(6+Math.random()*8)+'px';d.style.borderRadius=Math.random()>.5?'50%':'2px';document.body.appendChild(d);setTimeout(function(){d.remove()},4000)}}
+const app = express();
+const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const IS_PROD = NODE_ENV === 'production';
+const UPLOAD_DIR = process.env.UPLOAD_DIR || '/app/uploads';
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const upload = multer({ dest: UPLOAD_DIR });
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) { console.error('DATABASE_URL is required'); process.exit(1); }
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET || SESSION_SECRET.length < 32) { console.error('SESSION_SECRET missing'); process.exit(1); }
+const SMSBOWER_API_KEY = process.env.SMSBOWER_API_KEY || 'CHANGE_THIS';
+const SMSBOWER_URL = 'https://smsbower.page/stubs/handler_api.php';
+const SVC_WA = 'wa', SVC_FB = 'fb', SVC_IG = 'ig', SVC_SC = 'sc', SVC_GO = 'go', SVC_TK = 'tk';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin';
+const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
+const pool = new Pool({ connectionString: DATABASE_URL, ssl: IS_PROD ? { rejectUnauthorized: false } : false });
 
-var currentUser=null,activeOrder=null,otpInterval=null,timerInterval=null,adminRefresh=null,lastPending=0,allCountries=[],currentFilter='all',currentService='whatsapp';
-var SVC_META={whatsapp:{label:'WhatsApp',api:'/api/countries'},facebook:{label:'Facebook',api:'/api/facebook/countries'},instagram:{label:'Instagram',api:'/api/instagram/countries'},snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},google:{label:'Google / Gmail',api:'/api/google/countries'},tiktok:{label:'TikTok',api:'/api/tiktok/countries'}};
+app.set('trust proxy', 1);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static('public'));
+app.use(session({
+    store: new pgSession({ pool, tableName: 'user_sessions', createTableIfMissing: true }),
+    name: 'mrf.sid', secret: SESSION_SECRET, proxy: true, resave: false,
+    saveUninitialized: false, rolling: true, unset: 'destroy',
+    cookie: { secure: 'auto', httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 24 * 7 }
+}));
 
-var sidebar=$('sidebar'),overlay=$('sidebar-overlay');
- $('hamburger').addEventListener('click',function(){sidebar.classList.add('open')});
-overlay.addEventListener('click',function(){sidebar.classList.remove('open')});
+const rateStore = {};
+function rateLimit(req, res, next) {
+    const ip = req.ip; const now = Date.now();
+    if (!rateStore[ip]) rateStore[ip] = [];
+    rateStore[ip] = rateStore[ip].filter(t => now - t < 60000);
+    if (rateStore[ip].length >= 30) return res.status(429).send('Too many requests');
+    rateStore[ip].push(now); next();
+}
 
-function renderCountries(){
-    var list=allCountries.slice();
-    var s=$('country-search').value.trim().toLowerCase();
-    if(s)list=list.filter(function(c){return c.name.toLowerCase().indexOf(s)>=0});
-    if(currentFilter==='cheap')list=list.filter(function(c){return c.price<=250});
-    else if(currentFilter==='premium')list=list.filter(function(c){return c.price>=300});
-    var ct=$('country-list');
-    if(!list.length){ct.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px"><h3>No country found</h3></div>';return}
-    ct.innerHTML=list
+function normUser(r) { if (!r) return null; return { ...r, balance: Number(r.balance || 0), referralCode: r.referral_code, is_active: r.is_active, login_attempts: r.login_attempts }; }
+function normOrder(r) { if (!r) return null; return { ...r, price: Number(r.price || 0), provider_cost_usd: Number(r.provider_cost_usd || 0), otp_received: r.otp_received }; }
+async function q1(s, p) { p = p || []; const r = await pool.query(s, p); return r.rows[0] || null; }
+async function qA(s, p) { p = p || []; const r = await pool.query(s, p); return r.rows; }
+async function qR(s, p) { p = p || []; return pool.query(s, p); }
+function isHashed(p) { return typeof p === 'string' && /^\$2[aby]\$\d{2}\$/.test(p); }
+async function hashP(p) { return bcrypt.hash(p, BCRYPT_ROUNDS); }
+async function verifyP(i, s) { if (!s || typeof s !== 'string') return { valid: false, needsUpgrade: false }; if (isHashed(s)) return { valid: await bcrypt.compare(i, s), needsUpgrade: false }; return { valid: i === s, needsUpgrade: true }; }
+function sEmail(e) { return String(e || '').trim().toLowerCase(); }
+function vEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function vPass(p) { return typeof p === 'string' && p.length >= 6; }
+function randP() { return crypto.randomBytes(24).toString('hex'); }
+function ensureG() { return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_CALLBACK_URL; }
+function waitMs(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+function pkrUsd(p) { return parseFloat((p / 280).toFixed(3)); }
+function safeErr(e, f) { f = f || 'Server error'; if (!e) return f; if (typeof e.message === 'string' && e.message.trim()) return e.message; return f; }
+
+// ===== SIMPLE NUMBER BUYER — sirf getNumber V1 use karta hai =====
+async function buyNumber(cid, maxUsd, sc) {
+    // Attempt 1: with maxPrice
+    for (var i = 0; i < 3; i++) {
+        var mp = (maxUsd * (1 + i * 0.15)).toFixed(3);
+        try {
+            var url = SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getNumber&service=' + sc + '&country=' + cid + '&maxPrice=' + mp;
+            console.log('[BUY] Attempt ' + (i+1) + ': ' + url);
+            var r = await axios.get(url, { timeout: 60000 });
+            var raw = typeof r.data === 'string' ? r.data : JSON.stringify(r.data);
+            console.log('[BUY] Response: ' + raw);
+            var parsed = parseResponse(r.data);
+            if (parsed.ok) return parsed;
+            console.log('[BUY] Failed: ' + parsed.error);
+        } catch(e) {
+            console.log('[BUY] Error: ' + e.message);
+        }
+        if (i < 2) await waitMs(5000);
+    }
+    // Attempt 4: without maxPrice
+    try {
+        var url2 = SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getNumber&service=' + sc + '&country=' + cid;
+        console.log('[BUY] Attempt 4 (no maxPrice): ' + url2);
+        var r2 = await axios.get(url2, { timeout: 60000 });
+        var raw2 = typeof r2.data === 'string' ? r2.data : JSON.stringify(r2.data);
+        console.log('[BUY] Response: ' + raw2);
+        var parsed2 = parseResponse(r2.data);
+        if (parsed2.ok) return parsed2;
+    } catch(e) {
+        console.log('[BUY] Attempt 4 error: ' + e.message);
+    }
+    return { ok: false, error: 'No number found' };
+}
+
+function parseResponse(data) {
+    var text = '';
+    if (typeof data === 'string') {
+        text = data.trim();
+    } else if (data && typeof data === 'object') {
+        // JSON object — try common fields
+        var phone = data.phoneNumber || data.phone_number || data.phone || data.number || data.tel || data.mobile || null;
+        var aid = data.activationId || data.activation_id || data.id || null;
+        if (phone) {
+            var p = String(phone).trim().replace(/[\s\-\(\)\.]/g, '');
+            if (!p.startsWith('+')) p = '+' + p;
+            if (p.length >= 10) {
+                console.log('[PARSE] JSON phone: ' + p + ' id: ' + aid);
+                return { ok: true, phone: p, id: aid ? String(aid) : null };
+            }
+        }
+        // Try nested
+        var keys = ['data', 'response', 'result', 'body'];
+        for (var k = 0; k < keys.length; k++) {
+            if (data[keys[k]]) {
+                var nested = parseResponse(data[keys[k]]);
+                if (nested.ok) return nested;
+            }
+        }
+        text = JSON.stringify(data);
+    } else {
+        text = String(data);
+    }
+
+    if (!text) return { ok: false, error: 'Empty' };
+    if (text.indexOf('NO_NUMBERS') >= 0 || text.indexOf('BAD_SERVICE') >= 0 || text.indexOf('BAD_KEY') >= 0 || text.indexOf('ERROR') >= 0 || text.indexOf('NO_BALANCE') >= 0) {
+        return { ok: false, error: text.substring(0, 50) };
+    }
+
+    // ACCESS_NUMBER:id:phone
+    if (text.indexOf('ACCESS_NUMBER:') === 0) {
+        var parts = text.split(':');
+        if (parts.length >= 3) {
+            var aId = parts[1].trim();
+            var aPhone = parts.slice(2).join(':').trim();
+            if (aPhone.length >= 7) {
+                if (!aPhone.startsWith('+')) aPhone = '+' + aPhone;
+                console.log('[PARSE] V1 success: id=' + aId + ' phone=' + aPhone);
+                return { ok: true, phone: aPhone, id: aId };
+            }
+        }
+    }
+
+    // Maybe raw phone number in string
+    var digits = text.replace(/[^0-9]/g, '');
+    if (digits.length >= 10 && digits.length <= 15) {
+        console.log('[PARSE] Raw digits: +' + digits);
+        return { ok: true, phone: '+' + digits, id: null };
+    }
+
+    console.log('[PARSE] Unknown: ' + text.substring(0, 100));
+    return { ok: false, error: text.substring(0, 80) };
+}
+
+async function checkSms(aid) {
+    try {
+        var r = await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getStatus&id=' + aid, { timeout: 60000 });
+        var t = String(r.data || '').trim();
+        if (t.indexOf('STATUS_OK:') === 0) return { ok: true, code: t.split(':')[1] };
+        if (t === 'STATUS_WAIT_CODE') return { ok: true, waiting: true };
+        return { ok: false, raw: t };
+    } catch (e) { return { ok: false, error: e.message }; }
+}
+
+function ensureAuth(req, res, next) { if (!req.session.userId) return res.status(401).send('Login required'); next(); }
+async function ensureAdmin(req, res, next) {
+    try { if (!req.session.userId) return res.status(401).send('Login required'); var u = await findUserById(req.session.userId); if (!u || u.role !== 'admin') return res.status(403).send('Admin only'); req.user = u; next(); }
+    catch (e) { res.status(500).send('Server error'); }
+}
+
+app.get('/', function(req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/reset-password', function(req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/api/countries', function(req, res) { res.json(countries); });
+app.get('/api/facebook/countries', function(req, res) { res.json(facebookCountries); });
+app.get('/api/instagram/countries', function(req, res) { res.json(instagramCountries); });
+app.get('/api/snapchat/countries', function(req, res) { res.json(snapchatCountries); });
+app.get('/api/google/countries', function(req, res) { res.json(googleCountries); });
+app.get('/api/tiktok/countries', function(req, res) { res.json(tiktokCountries); });
+
+app.post('/api/forgot-password', async function(req, res) {
+    try { var email = req.body.email; if (!vEmail(email)) return res.status(400).send('Valid email required'); var u = await findUser(email); if (!u) return res.json({ sent: false }); var token = crypto.randomBytes(32).toString('hex'); var exp = new Date(Date.now() + 3600000).toISOString(); await qR('UPDATE users SET reset_token=$1,reset_token_expires=$2 WHERE id=$3', [token, exp, u.id]); res.json({ sent: true, link: (req.get('origin') || '') + '/reset-password?token=' + token }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/reset-password', async function(req, res) {
+    try { var token = req.body.token, np = req.body.newPassword; if (!token || !vPass(np)) return res.status(400).send('Invalid'); var u = await q1('SELECT * FROM users WHERE reset_token=$1 AND reset_token_expires>NOW()', [token]); if (!u) return res.status(400).send('Invalid or expired link'); await updatePass(u.id, np); await qR('UPDATE users SET reset_token=NULL,reset_token_expires=NULL WHERE id=$1', [u.id]); res.json({ success: true }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/auth/google', function(req, res) { res.redirect('/auth/google'); });
+app.get('/auth/google', async function(req, res) {
+    if (!ensureG()) return res.status(500).send('Google not configured');
+    var state = crypto.randomBytes(16).toString('hex'); req.session.google_oauth_state = state;
+    res.redirect('https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, redirect_uri: GOOGLE_CALLBACK_URL, response_type: 'code', scope: 'openid email profile', state: state, access_type: 'online', prompt: 'select_account' }).toString());
+});
+app.get('/auth/google/callback', async function(req, res) {
+    try {
+        if (!ensureG()) return res.status(500).send('Google not configured');
+        var code = req.query.code, state = req.query.state, error = req.query.error;
+        if (error) return res.redirect('/?google_error=denied');
+        if (!code || !state || state !== req.session.google_oauth_state) return res.redirect('/?google_error=state');
+        delete req.session.google_oauth_state;
+        var tr = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET, code: code, grant_type: 'authorization_code', redirect_uri: GOOGLE_CALLBACK_URL }).toString(), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 60000 });
+        var at = tr.data.access_token; if (!at) return res.redirect('/?google_error=token');
+        var pr = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + at }, timeout: 60000 });
+        var pf = pr.data; if (!pf || !pf.email) return res.redirect('/?google_error=email');
+        var u = await findUser(pf.email); if (!u) { await createUser(pf.name || pf.email.split('@')[0], pf.email, randP()); u = await findUser(pf.email); }
+        if (!u || !u.is_active) return res.redirect('/?google_error=blocked');
+        await updateLastLogin(u.id); await updateLoginAttempts(u.id, 0);
+        req.session.regenerate(function(e) { if (e) return res.redirect('/?google_error=session'); req.session.userId = u.id; req.session.save(function(s) { if (s) return res.redirect('/?google_error=save'); res.redirect('/'); }); });
+    } catch (e) { res.redirect('/?google_error=oauth'); }
+});
+app.post('/api/register', async function(req, res) {
+    try { var n = String(req.body.name || '').trim(), e = sEmail(req.body.email), p = req.body.password; if (!n) return res.status(400).send('Name required'); if (!vEmail(e)) return res.status(400).send('Valid email required'); if (!vPass(p)) return res.status(400).send('Password min 6 chars'); if (await findUser(e)) return res.status(400).send('Email exists'); await createUser(n, e, p); res.json({ success: true }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/login', async function(req, res) {
+    try {
+        var e = sEmail(req.body.email), p = req.body.password;
+        if (!vEmail(e)) return res.status(400).send('Valid email required');
+        if (typeof p !== 'string' || !p) return res.status(400).send('Password required');
+        var u = await findUser(e); if (!u) return res.status(401).send('Invalid credentials');
+        if (!u.is_active) return res.status(401).send('Account blocked');
+        var pc = await verifyP(p, u.password);
+        if (!pc.valid) { var na = Number(u.login_attempts || 0) + 1; await updateLoginAttempts(u.id, na); if (na >= 5) await qR('UPDATE users SET is_active=FALSE WHERE id=$1', [u.id]); return res.status(401).send('Invalid credentials'); }
+        if (pc.needsUpgrade) await updatePassHash(u.id, await hashP(p));
+        await updateLoginAttempts(u.id, 0); await updateLastLogin(u.id);
+        req.session.regenerate(function(e) { if (e) return res.status(500).send('Login failed'); req.session.userId = u.id; req.session.save(function(s) { if (s) return res.status(500).send('Login failed'); res.json({ success: true }); }); });
+    } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/change-password', ensureAuth, async function(req, res) {
+    try { var cur = req.body.currentPassword, np = req.body.newPassword; if (!cur) return res.status(400).send('Current password required'); if (!vPass(np)) return res.status(400).send('Min 6 chars'); var u = await findUserById(req.session.userId); if (!u) return res.status(404).send('Not found'); if (!(await verifyP(cur, u.password)).valid) return res.status(400).send('Wrong password'); await updatePass(u.id, np); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/me', ensureAuth, async function(req, res) {
+    try { var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); res.json({ id: u.id, name: u.name, email: u.email, balance: u.balance, role: u.role, referralCode: u.referral_code, maskedPassword: '********' }); } catch (e) { res.status(500).send('Server error'); }
+});
+app.get('/api/logout', function(req, res) { req.session.destroy(function() { res.clearCookie('mrf.sid'); res.send('OK'); }); });
+
+// ===== MAIN ORDER ENDPOINT =====
+app.post('/api/order', ensureAuth, rateLimit, async function(req, res) {
+    var client = await pool.connect();
+    try {
+        var countryName = req.body.countryName, price = req.body.price, countryId = req.body.countryId, service = req.body.service;
+        var cfg = svcConfig[service];
+        if (!cfg) { await client.release(); return res.status(400).send('Invalid service'); }
+        var co = cfg.countries.find(function(c) { return c.name === countryName && Number(c.countryId) === Number(countryId); });
+        if (!co) { await client.release(); return res.status(400).send('Invalid country'); }
+
+        await client.query('BEGIN');
+        var ur = (await client.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [req.session.userId])).rows[0];
+        if (!ur) { await client.query('ROLLBACK'); client.release(); return res.status(401).send('Not found'); }
+        if (Number(ur.balance) < Number(price)) { await client.query('ROLLBACK'); client.release(); return res.status(400).send('Insufficient balance'); }
+
+        console.log('[ORDER] Buying ' + cfg.code + '/' + countryId + ' maxUsd=' + pkrUsd(price));
+        var result = await buyNumber(countryId, pkrUsd(price), cfg.code);
+        console.log('[ORDER] Result: ' + JSON.stringify(result));
+
+        if (!result.ok || !result.phone || result.phone.length < 8) {
+            await client.query('ROLLBACK'); client.release();
+            return res.status(500).send('No number available. Try again in 30 seconds.');
+        }
+
+        var now = new Date();
+        var phoneToSave = result.phone;
+        await client.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(ur.balance) - Number(price), ur.id]);
+        var ins = (await client.query(
+            'INSERT INTO orders(user_id,user_email,service_type,service_name,country,country_code,country_id,price,provider_cost_usd,payment_method,order_status,phone_number,activation_id,expires_at,cancel_available_at,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id',
+            [ur.id, ur.email, service, cfg.name, countryName, co.code, co.countryId, price, 0, 'balance', 'active', phoneToSave, result.id || null, new Date(now.getTime() + 25*60000).toISOString(), new Date(now.getTime() + 60000).toISOString(), now.toISOString()]
+        )).rows[0];
+        await client.query('COMMIT');
+        client.release();
+        console.log('[ORDER] SUCCESS id=' + ins.id + ' phone=' + phoneToSave);
+        res.json({ id: ins.id, number: phoneToSave });
+    } catch (e) {
+        await client.query('ROLLBACK'); client.release();
+        console.error('[ORDER] ERROR:', e);
+        res.status(500).send(safeErr(e, 'Order failed'));
+    }
+});
+
+app.get('/api/orders/:id', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); if (o.user_id !== u.id && u.role !== 'admin') return res.status(403).send('Unauthorized'); res.json(o); } catch (e) { res.status(500).send('Server error'); }
+});
+app.get('/api/orders', ensureAuth, async function(req, res) { try { res.json(await getUserOrders(req.session.userId)); } catch (e) { res.status(500).send('Server error'); } });
+
+app.post('/api/orders/:id/replace', ensureAuth, async function(req, res) {
+    try {
+        var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found');
+        var u = await findUserById(req.session.userId); if (!u || o.user_id !== u.id) return res.status(403).send('Unauthorized');
+        if (o.order_status !== 'active') return res.status(400).send('Cannot replace');
+        if (o.otp_received) return res.status(400).send('OTP received');
+        try { await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {}
+        var cfg = svcConfig[o.service_type]; var sc = cfg ? cfg.code : SVC_WA;
+        var r = await buyNumber(o.country_id, pkrUsd(o.price), sc);
+        if (!r.ok || !r.phone) return res.status(500).send('No replacement available');
+        var now = new Date();
+        await updateOrder(o.id, { phone_number: r.phone, activation_id: r.id || null, otp_received: false, otp_code: null, order_status: 'active', created_at: now.toISOString(), expires_at: new Date(now.getTime() + 25*60000).toISOString(), cancel_available_at: new Date(now.getTime() + 60000).toISOString() });
+        res.json({ number: r.phone });
+    } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.post('/api/orders/:id/cancel', ensureAuth, async function(req, res) {
+    var c = await pool.connect(); try {
+        var oid = Number(req.params.id); await c.query('BEGIN');
+        var o = (await c.query('SELECT * FROM orders WHERE id=$1 FOR UPDATE', [oid])).rows[0]; if (!o) { await c.query('ROLLBACK'); c.release(); return res.status(404).send('Not found'); }
+        var u = (await c.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [req.session.userId])).rows[0]; if (!u || o.user_id !== u.id) { await c.query('ROLLBACK'); c.release(); return res.status(403).send('Unauthorized'); }
+        if (o.order_status !== 'active') { await c.query('ROLLBACK'); c.release(); return res.status(400).send('Cannot cancel'); }
+        if (o.otp_received) { await c.query('ROLLBACK'); c.release(); return res.status(400).send('OTP received'); }
+        if (new Date() < new Date(o.cancel_available_at)) { await c.query('ROLLBACK'); c.release(); return res.status(400).send('Wait for cancel unlock'); }
+        try { await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {}
+        await c.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(u.balance || 0) + Number(o.price || 0), u.id]);
+        await c.query('UPDATE orders SET order_status=$1 WHERE id=$2', ['cancelled', oid]); await c.query('COMMIT'); c.release(); res.send('OK');
+    } catch (e) { await c.query('ROLLBACK'); c.release(); res.status(500).send(safeErr(e)); }
+});
+
+app.post('/api/orders/:id/complete', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); var u = await findUserById(req.session.userId); if (!u || o.user_id !== u.id) return res.status(403).send('Unauthorized'); if (!o.otp_received) return res.status(400).send('No OTP'); try { await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=6', { timeout: 30000 }); } catch (e) {} await updateOrder(o.id, { order_status: 'completed', completed_at: new Date().toISOString() }); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.post('/api/orders/:id/expire', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); if (o.user_id !== u.id && u.role !== 'admin') return res.status(403).send('Unauthorized'); if (o.order_status === 'active' && !o.otp_received) { try { await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {} await updateOrder(o.id, { order_status: 'cancelled' }); } res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.get('/api/orders/:id/otp', ensureAuth, async function(req, res) {
+    try {
+        var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found');
+        var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found');
+        if (o.user_id !== u.id && u.role !== 'admin') return res.status(403).send('Unauthorized');
+        if (o.otp_received) return res.json({ received: true, code: o.otp_code });
+        if (!o.activation_id) return res.json({ received: false, error: 'No activation ID' });
+        if (new Date() >= new Date(o.expires_at) && !o.otp_received && o.order_status === 'active') {
+            try { await axios.get(SMSBOWER_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {}
+            await updateOrder(o.id, { order_status: 'cancelled' }); return res.json({ received: false, expired: true });
+        }
+        var sr = await checkSms(o.activation_id);
+        if (sr.ok && sr.code) { await updateOrder(o.id, { otp_received: true, otp_code: sr.code, order_status: 'otp_received' }); return res.json({ received: true, code: sr.code }); }
+        if (sr.ok && sr.waiting) return res.json({ received: false, waiting: true });
+        return res.json({ received: false, error: true });
+    } catch (e) { res.status(500).json({ received: false, error: true }); }
+});
+
+app.get('/api/admin/stats', ensureAdmin, async function(req, res) {
+    try {
+        var today = await q1("SELECT COALESCE(SUM(price),0) as rev, COUNT(*) as cnt FROM orders WHERE created_at>=CURRENT_DATE");
+        var users = await q1("SELECT COUNT(*) as cnt FROM users");
+        var active = await q1("SELECT COUNT(*) as cnt FROM orders WHERE order_status='active'");
+        var success = await q1("SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE otp_received=true) as ok FROM orders WHERE created_at>=CURRENT_DATE");
+        var totalRevenue = await q1("SELECT COALESCE(SUM(price),0) as rev FROM orders");
+        var totalProfit = await q1("SELECT COALESCE(SUM(price),0) as profit FROM orders WHERE otp_received=true");
+        res.json({ todayRevenue: Number(today.rev||0), todayOrders: Number(today.cnt||0), totalUsers: Number(users.cnt||0), activeOrders: Number(active.cnt||0), todaySuccessRate: Number(success.total||0) > 0 ? Math.round(Number(success.ok||0)/Number(success.total||0)*100) : 0, totalRevenue: Number(totalRevenue.rev||0), totalCost: 0, totalProfit: Number(totalProfit.profit||0) });
+    } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/admin/orders', ensureAdmin, async function(req, res) { try { res.json(await getAllOrders()); } catch (e) { res.status(500).send('Server error'); } });
+app.get('/api/admin/transactions', ensureAdmin, async function(req, res) { try { res.json(await getPendingTx()); } catch (e) { res.status(500).send('Server error'); } });
+app.post('/api/admin/transactions/:id/approve', ensureAdmin, async function(req, res) { try { await approveTx(Number(req.params.id)); res.send('OK'); } catch (e) { res.status(404).send(safeErr(e)); } });
+app.post('/api/admin/transactions/:id/reject', ensureAdmin, async function(req, res) { try { await rejectTx(Number(req.params.id)); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
+app.get('/api/admin/resets', ensureAdmin, async function(req, res) { try { res.json(await qA("SELECT id,email,reset_token,reset_token_expires FROM users WHERE reset_token IS NOT NULL AND reset_token_expires>NOW() ORDER BY reset_token_expires DESC")); } catch (e) { res.status(500).send('Server error'); } });
+
+app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async function(req, res) {
+    try { var a = parseFloat(req.body.amount); if (!a || a < 150) return res.status(400).send('Min 150 PKR'); var s = req.file ? req.file.filename : null; if (!s) return res.status(400).send('Screenshot required'); var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); await qR('INSERT INTO transactions(user_id,user_email,amount,screenshot) VALUES($1,$2,$3,$4)', [req.session.userId, u.email, a, s]); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.use('/uploads', express.static(UPLOAD_DIR));
+
+var countries = [
+    { name: 'South Africa', code: '+27', price: 170, countryId: 31, flag: '🇿🇦' },
+    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
+    { name: 'Canada', code: '+1', price: 210, countryId: 36, flag: '🇨🇦' },
+    { name: 'Philippines', code: '+63', price: 210, countryId: 4, flag: '🇵🇭' },
+    { name: 'Thailand', code: '+66', price: 300, countryId: 52, flag: '🇹🇭' },
+    { name: 'Vietnam', code: '+84', price: 210, countryId: 10, flag: '🇻🇳' },
+    { name: 'Colombia', code: '+57', price: 270, countryId: 33, flag: '🇨🇴' },
+    { name: 'Saudi Arabia', code: '+966', price: 320, countryId: 53, flag: '🇸🇦' },
+    { name: 'Brazil', code: '+55', price: 370, countryId: 73, flag: '🇧🇷' },
+    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '🇺🇸' },
+    { name: 'United Kingdom', code: '+44', price: 450, countryId: 16, flag: '🇬🇧' }
+];
+var facebookCountries = [
+    { name: 'Canada', code: '+1', price: 70, countryId: 36, flag: '🇨🇦' },
+    { name: 'USA', code: '+1', price: 80, countryId: 187, flag: '🇺🇸' },
+    { name: 'USA Virtual', code: '+1', price: 70, countryId: 12, flag: '🇺🇸' }
+];
+var instagramCountries = [
+    { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' },
+    { name: 'Indonesia', code: '+62', price: 30, countryId: 6, flag: '🇮🇩' },
+    { name: 'United Kingdom', code: '+44', price: 40, countryId: 16, flag: '🇬🇧' },
+    { name: 'Brazil', code: '+55', price: 30, countryId: 73, flag: '🇧🇷' }
+];
+var snapchatCountries = [
+    { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' },
+    { name: 'Colombia', code: '+57', price: 30, countryId: 33, flag: '🇨🇴' },
+    { name: 'USA Virtual', code: '+1', price: 20, countryId: 12, flag: '🇺🇸' }
+];
+var googleCountries = [{ name: 'Indonesia', code: '+62', price: 90, countryId: 6, flag: '🇮🇩' }];
+var tiktokCountries = [
+    { name: 'United Kingdom', code: '+44', price: 70, countryId: 16, flag: '🇬🇧' },
+    { name: 'Indonesia', code: '+62', price: 40, countryId: 6, flag: '🇮🇩' },
+    { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' }
+];
+var svcConfig = {
+    whatsapp: { code: SVC_WA, countries: countries, label: 'WhatsApp', name: 'WhatsApp Number' },
+    facebook: { code: SVC_FB, countries: facebookCountries, label: 'Facebook', name: 'Facebook Number' },
+    instagram: { code: SVC_IG, countries: instagramCountries, label: 'Instagram', name: 'Instagram Number' },
+    snapchat: { code: SVC_SC, countries: snapchatCountries, label: 'Snapchat', name: 'Snapchat Number' },
+    google: { code: SVC_GO, countries: googleCountries, label: 'Google', name: 'Google Number' },
+    tiktok: { code: SVC_TK, countries: tiktokCountries, label: 'TikTok', name: 'TikTok Number' }
+};
+
+async function initDB() {
+    await qR('CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,name TEXT,balance NUMERIC(12,2) DEFAULT 0,role TEXT DEFAULT \'user\',referral_code TEXT,is_active BOOLEAN DEFAULT TRUE,login_attempts INTEGER DEFAULT 0,last_login TIMESTAMPTZ,reset_token TEXT,reset_token_expires TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)');
+    await qR('CREATE TABLE IF NOT EXISTS orders(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,user_email TEXT,service_type TEXT,service_name TEXT,country TEXT,country_code TEXT,country_id INTEGER,price NUMERIC(12,2),provider_cost_usd NUMERIC(12,4) DEFAULT 0,payment_method TEXT,payment_status TEXT DEFAULT \'pending\',order_status TEXT DEFAULT \'pending\',phone_number TEXT,activation_id TEXT,otp_received BOOLEAN DEFAULT FALSE,otp_code TEXT,expires_at TIMESTAMPTZ,cancel_available_at TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,completed_at TIMESTAMPTZ)');
+    await qR('CREATE TABLE IF NOT EXISTS transactions(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,user_email TEXT,amount NUMERIC(12,2),screenshot TEXT,status TEXT DEFAULT \'pending\',created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)');
+    try { await qR('ALTER TABLE orders ADD COLUMN IF NOT EXISTS provider_cost_usd NUMERIC(12,4) DEFAULT 0'); } catch (e) {}
+    try { await qR('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT'); } catch (e) {}
+    try { await qR('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ'); } catch (e) {}
+    if (ADMIN_EMAIL && ADMIN_PASSWORD) {
+        var ae = sEmail(ADMIN_EMAIL); var ex = normUser(await q1('SELECT * FROM users WHERE email=$1', [ae]));
+        if (!ex) { await qR('INSERT INTO users(email,password,name,role,referral_code) VALUES($1,$2,$3,$4,$5)', [ae, await hashP(ADMIN_PASSWORD), ADMIN_NAME, 'admin', 'ADMIN']); }
+        else if (ex.role !== 'admin') { await qR('UPDATE users SET role=$1 WHERE id=$2', ['admin', ex.id]); }
+    }
+}
+async function findUser(e) { return normUser(await q1('SELECT * FROM users WHERE email=$1', [sEmail(e)])); }
+async function findUserById(id) { return normUser(await q1('SELECT * FROM users WHERE id=$1', [id])); }
+async function createUser(n, e, p) { var rc = Math.random().toString(36).substring(2, 10).toUpperCase(); return qR('INSERT INTO users(email,password,name,referral_code) VALUES($1,$2,$3,$4)', [sEmail(e), await hashP(p), String(n || '').trim(), rc]); }
+async function updatePass(uid, np) { return qR('UPDATE users SET password=$1 WHERE id=$2', [await hashP(np), uid]); }
+async function updatePassHash(uid, h) { return qR('UPDATE users SET password=$1 WHERE id=$2', [h, uid]); }
+async function getPendingTx() { return (await qA('SELECT * FROM transactions WHERE status=$1 ORDER BY id DESC', ['pending'])).map(function(r) { return Object.assign({}, r, { amount: Number(r.amount || 0) }); }); }
+async function approveTx(tid) { var c = await pool.connect(); try { await c.query('BEGIN'); var tx = (await c.query('SELECT * FROM transactions WHERE id=$1 FOR UPDATE', [tid])).rows[0]; if (!tx) throw new Error('Not found'); var u = (await c.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [tx.user_id])).rows[0]; if (!u) throw new Error('User not found'); await c.query('UPDATE transactions SET status=$1 WHERE id=$2', ['approved', tid]); await c.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(u.balance || 0) + Number(tx.amount || 0), tx.user_id]); await c.query('COMMIT'); } catch (e) { await c.query('ROLLBACK'); throw e; } finally { c.release(); } }
+async function rejectTx(tid) { await qR('UPDATE transactions SET status=$1 WHERE id=$2', ['rejected', tid]); }
+async function getUserOrders(uid) { return (await qA('SELECT * FROM orders WHERE user_id=$1 ORDER BY id DESC', [uid])).map(normOrder); }
+async function getOrderById(id) { return normOrder(await q1('SELECT * FROM orders WHERE id=$1', [id])); }
+async function updateOrder(id, u) { var k = Object.keys(u); if (!k.length) return; var f = k.map(function(key, i) { return key + '=$' + (i + 1); }).join(','); var v = k.map(function(key) { return u[key]; }); v.push(id); await qR('UPDATE orders SET ' + f + ' WHERE id=$' + v.length, v); }
+async function getAllOrders() { return (await qA('SELECT * FROM orders ORDER BY id DESC')).map(normOrder); }
+async function updateLoginAttempts(uid, a) { return qR('UPDATE users SET login_attempts=$1 WHERE id=$2', [a, uid]); }
+async function updateLastLogin(uid) { return qR('UPDATE users SET last_login=CURRENT_TIMESTAMP WHERE id=$1', [uid]); }
+
+initDB().then(function() { app.listen(PORT, '0.0.0.0', function() { console.log('Running on port ' + PORT); }); }).catch(function(e) { console.error('DB init failed:', e); process.exit(1); });
