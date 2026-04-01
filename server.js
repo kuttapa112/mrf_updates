@@ -300,7 +300,9 @@ app.post('/api/order', ensureAuth, rateLimit, async (req, res) => {
         const costUsd = result.provider_price || 0;
         await client.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(ur.balance) - Number(price), ur.id]);
         const ins = (await client.query(`INSERT INTO orders(user_id,user_email,service_type,service_name,country,country_code,country_id,price,provider_cost_usd,payment_method,order_status,phone_number,activation_id,expires_at,cancel_available_at,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`, [ur.id, ur.email, service, cfg.name, countryName, co.code, co.countryId, price, costUsd, 'balance', 'active', result.phoneNumber, result.activationId, exp, cancelAt, now.toISOString()])).rows[0];
-        await client.query('COMMIT'); res.json({ id: ins.id, number: result.phoneNumber });
+        await client.query('COMMIT');
+        // Send back the order ID and the phone number
+        res.json({ id: ins.id, number: result.phoneNumber });
     } catch (e) { await client.query('ROLLBACK'); res.status(500).send(safeErr(e, 'Order failed')); } finally { client.release(); }
 });
 
@@ -345,14 +347,24 @@ app.get('/api/orders/:id/otp', ensureAuth, async (req, res) => {
 
 app.get('/api/admin/stats', ensureAdmin, async (req, res) => {
     try {
-        const t = await q1("SELECT COALESCE(SUM(price),0) as rev, COUNT(*) as cnt FROM orders WHERE created_at>=CURRENT_DATE");
-        const u = await q1("SELECT COUNT(*) as cnt FROM users");
-        const a = await q1("SELECT COUNT(*) as cnt FROM orders WHERE order_status='active'");
-        const s = await q1("SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE otp_received=true) as ok FROM orders WHERE created_at>=CURRENT_DATE");
-        const tr = await q1("SELECT COALESCE(SUM(price),0) as rev FROM orders");
-        const tp = await q1("SELECT COALESCE(SUM(price - provider_cost_usd * 280),0) as profit FROM orders WHERE otp_received=true");
-        res.json({ todayRevenue: Number(t.rev || 0), todayOrders: Number(t.cnt || 0), totalUsers: Number(u.cnt || 0), activeOrders: Number(a.cnt || 0), todaySuccessRate: Number(s.total || 0) > 0 ? Math.round(Number(s.ok || 0) / Number(s.total || 0) * 100) : 0, totalRevenue: Number(tr.rev || 0), totalProfit: Number(tp.profit || 0) });
-    } catch { res.status(500).send('Server error'); }
+        const today = await q1("SELECT COALESCE(SUM(price),0) as rev, COUNT(*) as cnt FROM orders WHERE created_at>=CURRENT_DATE");
+        const users = await q1("SELECT COUNT(*) as cnt FROM users");
+        const active = await q1("SELECT COUNT(*) as cnt FROM orders WHERE order_status='active'");
+        const success = await q1("SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE otp_received=true) as ok FROM orders WHERE created_at>=CURRENT_DATE");
+        const totalRevenue = await q1("SELECT COALESCE(SUM(price),0) as rev FROM orders");
+        const totalCost = await q1("SELECT COALESCE(SUM(provider_cost_usd * 280),0) as cost FROM orders WHERE otp_received=true");
+        const totalProfit = await q1("SELECT COALESCE(SUM(price - provider_cost_usd * 280),0) as profit FROM orders WHERE otp_received=true");
+        res.json({
+            todayRevenue: Number(today.rev || 0),
+            todayOrders: Number(today.cnt || 0),
+            totalUsers: Number(users.cnt || 0),
+            activeOrders: Number(active.cnt || 0),
+            todaySuccessRate: Number(success.total || 0) > 0 ? Math.round(Number(success.ok || 0) / Number(success.total || 0) * 100) : 0,
+            totalRevenue: Number(totalRevenue.rev || 0),
+            totalCost: Number(totalCost.cost || 0),
+            totalProfit: Number(totalProfit.profit || 0)
+        });
+    } catch (e) { res.status(500).send(safeErr(e)); }
 });
 
 app.get('/api/admin/orders', ensureAdmin, async (req, res) => { try { res.json(await getAllOrders()); } catch { res.status(500).send('Server error'); } });
@@ -365,11 +377,10 @@ app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, 
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// Audio helper for server-side OTP ding
 function playDing() {
     try {
         const { exec } = require('child_process');
-        exec('echo -e "\\a"'); // simple bell
+        exec('echo -e "\\a"');
     } catch (e) {}
 }
 
