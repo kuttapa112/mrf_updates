@@ -31,6 +31,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin';
 const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
 const pool = new Pool({ connectionString: DATABASE_URL, ssl: IS_PROD ? { rejectUnauthorized: false } : false });
+
 app.set('trust proxy', 1);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -279,7 +280,7 @@ app.post('/api/login', async (req, res) => {
 
 app.post('/api/change-password', ensureAuth, async (req, res) => { try { const { currentPassword, newPassword } = req.body; if (!currentPassword) return res.status(400).send('Current password required'); if (!vPass(newPassword)) return res.status(400).send('Min 6 chars'); const u = await findUserById(req.session.userId); if (!u) return res.status(404).send('Not found'); if (!(await verifyP(currentPassword, u.password)).valid) return res.status(400).send('Wrong password'); await updatePass(u.id, newPassword); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
 
-app.get('/api/me', ensureAuth, async (req, res) => { try { const u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); res.json({ id: u.id, name: u.name, email: u.email, balance: u.balance, role: u.role, referralCode: u.referralCode, maskedPassword: '********' }); } catch { res.status(500).send('Server error'); } });
+app.get('/api/me', ensureAuth, async (req, res) => { try { const u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); res.json({ id: u.id, name: u.name, email: u.email, balance: u.balance, role: u.role, referralCode: u.referral_code, maskedPassword: '********' }); } catch { res.status(500).send('Server error'); } });
 
 app.get('/api/logout', (req, res) => { req.session.destroy(() => { res.clearCookie('mrf.sid'); res.send('OK'); }); });
 
@@ -360,11 +361,16 @@ app.post('/api/admin/transactions/:id/approve', ensureAdmin, async (req, res) =>
 app.post('/api/admin/transactions/:id/reject', ensureAdmin, async (req, res) => { try { await rejectTx(Number(req.params.id)); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
 app.get('/api/admin/resets', ensureAdmin, async (req, res) => { try { res.json(await qA("SELECT id,email,reset_token,reset_token_expires FROM users WHERE reset_token IS NOT NULL AND reset_token_expires>NOW() ORDER BY reset_token_expires DESC")); } catch { res.status(500).send('Server error'); } });
 
-app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, res) => { try { const a = parseFloat(req.body.amount); if (!a || a < 150) return res.status(400).send('Min 150 PKR'); const s = req.file ? req.file.filename : null; if (!s) return res.status(400).send('Screenshot required'); const u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); await qR('INSERT INTO transactions(user_id,user_email,amount,screenshot) VALUES($1,$2,$3,$4)', [req.session.userId, u.email, a, s]); res.send('OK'); } catch (e) { res.status(500).send(safeError(e)); } });
+app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, res) => { try { const a = parseFloat(req.body.amount); if (!a || a < 150) return res.status(400).send('Min 150 PKR'); const s = req.file ? req.file.filename : null; if (!s) return res.status(400).send('Screenshot required'); const u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); await qR('INSERT INTO transactions(user_id,user_email,amount,screenshot) VALUES($1,$2,$3,$4)', [req.session.userId, u.email, a, s]); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 // Audio helper for server-side OTP ding
-function playDing() {}
+function playDing() {
+    try {
+        const { exec } = require('child_process');
+        exec('echo -e "\\a"'); // simple bell
+    } catch (e) {}
+}
 
 initDB().then(() => { app.listen(PORT, '0.0.0.0', () => console.log(`Running on port ${PORT}`)); }).catch(e => { console.error('DB init failed:', e); process.exit(1); });
