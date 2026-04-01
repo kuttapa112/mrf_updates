@@ -1,1091 +1,411 @@
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
-<title>MRF SMS – Premium OTP Portal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#07111f;--bg2:#0b1728;--panel:rgba(13,25,45,.88);--panel2:rgba(17,34,59,.95);--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.08);--border:rgba(255,255,255,.10);--text:#e7edf7;--muted:#90a0ba;--primary:#31d968;--primary2:#1fc857;--danger:#ef4444;--warning:#f59e0b;--info:#38bdf8;--shadow:0 20px 60px rgba(0,0,0,.32)}
-body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
-body{min-height:100vh;font-family:'Inter',sans-serif;color:var(--text);background:linear-gradient(140deg,var(--bg),var(--bg2));overflow-x:hidden}
-body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
-.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
-.blob-1{width:400px;height:400px;background:rgba(34,197,94,.15);top:-100px;left:-100px;animation:bfloat 25s ease-in-out infinite}
-.blob-2{width:350px;height:350px;background:rgba(56,189,248,.12);bottom:-80px;right:-80px;animation:bfloat 20s ease-in-out infinite reverse}
-.blob-3{width:250px;height:250px;background:rgba(168,85,247,.08);top:50%;left:50%;animation:bfloat 30s ease-in-out infinite 5s}
-@keyframes bfloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-30px,50px) scale(.9)}75%{transform:translate(40px,20px) scale(1.05)}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
-@keyframes confettiFall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
-.app-shell{position:relative;z-index:1;padding:18px}
-.dashboard{display:grid;grid-template-columns:250px 1fr 330px;gap:14px;min-height:calc(100vh - 36px)}
-.glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:24px}
-.sidebar{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-.brand{display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.14),rgba(56,189,248,.10));border:1px solid rgba(255,255,255,.12)}
-.brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:800;background:linear-gradient(135deg,#31d968,#1fc857);color:#04210f;box-shadow:0 8px 20px rgba(34,197,94,.28);flex-shrink:0}
-.brand h1{font-size:15px;font-weight:800;line-height:1.1}.brand p{margin-top:2px;color:var(--muted);font-size:10px}
-.nav-card{padding:10px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.nav-label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding:0 6px}
-.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--text);cursor:pointer;transition:.25s;font-size:12.5px;font-weight:600}
-.nav-item:hover{background:var(--card2);border-color:var(--border);transform:translateY(-1px)}
-.nav-item.active{background:linear-gradient(135deg,rgba(74,222,128,.20),rgba(56,189,248,.18));border-color:rgba(74,222,128,.22)}
-.nav-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;overflow:hidden}
-.nav-icon svg{width:20px;height:20px}
-.main{padding:14px;overflow:hidden}
-.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;padding:16px;border-radius:22px;background:radial-gradient(circle at top right,rgba(74,222,128,.18),transparent 28%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--border)}
-.hero h2{font-size:24px;font-weight:800;letter-spacing:-.03em;margin-bottom:5px}
-.hero p{color:var(--muted);line-height:1.5;max-width:680px;font-size:12px}
-.hero-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.hero-badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:11px;font-weight:600}
-.hero-stats{min-width:180px;display:grid;gap:8px}
-.mini-stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
-.mini-stat .label{color:var(--muted);font-size:10px;margin-bottom:4px}.mini-stat .value{font-size:18px;font-weight:800}
-.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.search-wrap{display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.search-wrap input{flex:1;border:none;outline:none;background:transparent;color:var(--text);font-size:12px}
-.search-wrap input::placeholder{color:var(--muted)}
-.chip{padding:8px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-weight:600;font-size:11px;cursor:pointer;transition:.2s}
-.chip:hover,.chip.active{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.14)}
-.section-title{margin-bottom:10px}
-.section-title h3{font-size:16px;font-weight:800}
-.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.country-card{padding:14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border);transition:.25s;box-shadow:0 10px 30px rgba(0,0,0,.14)}
-.country-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.22)}
-.country-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.country-flag{width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--border)}
-.status-pill{padding:5px 7px;border-radius:999px;background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.18);color:#99f6b4;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.country-name{font-size:15px;font-weight:700;margin-bottom:3px}
-.country-code{color:var(--muted);font-size:11px;margin-bottom:12px}
-.country-price{font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.04em}
-.btn{border:none;outline:none;cursor:pointer;transition:.22s;font-weight:700;font-family:inherit}
-.btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
-.btn-primary{width:100%;padding:11px 14px;border-radius:14px;color:#04210f;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 8px 18px rgba(34,197,94,.26)}
-.btn-soft{padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text)}
-.btn-danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff}
-.btn-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1f1300}
-.btn-info{background:linear-gradient(135deg,#67e8f9,#38bdf8);color:#062132}
-.btn-google{width:100%;padding:11px 14px;border-radius:14px;background:#fff;color:#111827;border:1px solid #d1d5db}
-.btn-reject{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff}
-.right-panel{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.right-panel::-webkit-scrollbar{width:3px}.right-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-.panel-block{padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
-.top-auth-card{padding:14px;border-radius:20px;background:radial-gradient(circle at top left,rgba(74,222,128,.18),transparent 25%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.top-auth-card h3{font-size:16px;font-weight:800;margin-bottom:4px}.top-auth-card p{color:var(--muted);line-height:1.4;font-size:12px}
-.auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin:12px 0}
-.auth-tab{padding:9px;border-radius:10px;border:none;background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:12px}
-.auth-tab.active{background:rgba(74,222,128,.16);color:#bcf7d2}
-.auth-form{display:flex;flex-direction:column;gap:8px}
-.input-wrap{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.input-wrap input{flex:1;border:none;background:transparent;outline:none;color:var(--text);font-size:12px}
-.input-wrap input::placeholder{color:var(--muted)}
-.sub-text{margin-top:2px;font-size:10px;color:var(--muted);line-height:1.3}
-.forgot-link{color:var(--info);font-size:11px;font-weight:600;cursor:pointer;text-align:center;padding:4px 0;display:block}
-.forgot-link:hover{text-decoration:underline}
-.balance-card{padding:16px;border-radius:20px;background:radial-gradient(circle at top right,rgba(74,222,128,.20),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.balance-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
-.balance-top .label{color:var(--muted);font-size:11px;margin-bottom:4px}
-.balance-amount{font-size:30px;font-weight:800;letter-spacing:-.05em;color:var(--primary);line-height:1}
-.balance-chip{padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--border);font-size:10px;font-weight:700}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
-.orders-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.order-item{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
-.order-country{font-size:13px;font-weight:700}
-.order-status{padding:5px 7px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
-.order-number-small{font-size:11px;color:var(--muted);margin-bottom:6px;word-break:break-all}
-.order-actions{display:flex;gap:5px;flex-wrap:wrap}
-.mini-btn{padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:10px;font-weight:700}
-.admin-panel{display:none;margin-top:14px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
-.admin-panel h3{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:16px;font-weight:800}
-.badge{min-width:18px;height:18px;border-radius:999px;display:inline-grid;place-items:center;padding:0 5px;background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff;font-size:9px;font-weight:800}
-.admin-grid{display:grid;gap:12px}
-.admin-section{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
-.admin-section h4{font-size:13px;margin-bottom:8px;font-weight:700}
-.admin-card{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:6px;font-size:12px}
-.admin-meta{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}
-.admin-actions{display:flex;gap:5px;flex-wrap:wrap}
-.admin-profit{color:var(--primary);font-weight:800;font-size:12px}
-.admin-cost{color:var(--muted);font-size:10px}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.stat-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
-.stat-card .sv{font-size:20px;font-weight:800;margin-top:4px}
-.stat-card .sl{color:var(--muted);font-size:10px}
-.account-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.account-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.account-heading h3{font-size:15px}.account-heading p{font-size:11px;color:var(--muted)}
-.account-toggle-btn{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:20px;font-weight:800;cursor:pointer;line-height:1;flex-shrink:0}
-.account-toggle-btn:hover{background:rgba(255,255,255,.09)}
-.account-content{margin-top:10px}
-.account-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
-.account-row:last-child{border-bottom:none}
-.account-label{color:var(--muted);font-size:11px}
-.account-value{font-weight:700;text-align:right;word-break:break-all;font-size:12px}
-.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(4px);z-index:3000;padding:14px;justify-content:center;align-items:center}
-.modal-content{width:min(640px,100%);max-height:88vh;overflow:auto;border-radius:22px;background:var(--panel2);border:1px solid var(--border);box-shadow:var(--shadow);padding:16px}
-.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
-.modal-header h3{font-size:20px;font-weight:800}
-.modal-header p{color:var(--muted);margin-top:3px;font-size:12px}
-.close-x{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:15px;cursor:pointer}
-.processing-wrap{text-align:center;padding:20px 8px}
-.ring{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;border:4px solid rgba(255,255,255,.08);border-top-color:var(--primary);animation:spin .9s linear infinite}
-.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}
-.payment-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.payment-box strong{display:block;margin-bottom:4px;font-size:12px}
-.payment-box p{color:var(--muted);font-size:11px;line-height:1.4}
-.deposit-form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.file-input{padding:10px;border:1px dashed var(--border);border-radius:14px;background:rgba(255,255,255,.04)}
-.order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
-.order-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.pill{padding:7px 9px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:10px;font-weight:700}
-.pill.green{background:#22c55e!important;border-color:#16a34a!important;color:#fff!important}
-.order-number-box{padding:14px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.10),rgba(56,189,248,.08));border:1px solid rgba(255,255,255,.12);margin-bottom:10px}
-.number-line{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-.number-display{font-size:22px;font-weight:800;letter-spacing:-.03em;word-break:break-all}
-.otp-state{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
-.otp-wait{display:flex;align-items:center;gap:10px}
-.small-ring{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:var(--info);animation:spin .8s linear infinite;flex-shrink:0}
-.otp-code{display:none;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(74,222,128,.16),rgba(56,189,248,.12));border:1px solid rgba(74,222,128,.24);margin-bottom:10px}
-.otp-code .label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
-.otp-code .value{font-size:28px;font-weight:800;letter-spacing:.2em}
-.timeline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.timeline-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.timeline-box .t-label{color:var(--muted);font-size:10px;margin-bottom:4px}
-.timeline-box .t-value{font-size:18px;font-weight:800}
-.button-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
-.button-group .btn{padding:10px 12px;border-radius:14px;font-size:12px}
-.wide-btn{width:100%;margin-top:8px;padding:10px 14px;border-radius:14px}
-.toast-wrap{position:fixed;right:14px;bottom:14px;z-index:5000;display:flex;flex-direction:column;gap:6px}
-.toast{min-width:240px;max-width:340px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);backdrop-filter:blur(16px);color:#fff;animation:slideUp .25s}
-.toast.success{background:rgba(34,197,94,.95)}.toast.error{background:rgba(239,68,68,.95)}.toast.info{background:rgba(56,189,248,.95)}
-.topbar-mobile{display:none;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
-.topbar-brand{font-size:16px;font-weight:800}
-.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:transparent;z-index:2000}
-.theme-toggle{position:fixed;right:14px;top:14px;z-index:2500;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer;font-weight:700;font-size:11px}
-.hidden{display:none!important}
-.notif-bar{display:none;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;animation:pulse 1s infinite;margin-bottom:8px}
-.confetti-piece{position:fixed;width:8px;height:8px;z-index:9999;pointer-events:none;border-radius:2px;animation:confettiFall var(--dur) ease-in forwards}
-@media(max-width:1100px){.dashboard{grid-template-columns:220px 1fr}.right-panel{grid-column:1/-1;position:static;max-height:none;order:1}.main{order:2}}
-@media(max-width:860px){.dashboard{grid-template-columns:1fr}.sidebar{position:fixed;left:14px;top:14px;bottom:14px;width:min(280px,calc(100vw - 28px));transform:translateX(-120%);transition:.25s;z-index:2200;max-height:none}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.topbar-mobile{display:flex}.theme-toggle{top:auto;bottom:14px}.hero{flex-direction:column}.hero-stats{width:100%;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.payment-grid,.timeline,.button-group,.action-row{grid-template-columns:1fr}.right-panel{order:1}.main{order:2}}
-@media(max-width:600px){.app-shell{padding:10px}.dashboard{gap:8px}.main,.right-panel,.sidebar{padding:10px}.hero{padding:12px}.hero h2{font-size:20px}.country-grid{grid-template-columns:1fr}.modal{padding:8px}.modal-content{padding:12px}.number-display{font-size:18px}.otp-code .value{font-size:24px}.toast-wrap{right:8px;left:8px;bottom:8px}.toast{min-width:auto;max-width:none}}
-</style>
-</head>
-<body>
-<button class="theme-toggle" id="theme-toggle">🌗</button>
-<div class="sidebar-overlay" id="sidebar-overlay"></div>
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
-<div class="blob blob-3"></div>
+const express = require('express');
+const session = require('express-session');
+const multer = require('multer');
+const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
+const { Pool } = require('pg');
+const pgSession = require('connect-pg-simple')(session);
 
-<div class="app-shell">
-<div class="topbar-mobile">
-<button class="icon-btn" id="hamburger">☰</button>
-<div class="topbar-brand">MRF SMS</div>
-</div>
+const app = express();
+const PORT = process.env.PORT || 3000;
+const IS_PROD = (process.env.NODE_ENV || 'development') === 'production';
+const UPLOAD_DIR = process.env.UPLOAD_DIR || '/app/uploads';
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+const upload = multer({ dest: UPLOAD_DIR });
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) { console.error('DATABASE_URL required'); process.exit(1); }
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET || SESSION_SECRET.length < 32) { console.error('SESSION_SECRET missing'); process.exit(1); }
+const SMSBOWER_API_KEY = process.env.SMSBOWER_API_KEY || 'CHANGE_THIS';
+const SMSBOWER_URL = process.env.SMSBOWER_API_KEY ? process.env.SMSBOWER_API_KEY.replace(/\/[^\/]*$/, '') : 'https://smsbower.page';
+const API_PATH = process.env.SMSBOWER_PATH || '/stubs/handler_api.php';
+const FULL_API_URL = SMSBOWER_URL + API_PATH;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin';
+const pool = new Pool({ connectionString: DATABASE_URL, ssl: IS_PROD ? { rejectUnauthorized: false } : false });
 
-<div class="dashboard">
-<aside class="sidebar glass" id="sidebar">
-<div class="brand"><div class="brand-mark">M</div><div><h1>MRF SMS</h1><p>Premium OTP Portal</p></div></div>
-<div class="nav-card">
-<div class="nav-label">Services</div>
+app.set('trust proxy', 1);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static('public'));
+app.use(session({
+    store: new pgSession({ pool, tableName: 'user_sessions', createTableIfMissing: true }),
+    name: 'mrf.sid', secret: SESSION_SECRET, proxy: true, resave: false,
+    saveUninitialized: false, rolling: true, unset: 'destroy',
+    cookie: { secure: 'auto', httpOnly: true, sameSite: 'lax', maxAge: 86400000 }
+}));
 
-<!-- WhatsApp Real Logo -->
-<button class="nav-item active" data-service="whatsapp">
-<span class="nav-icon" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12.031 21.053a9.88 9.88 0 0 1-5.02-1.362l-.36-.214-3.733.98.995-3.642-.235-.374a9.86 9.86 0 0 1-1.51-5.26c0-5.46 4.444-9.9 9.9-9.9 2.647 0 5.137 1.03 7.009 2.902a9.85 9.85 0 0 1 2.898 7.007c-.002 5.457-4.445 9.894-9.902 9.894l-.042-.03zm-5.442-3.136c1.55.918 3.424 1.403 5.398 1.405 4.582 0 8.308-3.727 8.31-8.31a8.27 8.27 0 0 0-2.433-5.88A8.27 8.27 0 0 0 11.98 2.695c-4.583 0-8.309 3.727-8.31 8.31 0 1.636.425 3.232 1.233 4.64l.267.464-.59 2.16 2.217-.582.418.23zM16.92 14.38c-.27-.135-1.59-.785-1.838-.874-.247-.09-.427-.135-.607.135-.18.27-.697.874-.855 1.054-.157.18-.315.202-.585.067-.27-.135-1.134-.418-2.16-1.332-.798-.71-1.337-1.588-1.494-1.858-.157-.27-.017-.416.118-.55.121-.12.27-.315.405-.472.135-.157.18-.27.27-.45.09-.18.045-.337-.022-.472-.067-.135-.607-1.462-.832-2.002-.22-.526-.443-.454-.607-.463-.157-.008-.337-.008-.517-.008-.18 0-.472.067-.72.337-.247.27-.945.922-.945 2.248 0 1.326.967 2.607 1.102 2.787.135.18 1.9 2.9 4.603 4.067.643.277 1.145.443 1.536.567.645.204 1.23.175 1.693.106.52-.077 1.59-.65 1.815-1.277.225-.628.225-1.166.157-1.277-.067-.112-.247-.18-.517-.315z"/></svg></span>
-<span>WhatsApp</span>
-</button>
+function normUser(r) { if (!r) return null; return Object.assign({}, r, { balance: Number(r.balance || 0), referralCode: r.referral_code, is_active: r.is_active }); }
+function normOrder(r) { if (!r) return null; return Object.assign({}, r, { price: Number(r.price || 0), otp_received: r.otp_received }); }
+function q1(s, p) { p = p || []; return pool.query(s, p).then(function(r) { return r.rows[0] || null; }); }
+function qA(s, p) { p = p || []; return pool.query(s, p).then(function(r) { return r.rows; }); }
+function qR(s, p) { p = p || []; return pool.query(s, p); }
+function hashP(p) { return bcrypt.hash(p, 12); }
+function sEmail(e) { return String(e || '').trim().toLowerCase(); }
+function vEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function vPass(p) { return typeof p === 'string' && p.length >= 6; }
+function randP() { return crypto.randomBytes(24).toString('hex'); }
+function ensureG() { return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_CALLBACK_URL; }
+function waitMs(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+function pkrUsd(p) { return parseFloat((p / 280).toFixed(3)); }
+function safeErr(e) { return (e && e.message) ? e.message : 'Server error'; }
 
-<!-- Facebook Real Logo -->
-<button class="nav-item" data-service="facebook">
-<span class="nav-icon" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
-<span>Facebook</span>
-</button>
-
-<!-- Instagram Real Logo -->
-<button class="nav-item" data-service="instagram">
-<span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span>
-<span>Instagram</span>
-</button>
-
-<!-- Snapchat Real Logo -->
-<button class="nav-item" data-service="snapchat">
-<span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.12 1.98c-2.48 0-4.66 1.46-5.59 3.66-.46 1.06-.61 2.21-.51 3.32.08.97.35 1.9.83 2.74l-.84.28c-.85.28-1.74.45-2.64.48h-.22c-.65 0-1.19-.52-1.23-1.17 0-.08-.02-.17-.02-.25v-.1c0-.44.33-.82.77-.88h.08c1.17-.18 2.06-1.17 2.1-2.36v-.12c0-.52-.42-.94-.94-.94-.28 0-.54.12-.72.33l-.22.28c-.5.64-1.23 1.05-2.04 1.15H.72C.32 8.4 0 8.72 0 9.12v.1c0 1.25.68 2.38 1.78 2.97 1.02.55 2.15.82 3.31.84h1.1l-1.37 1.62c-.64.76-1.02 1.72-1.12 2.72-.08.82.12 1.65.57 2.36.44.68 1.11 1.16 1.88 1.34l1.1.25c.67.15 1.35.25 2.04.28h.36c.86 0 1.68-.26 2.38-.72l.46-.32c.56-.4 1.3-.4 1.86 0l.46.32c.7.46 1.52.72 2.38.72h.36c.69-.03 1.37-.13 2.04-.28l1.1-.25c.77-.18 1.44-.66 1.88-1.34.45-.71.65-1.54.57-2.36-.1-1-.48-1.96-1.12-2.72l-1.37-1.62h1.1c1.16-.02 2.29-.29 3.31-.84 1.1-.59 1.78-1.72 1.78-2.97v-.1c0-.4-.32-.72-.72-.72h-.2c-.8 0-1.54-.4-2.04-1.04l-.22-.28c-.18-.21-.44-.33-.72-.33-.52 0-.94.42-.94.94v.12c.04 1.19.93 2.18 2.1 2.36h.08c.44.06.77.44.77.88v.1c0 .08-.02.17-.02.25-.04.65-.58 1.17-1.23 1.17h-.22c-.9-.03-1.79-.2-2.64-.48l-.84-.28c.48-.84.75-1.77.83-2.74.1-1.11-.05-2.26-.51-3.32-.93-2.2-3.11-3.66-5.59-3.66z"/></svg></span>
-<span>Snapchat</span>
-</button>
-
-<!-- Google Real Logo -->
-<button class="nav-item" data-service="google">
-<span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82H9.18c-.45 0-.82.37-.82.82v2.65h7.72c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#4285F4"/><path d="M5.08 5.08h10.4c3.36 0 6.08 2.72 6.08 6.08s-2.72 6.08-6.08 6.08c0-.64.1-1.25-.1-1.84l2.2-4.5H5.08c-3.36 0-6.08-2.72-6.08-6.08 0-.64.1-1.25.28-1.84l2.2-4.5z" fill="#34A853"/><path d="M17.36 15.1H9.18c0-.45.37-.82-.82-.82v-2.65h7.72c.45 0 .82-.37.82-.82.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37-.82-.82-.82.82v2.65c0 .45.37.82.37.82.82h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#FBBC05"/><path d="M17.36 12.25H9.18c0 .45.37.82.82.82v2.83h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#EA4335"/></svg></span>
-<span>Google / Gmail</span>
-</button>
-
-<!-- TikTok Real Logo -->
-<button class="nav-item" data-service="tiktok">
-<span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 16.3a6.34 6.34 0 0 0 10.86 4.43v-7a8.16 8.16 0 0 0 5.58 2.18v-3.46a4.85 4.85 0 0 1-1.09-.18z" fill="#25F4EE" transform="translate(-1, -1)"/><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 16.3a6.34 6.34 0 0 0 10.86 4.43v-7a8.16 8.16 0 0 0 5.58 2.18v-3.46a4.85 4.85 0 0 1-1.09-.18z" fill="#FE2C55" transform="translate(1, 1)"/><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 16.3a6.34 6.34 0 0 0 10.86 4.43v-7a8.16 8.16 0 0 0 5.58 2.18v-3.46a4.85 4.85 0 0 1-1.09-.18z" fill="#fff"/></svg></span>
-<span>TikTok</span>
-</button>
-
-<button class="nav-item" id="contact-btn">
-<span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:16px">💬</span></span>
-<span>Contact Support</span>
-</button>
-</div>
-</aside>
-
-<main class="main glass">
-<section class="hero">
-<div>
-<h2 id="hero-title">Available WhatsApp Numbers</h2>
-<p>Lowest-price providers try honge. 10 second per tier. Wait calmly.</p>
-<div class="hero-badges">
-<div class="hero-badge">Auto OTP</div>
-<div class="hero-badge">Manual Check</div>
-<div class="hero-badge">1 Min Lock</div>
-<div class="hero-badge">MRF SMS</div>
-</div>
-</div>
-<div class="hero-stats">
-<div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div>
-<div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div>
-</div>
-</section>
-
-<section class="toolbar">
-<div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div>
-<div style="display:flex;gap:6px;flex-wrap:wrap">
-<button class="chip active" data-filter="all">All</button>
-<button class="chip" data-filter="cheap">Budget</button>
-<button class="chip" data-filter="premium">Premium</button>
-</div>
-</section>
-
-<section>
-<div class="section-title"><h3>Number Catalog</h3></div>
-<div class="country-grid" id="country-list"></div>
-</section>
-
-<section id="admin-panel" class="admin-panel">
-<div class="notif-bar" id="notif-bar">⚠️ New pending payment</div>
-<h3>Admin Panel <span id="payment-badge" class="badge hidden">0</span></h3>
-<div class="stat-grid" id="admin-stats-grid"></div>
-<div class="admin-grid">
-<div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div>
-<div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div>
-<div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div>
-</div>
-</section>
-</main>
-
-<aside class="right-panel glass">
-<div id="login-prompt">
-<div class="top-auth-card"><h3>Login / Sign Up</h3><p>Premium OTP service.</p></div>
-<div class="auth-switch">
-<button class="auth-tab active" id="show-login-tab">Login</button>
-<button class="auth-tab" id="show-register-tab">Sign Up</button>
-</div>
-
-<div class="panel-block" id="login-form-wrap">
-<div class="auth-form">
-<div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email address"></div>
-<div class="input-wrap"><span>🔐</span><input type="password" id="login-password" placeholder="Password"></div>
-<button class="btn btn-primary" id="login-btn">Login to Dashboard</button>
-<button class="btn btn-google" id="google-login-btn">🔐 Continue with Google</button>
-<div class="forgot-link" id="forgot-btn">Forgot Password?</div>
-</div>
-</div>
-
-<div class="panel-block hidden" id="register-form-wrap">
-<div class="auth-form">
-<div class="input-wrap"><span>👤</span><input type="text" id="reg-name" placeholder="Full name"></div>
-<div class="input-wrap"><span>📧</span><input type="email" id="reg-email" placeholder="Email"></div>
-<div class="input-wrap"><span>🔒</span><input type="password" id="reg-password" placeholder="Password"></div>
-<button class="btn btn-primary" id="register-btn">Create Account</button>
-</div>
-</div>
-
-<div class="panel-block hidden" id="forgot-form-wrap">
-<div class="auth-form">
-<h3 style="font-size:15px;margin-bottom:6px">Reset Password</h3>
-<div class="input-wrap"><span>📧</span><input type="email" id="forgot-email" placeholder="Your email address"></div>
-<button class="btn btn-primary" id="forgot-submit-btn">Send Reset Link</button>
-<div class="forgot-link" id="back-to-login">Back to Login</div>
-</div>
-</div>
-</div>
-
-<div id="user-info" class="hidden">
-<div class="balance-card">
-<div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div>
-<div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div>
-</div>
-
-<div class="account-card">
-<div class="account-header">
-<div class="account-heading"><h3>Account</h3><p>Your profile</p></div>
-<button class="account-toggle-btn" id="account-toggle-btn">+</button>
-</div>
-<div class="account-content hidden" id="account-details-content">
-<div class="account-row"><div class="account-label">Name</div><div class="account-value" id="account-name">-</div></div>
-<div class="account-row"><div class="account-label">Email</div><div class="account-value" id="account-email">-</div></div>
-<div class="account-row"><div class="account-label">Password</div><div class="account-value" id="account-password">********</div></div>
-<div class="account-row"><div class="account-label">Referral</div><div class="account-value" id="account-referral">-</div></div>
-<button class="btn btn-soft wide-btn" id="open-password-modal">Change Password</button>
-</div>
-</div>
-
-<div class="panel-block">
-<div class="section-title"><h3 style="font-size:15px">Active Orders</h3></div>
-<div class="orders-list" id="active-orders-list"></div>
-</div>
-</div>
-</aside>
-</div>
-</div>
-
-<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px;">Searching Number</h3><p style="color:var(--muted);font-size:12px;">10 second per tier. Please wait 10-60 seconds.</p></div></div></div>
-
-<div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password"></div><button class="btn btn-primary" id="save-password-btn">Save Password</button></div></div></div>
-
-<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div>
-<div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa only</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div>
-<form id="addFundsForm" class="deposit-form" enctype="multipart/form-data">
-<div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div>
-<div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div>
-<button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit Payment</button>
-</form>
-</div></div>
-
-<div id="order-modal" class="modal"><div class="modal-content">
-<div class="modal-header"><div><h3>Order Details</h3><p>Auto OTP checking active.</p></div><button class="close-x" id="close-order-modal">✕</button></div>
-<div class="order-head">
-<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Order</div>
-<div style="font-size:17px;font-weight:800;margin-top:5px;" id="order-country-title">...</div>
-<div class="order-badges"><span class="pill green" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div>
-<div class="pill" id="order-created-pill">Live</div>
-</div>
-<div class="order-number-box">
-<div class="number-line"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Number</div><div class="number-display" id="order-number">Processing...</div></div>
-<button class="btn btn-soft" id="copy-number-btn">Copy</button>
-</div>
-<div class="timeline"><div class="timeline-box"><div class="t-label">Expiry</div><div class="t-value" id="order-timer">25:00</div></div><div class="timeline-box"><div class="t-label">Cancel Unlock</div><div class="t-value" id="order-cancel-timer">01:00</div></div></div>
-<div class="otp-state" id="order-waiting"><div class="otp-wait"><div class="small-ring"></div><div><div style="font-weight:700;font-size:13px;">Waiting for OTP...</div><div style="color:var(--muted);font-size:12px;">Auto-check every 5s.</div></div></div></div>
-<div class="otp-code" id="order-otp"><div class="label">Received OTP</div><div class="value" id="otp-value">------</div></div>
-<button class="btn btn-info wide-btn" id="check-otp-manual">Check OTP Now</button>
-<div class="button-group" id="order-buttons"></div>
-</div></div>
-
-<div class="toast-wrap" id="toast-wrap"></div>
-
-<script>
-function $(id) { return document.getElementById(id); }
-function toast(msg, type = 'info', duration = 4000) {
-    const wrap = $('toast-wrap');
-    const el = document.createElement('div');
-    el.className = `toast ${type}`;
-    el.textContent = msg;
-    wrap.appendChild(el);
-    setTimeout(() => el.remove(), duration);
-}
-
-async function fetchJSON(url, options = {}) {
-    const res = await fetch(url, { ...options, credentials: 'include' });
-    if (!res.ok) throw new Error(await res.text());
-    return res.json();
-}
-
-function copyText(text) {
-    navigator.clipboard.writeText(text).then(() => toast('Copied!', 'success')).catch(() => toast('Copy failed', 'error'));
-}
-
-function playDing() {
+// ========================================
+// DEBUG ENDPOINT - SMSBower response dekho
+// ========================================
+app.get('/api/debug-buy', async function(req, res) {
     try {
-        const audio = new AudioContext();
-        const osc = audio.createOscillator();
-        const gain = audio.createGain();
-        osc.connect(gain);
-        gain.connect(audio.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audio.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(1320, audio.currentTime + 0.08);
-        osc.frequency.exponentialRampToValueAtTime(880, audio.currentTime + 0.25);
-        gain.gain.setValueAtTime(0.25, audio.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
-        osc.start();
-        osc.stop(audio.currentTime + 0.4);
-    } catch(e) { /* ignore */ }
-}
-
-function showConfetti() {
-    const colors = ['#31d968', '#38bdf8', '#f59e0b', '#ef4444', '#a78bfa'];
-    for (let i = 0; i < 50; i++) {
-        const div = document.createElement('div');
-        div.className = 'confetti-piece';
-        div.style.left = Math.random() * 100 + 'vw';
-        div.style.background = colors[Math.floor(Math.random() * colors.length)];
-        div.style.setProperty('--dur', (1.5 + Math.random() * 2) + 's');
-        div.style.width = (6 + Math.random() * 8) + 'px';
-        div.style.height = (6 + Math.random() * 8) + 'px';
-        div.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        document.body.appendChild(div);
-        setTimeout(() => div.remove(), 4000);
+        var cid = req.query.country || '36';
+        var sc = req.query.service || 'wa';
+        var maxUsd = req.query.maxUsd || '1.0';
+        var url = FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getNumber&service=' + sc + '&country=' + cid + '&maxPrice=' + maxUsd;
+        console.log('[DEBUG] URL: ' + url);
+        var r = await axios.get(url, { timeout: 60000 });
+        var raw = typeof r.data === 'string' ? r.data : JSON.stringify(r.data);
+        console.log('[DEBUG] RAW RESPONSE: ' + raw);
+        var parsed = extractPhone(r.data);
+        console.log('[DEBUG] EXTRACTED: ' + JSON.stringify(parsed));
+        res.json({ url: url, raw: raw, parsed: parsed });
+    } catch(e) {
+        res.json({ error: e.message });
     }
-}
+});
 
-let currentUser = null;
-let activeOrder = null;
-let otpInterval = null;
-let timerInterval = null;
-let adminRefresh = null;
-let lastPending = 0;
-let allCountries = [];
-let currentFilter = 'all';
-let currentService = 'whatsapp';
+// ========================================
+// AGGRESSIVE PHONE EXTRACTOR
+// Puri response mein se phone dhundta hai
+// Chahe JSON ho, string ho, HTML ho
+// ========================================
+function extractPhone(data) {
+    // Step 1: Convert everything to string
+    var raw = '';
+    if (typeof data === 'string') raw = data;
+    else if (data && typeof data === 'object') raw = JSON.stringify(data);
+    else raw = String(data || '');
 
-const SVC_META = {
-    whatsapp: { label: 'WhatsApp', api: '/api/countries' },
-    facebook: { label: 'Facebook', api: '/api/facebook/countries' },
-    instagram: { label: 'Instagram', api: '/api/instagram/countries' },
-    snapchat: { label: 'Snapchat', api: '/api/snapchat/countries' },
-    google: { label: 'Google / Gmail', api: '/api/google/countries' },
-    tiktok: { label: 'TikTok', api: '/api/tiktok/countries' }
-};
+    console.log('[EXTRACT] Input length: ' + raw.length);
+    console.log('[EXTRACT] First 500 chars: ' + raw.substring(0, 500));
 
-const sidebar = $('sidebar');
-const overlay = $('sidebar-overlay');
-$('hamburger').addEventListener('click', () => sidebar.classList.add('open'));
-overlay.addEventListener('click', () => sidebar.classList.remove('open'));
+    // Step 2: Check errors
+    if (raw.indexOf('NO_NUMBERS') >= 0) return { ok: false, error: 'NO_NUMBERS' };
+    if (raw.indexOf('BAD_SERVICE') >= 0) return { ok: false, error: 'BAD_SERVICE' };
+    if (raw.indexOf('BAD_KEY') >= 0) return { ok: false, error: 'BAD_KEY' };
+    if (raw.indexOf('NO_BALANCE') >= 0) return { ok: false, error: 'NO_BALANCE' };
+    if (raw.indexOf('ERROR') >= 0 && raw.indexOf('ACCESS_NUMBER') < 0) return { ok: false, error: raw.substring(0, 100) };
 
-function renderCountries() {
-    let list = [...allCountries];
-    const search = $('country-search').value.trim().toLowerCase();
-    if (search) list = list.filter(c => c.name.toLowerCase().includes(search));
-    if (currentFilter === 'cheap') list = list.filter(c => c.price <= 250);
-    else if (currentFilter === 'premium') list = list.filter(c => c.price >= 300);
-
-    const container = $('country-list');
-    if (!list.length) {
-        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px"><h3>No country found</h3><p>Try another filter.</p></div>';
-        return;
-    }
-    container.innerHTML = list.map(c => `
-        <div class="country-card" data-id="${c.countryId}" data-name="${c.name}" data-price="${c.price}">
-            <div class="country-top"><div class="country-flag">${c.flag}</div><div class="status-pill">Available</div></div>
-            <div class="country-name">${c.name}</div>
-            <div class="country-code">${c.code}</div>
-            <div class="country-price">${c.price} PKR</div>
-            <button class="btn btn-primary buy-btn">Buy Number</button>
-        </div>
-    `).join('');
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const card = e.target.closest('.country-card');
-            orderCountry(card.dataset.name, Number(card.dataset.price), Number(card.dataset.id));
-        });
-    });
-}
-
-async function loadCountries() {
-    try {
-        allCountries = await fetchJSON(SVC_META[currentService].api);
-        renderCountries();
-    } catch (err) {
-        toast('Failed to load countries', 'error');
-    }
-}
-
-async function orderCountry(name, price, id) {
-    if (!currentUser) { toast('Please login first', 'error'); return; }
-    $('processing-modal').style.display = 'flex';
-    try {
-        const res = await fetch('/api/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ countryName: name, price, countryId: id, service: currentService }),
-            credentials: 'include'
-        });
-        $('processing-modal').style.display = 'none';
-        if (!res.ok) throw new Error(await res.text());
-        const order = await res.json();
-        toast('Number purchased!', 'success');
-        showConfetti();
-        playDing();
-        await refreshUser();
-        openOrderModal(order.id);
-    } catch (err) {
-        $('processing-modal').style.display = 'none';
-        toast(err.message, 'error');
-    }
-}
-
-function stopIntervals() {
-    if (otpInterval) clearInterval(otpInterval);
-    if (timerInterval) clearInterval(timerInterval);
-    otpInterval = null;
-    timerInterval = null;
-}
-
-function updateOrderVis(o) {
-    $('order-country-title').innerText = `${o.country} • ${o.service_name || 'Number'}`;
-    $('order-status-pill').innerText = (o.order_status || 'active').replace('_', ' ').toUpperCase();
-    $('order-price-pill').innerText = `${o.price} PKR`;
-    $('order-created-pill').innerText = new Date(o.created_at).toLocaleString();
-    $('order-number').innerText = o.phone_number || 'Processing...';
-    if (o.otp_code) {
-        $('otp-value').innerText = o.otp_code;
-        $('order-otp').style.display = 'block';
-        $('order-waiting').style.display = 'none';
-    } else {
-        $('order-otp').style.display = 'none';
-        $('order-waiting').style.display = 'block';
-    }
-    updateOrderBtns(o);
-    updateTimer(o);
-}
-
-function updateTimer(o) {
-    const now = new Date();
-    const exp = new Date(o.expires_at || new Date(o.created_at).getTime() + 25*60*1000);
-    const cancelAt = new Date(o.cancel_available_at || new Date(o.created_at).getTime() + 60*1000);
-    const ed = Math.max(0, exp - now);
-    const cdd = Math.max(0, cancelAt - now);
-    $('order-timer').innerText = ed <= 0 ? 'Expired' : `${Math.floor(ed/60000)}:${String(Math.floor((ed%60000)/1000)).padStart(2,'0')}`;
-    $('order-cancel-timer').innerText = cdd <= 0 ? 'Unlocked' : `${Math.floor(cdd/60000)}:${String(Math.floor((cdd%60000)/1000)).padStart(2,'0')}`;
-}
-
-function updateOrderBtns(o) {
-    const container = $('order-buttons');
-    container.innerHTML = '';
-    if (o.otp_code) {
-        container.innerHTML = `
-            <button class="btn btn-primary" id="complete-order-btn">Complete Order</button>
-            <button class="btn btn-soft" id="close-order-btn">Close</button>
-            <button class="btn btn-info" id="copy-otp-btn">Copy OTP</button>
-        `;
-        $('complete-order-btn').addEventListener('click', async () => {
-            try {
-                await fetch(`/api/orders/${o.id}/complete`, { method: 'POST', credentials: 'include' });
-                toast('Order completed', 'success');
-                closeOrderModal();
-                refreshUser();
-            } catch (err) { toast(err.message, 'error'); }
-        });
-        $('close-order-btn').addEventListener('click', closeOrderModal);
-        $('copy-otp-btn').addEventListener('click', () => copyText(o.otp_code));
-        return;
-    }
-    if (o.order_status !== 'active' && o.order_status !== 'otp_received') {
-        container.innerHTML = '<button class="btn btn-soft" id="close-order-btn">Close</button>';
-        $('close-order-btn').addEventListener('click', closeOrderModal);
-        return;
-    }
-    const canCancel = new Date() >= new Date(o.cancel_available_at);
-    container.innerHTML = `
-        <button class="btn btn-warning" id="replace-order-btn">Replace Number</button>
-        <button class="btn btn-danger" id="cancel-order-btn" ${canCancel ? '' : 'disabled'}>${canCancel ? 'Cancel & Refund' : 'Cancel Locked'}</button>
-        <button class="btn btn-soft" id="close-order-btn">Close</button>
-    `;
-    $('replace-order-btn').addEventListener('click', async () => {
-        if (!confirm('Replace number?')) return;
-        try {
-            const res = await fetch(`/api/orders/${o.id}/replace`, { method: 'POST', credentials: 'include' });
-            if (!res.ok) throw new Error(await res.text());
-            toast('Replaced', 'success');
-            openOrderModal(o.id);
-            refreshUser();
-        } catch (err) { toast(err.message, 'error'); }
-    });
-    if (canCancel) {
-        $('cancel-order-btn').addEventListener('click', async () => {
-            if (!confirm('Cancel and refund?')) return;
-            try {
-                const res = await fetch(`/api/orders/${o.id}/cancel`, { method: 'POST', credentials: 'include' });
-                if (!res.ok) throw new Error(await res.text());
-                toast('Cancelled', 'success');
-                closeOrderModal();
-                refreshUser();
-            } catch (err) { toast(err.message, 'error'); }
-        });
-    }
-    $('close-order-btn').addEventListener('click', closeOrderModal);
-}
-
-async function pollOtp(id, silent = false) {
-    try {
-        const data = await fetchJSON(`/api/orders/${id}/otp`);
-        if (data.received) {
-            const order = await fetchJSON(`/api/orders/${id}`);
-            activeOrder = order;
-            updateOrderVis(order);
-            stopIntervals();
-            playDing();
-            toast('OTP received!', 'success');
-            refreshUser();
-            return true;
+    // Step 3: ACCESS_NUMBER:id:phone format
+    if (raw.indexOf('ACCESS_NUMBER:') >= 0) {
+        var idx = raw.indexOf('ACCESS_NUMBER:');
+        var afterColon = raw.substring(idx + 15); // skip "ACCESS_NUMBER:"
+        var parts = afterColon.split(':');
+        if (parts.length >= 2) {
+            var aid = parts[0].trim();
+            var phone = parts.slice(1).join(':').trim();
+            if (phone.length >= 7) {
+                if (!phone.startsWith('+')) phone = '+' + phone;
+                console.log('[EXTRACT] Method=ACCESS_NUMBER phone=' + phone + ' id=' + aid);
+                return { ok: true, phone: phone, id: aid };
+            }
         }
-        if (data.expired) {
-            const order = await fetchJSON(`/api/orders/${id}`);
-            activeOrder = order;
-            updateOrderVis(order);
-            stopIntervals();
-            toast('Order expired', 'error');
-            refreshUser();
-            return true;
-        }
-        return false;
-    } catch (err) {
-        if (!silent) toast('OTP check failed', 'error');
-        return false;
     }
-}
 
-async function openOrderModal(id) {
-    try {
-        const order = await fetchJSON(`/api/orders/${id}`);
-        activeOrder = order;
-        updateOrderVis(order);
-        $('order-modal').style.display = 'flex';
-        stopIntervals();
-        otpInterval = setInterval(async () => {
-            if (activeOrder) await pollOtp(activeOrder.id, true);
-        }, 5000);
-        timerInterval = setInterval(async () => {
-            if (!activeOrder) return;
-            try {
-                const updated = await fetchJSON(`/api/orders/${activeOrder.id}`);
-                activeOrder = updated;
-                updateOrderVis(updated);
-                if (new Date() >= new Date(updated.expires_at) && !updated.otp_received && updated.order_status === 'active') {
-                    await fetch(`/api/orders/${updated.id}/expire`, { method: 'POST', credentials: 'include' });
-                    const ref = await fetchJSON(`/api/orders/${updated.id}`);
-                    activeOrder = ref;
-                    updateOrderVis(ref);
-                    refreshUser();
+    // Step 4: JSON field names
+    if (data && typeof data === 'object' && !Array.isArray(data)) {
+        var phoneKeys = ['phoneNumber', 'phone_number', 'phone', 'number', 'tel', 'mobile', 'phoneNum', 'num', 'full_number', 'msisdn'];
+        var idKeys = ['activationId', 'activation_id', 'id', 'activationIdStr', 'activation', 'requestId'];
+        for (var i = 0; i < phoneKeys.length; i++) {
+            if (data[phoneKeys[i]] != null && data[phoneKeys[i]] !== '') {
+                var p = String(data[phoneKeys[i]]).replace(/[\s\-\(\)\.]/g, '');
+                if (p.length >= 10) {
+                    if (!p.startsWith('+')) p = '+' + p;
+                    var aid = null;
+                    for (var j = 0; j < idKeys.length; j++) {
+                        if (data[idKeys[j]] != null && data[idKeys[j]] !== '') { aid = String(data[idKeys[j]]); break; }
+                    }
+                    console.log('[EXTRACT] Method=JSON key=' + phoneKeys[i] + ' phone=' + p + ' id=' + aid);
+                    return { ok: true, phone: p, id: aid };
                 }
-                if (updated.otp_code || updated.order_status === 'cancelled' || updated.order_status === 'completed') stopIntervals();
-            } catch (err) { /* ignore */ }
-        }, 1000);
-    } catch (err) {
-        toast('Could not load order', 'error');
-    }
-}
-
-function closeOrderModal() {
-    $('order-modal').style.display = 'none';
-    stopIntervals();
-    activeOrder = null;
-}
-
-async function login() {
-    const btn = $('login-btn');
-    const original = btn.innerHTML;
-    btn.innerHTML = 'Signing in...';
-    btn.disabled = true;
-    try {
-        const email = $('login-email').value.trim().toLowerCase();
-        const password = $('login-password').value;
-        if (!email || !password) throw new Error('Email and password required');
-        const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include'
-        });
-        if (!res.ok) throw new Error(await res.text());
-        await checkAuth();
-        toast('Logged in!', 'success');
-        $('login-email').value = '';
-        $('login-password').value = '';
-    } catch (err) {
-        toast(err.message, 'error');
-    } finally {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }
-}
-
-async function register() {
-    const btn = $('register-btn');
-    const original = btn.innerHTML;
-    btn.innerHTML = 'Creating...';
-    btn.disabled = true;
-    try {
-        const name = $('reg-name').value.trim();
-        const email = $('reg-email').value.trim().toLowerCase();
-        const password = $('reg-password').value;
-        if (!name) throw new Error('Name required');
-        if (!email) throw new Error('Email required');
-        if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
-        const res = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password }),
-            credentials: 'include'
-        });
-        if (!res.ok) throw new Error(await res.text());
-        toast('Account created! Please login.', 'success');
-        showLoginForm();
-        $('reg-name').value = '';
-        $('reg-email').value = '';
-        $('reg-password').value = '';
-    } catch (err) {
-        toast(err.message, 'error');
-    } finally {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }
-}
-
-async function forgotPassword() {
-    const btn = $('forgot-submit-btn');
-    const original = btn.innerHTML;
-    btn.innerHTML = 'Sending...';
-    btn.disabled = true;
-    try {
-        const email = $('forgot-email').value.trim().toLowerCase();
-        if (!email) throw new Error('Email required');
-        const res = await fetch('/api/forgot-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-            credentials: 'include'
-        });
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-        if (data.sent) toast('Reset link sent', 'info');
-        else toast('If email exists, a link was sent.', 'info');
-        $('forgot-email').value = '';
-        backToLogin();
-    } catch (err) {
-        toast(err.message, 'error');
-    } finally {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }
-}
-
-async function changePassword() {
-    const btn = $('save-password-btn');
-    const original = btn.innerHTML;
-    btn.innerHTML = 'Saving...';
-    btn.disabled = true;
-    try {
-        const current = $('current-password').value;
-        const newPwd = $('new-password').value;
-        if (!current || !newPwd) throw new Error('Both passwords required');
-        if (newPwd.length < 6) throw new Error('New password min 6 chars');
-        const res = await fetch('/api/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
-            credentials: 'include'
-        });
-        if (!res.ok) throw new Error(await res.text());
-        toast('Password changed!', 'success');
-        $('password-modal').style.display = 'none';
-        $('current-password').value = '';
-        $('new-password').value = '';
-    } catch (err) {
-        toast(err.message, 'error');
-    } finally {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }
-}
-
-async function logout() {
-    await fetch('/api/logout', { method: 'GET', credentials: 'include' });
-    currentUser = null;
-    $('user-info').classList.add('hidden');
-    $('login-prompt').classList.remove('hidden');
-    $('admin-panel').style.display = 'none';
-    if (adminRefresh) clearInterval(adminRefresh);
-    adminRefresh = null;
-    stopIntervals();
-    toast('Logged out', 'success');
-}
-
-async function refreshUser() {
-    if (!currentUser) return;
-    try {
-        const user = await fetchJSON('/api/me');
-        currentUser = user;
-        $('user-balance').innerText = user.balance;
-        $('account-name').innerText = user.name || '-';
-        $('account-email').innerText = user.email;
-        $('account-referral').innerText = user.referralCode || '-';
-        const orders = await fetchJSON('/api/orders');
-        const activeOrders = orders.filter(o => o.order_status === 'active' || o.order_status === 'otp_received');
-        const container = $('active-orders-list');
-        if (!activeOrders.length) {
-            container.innerHTML = '<div class="sub-text">No active orders.</div>';
-        } else {
-            container.innerHTML = activeOrders.map(o => `
-                <div class="order-item">
-                    <div class="order-top">
-                        <div class="order-country">${o.service_type.toUpperCase()} ${o.country}</div>
-                        <div class="order-status">${o.otp_code ? 'OTP Ready' : 'Waiting'}</div>
-                    </div>
-                    <div class="order-number-small">${o.phone_number || 'Processing...'}</div>
-                    <div class="order-actions">
-                        <button class="mini-btn view-order-btn" data-id="${o.id}">View Details</button>
-                        ${o.phone_number ? `<button class="mini-btn copy-order-btn" data-number="${o.phone_number}">Copy Number</button>` : ''}
-                    </div>
-                </div>
-            `).join('');
-            document.querySelectorAll('.view-order-btn').forEach(btn => {
-                btn.addEventListener('click', () => openOrderModal(btn.dataset.id));
-            });
-            document.querySelectorAll('.copy-order-btn').forEach(btn => {
-                btn.addEventListener('click', () => copyText(btn.dataset.number));
-            });
+            }
         }
-        if (user.role === 'admin') {
-            $('admin-panel').style.display = 'block';
-            await loadAdminData();
-            if (!adminRefresh) adminRefresh = setInterval(() => {
-                if (currentUser && currentUser.role === 'admin') loadAdminData();
-            }, 10000);
-        } else {
-            $('admin-panel').style.display = 'none';
-            if (adminRefresh) clearInterval(adminRefresh);
-            adminRefresh = null;
+        // Nested
+        var nk = ['data', 'response', 'result', 'body', 'content'];
+        for (var k = 0; k < nk.length; k++) {
+            if (data[nk[k]] != null) {
+                var nested = extractPhone(data[nk[k]]);
+                if (nested.ok) return nested;
+            }
         }
-    } catch (err) {
-        toast('Failed to refresh user', 'error');
     }
+
+    // Step 5: Find "+XXXXXXXXXX" pattern (number with + sign)
+    var plusMatches = raw.match(/\+\d{10,15}/g);
+    if (plusMatches && plusMatches.length > 0) {
+        // Pick longest match
+        var best = plusMatches.sort(function(a, b) { return b.length - a.length; })[0];
+        console.log('[EXTRACT] Method=PlusRegex phone=' + best);
+        return { ok: true, phone: best, id: null };
+    }
+
+    // Step 6: Find any 10-15 digit sequence
+    // But exclude things that look like timestamps (13 digits starting with 1 or 2, from year 2024+)
+    var allDigits = raw.match(/\d{10,15}/g);
+    if (allDigits && allDigits.length > 0) {
+        // Filter out timestamps and IDs
+        var candidates = allDigits.filter(function(d) {
+            // Skip if looks like Unix timestamp (13 digits, starts with 17)
+            if (d.length === 13 && d.startsWith('17')) return false;
+            // Skip if looks like year-based number
+            if (d.startsWith('202') || d.startsWith('203') || d.startsWith('201')) return false;
+            return true;
+        });
+        if (candidates.length === 0) candidates = allDigits; // fallback to all
+        var best2 = candidates.sort(function(a, b) { return b.length - a.length; })[0];
+        console.log('[EXTRACT] Method=DigitRegex phone=+' + best2);
+        return { ok: true, phone: '+' + best2, id: null };
+    }
+
+    console.log('[EXTRACT] FAILED - no phone found');
+    return { ok: false, error: 'No phone in response' };
 }
 
-async function checkAuth() {
-    try {
-        const user = await fetchJSON('/api/me');
-        currentUser = user;
-        $('login-prompt').classList.add('hidden');
-        $('user-info').classList.remove('hidden');
-        await refreshUser();
-    } catch {
-        currentUser = null;
-        $('login-prompt').classList.remove('hidden');
-        $('user-info').classList.add('hidden');
-    }
-}
-
-async function loadAdminData() {
-    try {
-        const stats = await fetchJSON('/api/admin/stats');
-        const orders = await fetchJSON('/api/admin/orders');
-        const transactions = await fetchJSON('/api/admin/transactions');
-        const resets = await fetchJSON('/api/admin/resets');
-
-        $('admin-stats-grid').innerHTML = `
-            <div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">${stats.todayRevenue} PKR</div></div>
-            <div class="stat-card"><div class="sl">Today Orders</div><div class="sv">${stats.todayOrders}</div></div>
-            <div class="stat-card"><div class="sl">Total Users</div><div class="sv">${stats.totalUsers}</div></div>
-            <div class="stat-card"><div class="sl">Active Orders</div><div class="sv">${stats.activeOrders}</div></div>
-            <div class="stat-card"><div class="sl">Success Rate</div><div class="sv">${stats.todaySuccessRate}%</div></div>
-            <div class="stat-card"><div class="sl">SMSBower Cost</div><div class="sv">${stats.totalCost} PKR</div></div>
-            <div class="stat-card"><div class="sl">Total Revenue</div><div class="sv">${stats.totalRevenue} PKR</div></div>
-            <div class="stat-card"><div class="sl">Total Profit</div><div class="sv">${stats.totalProfit} PKR</div></div>
-        `;
-
-        $('admin-orders-list').innerHTML = orders.length ? orders.map(o => `
-            <div class="admin-card">
-                <strong>${o.user_email}</strong>
-                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Cost: ${(o.provider_cost_usd * 280).toFixed(0)} PKR, Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
-            </div>
-        `).join('') : '<div class="sub-text">No orders yet.</div>';
-
-        const badge = $('payment-badge');
-        if (transactions.length) {
-            badge.classList.remove('hidden');
-            badge.innerText = transactions.length;
-            if (transactions.length > lastPending) toast(`${transactions.length} pending payment(s)`, 'success', 6000);
-        } else {
-            badge.classList.add('hidden');
+// ========================================
+// SIMPLE NUMBER BUYER
+// ========================================
+async function buyNumber(cid, maxUsd, sc) {
+    for (var attempt = 0; attempt < 3; attempt++) {
+        var mp = (maxUsd * (1 + attempt * 0.2)).toFixed(3);
+        try {
+            var url = FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getNumber&service=' + sc + '&country=' + cid + '&maxPrice=' + mp;
+            console.log('[BUY] Attempt ' + (attempt + 1) + ' URL: ' + url);
+            var r = await axios.get(url, { timeout: 60000 });
+            var result = extractPhone(r.data);
+            console.log('[BUY] Attempt ' + (attempt + 1) + ' Result: ' + JSON.stringify(result));
+            if (result.ok) return result;
+        } catch (e) {
+            console.log('[BUY] Attempt ' + (attempt + 1) + ' Error: ' + e.message);
         }
-        lastPending = transactions.length;
-
-        $('admin-tx-list').innerHTML = transactions.length ? transactions.map(t => `
-            <div class="admin-card">
-                <strong>${t.user_email}</strong>
-                <div class="admin-meta">Amount: ${t.amount} PKR</div>
-                <div class="admin-actions">
-                    <a href="/uploads/${t.screenshot}" target="_blank" class="mini-btn">View Screenshot</a>
-                    <button class="mini-btn approve-btn" data-id="${t.id}">Approve</button>
-                    <button class="mini-btn reject-btn" data-id="${t.id}">Reject</button>
-                </div>
-            </div>
-        `).join('') : '<div class="sub-text">No pending payments.</div>';
-
-        document.querySelectorAll('.approve-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                try {
-                    const res = await fetch(`/api/admin/transactions/${btn.dataset.id}/approve`, { method: 'POST', credentials: 'include' });
-                    if (!res.ok) throw new Error(await res.text());
-                    toast('Approved', 'success');
-                    await loadAdminData();
-                    if (currentUser) refreshUser();
-                } catch (err) { toast(err.message, 'error'); }
-            });
-        });
-        document.querySelectorAll('.reject-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                try {
-                    const res = await fetch(`/api/admin/transactions/${btn.dataset.id}/reject`, { method: 'POST', credentials: 'include' });
-                    if (!res.ok) throw new Error(await res.text());
-                    toast('Rejected', 'success');
-                    await loadAdminData();
-                } catch (err) { toast(err.message, 'error'); }
-            });
-        });
-
-        $('admin-resets-list').innerHTML = resets.length ? resets.map(r => `
-            <div class="admin-card">
-                <strong>${r.email}</strong>
-                <div class="admin-meta">Expires: ${new Date(r.reset_token_expires).toLocaleString()}</div>
-            </div>
-        `).join('') : '<div class="sub-text">No pending resets.</div>';
-
-    } catch (err) {
-        toast('Admin data load failed', 'error');
+        if (attempt < 2) await waitMs(5000);
     }
-}
-
-function showLoginForm() {
-    $('show-login-tab').classList.add('active');
-    $('show-register-tab').classList.remove('active');
-    $('login-form-wrap').classList.remove('hidden');
-    $('register-form-wrap').classList.add('hidden');
-    $('forgot-form-wrap').classList.add('hidden');
-}
-function showRegisterForm() {
-    $('show-register-tab').classList.add('active');
-    $('show-login-tab').classList.remove('active');
-    $('register-form-wrap').classList.remove('hidden');
-    $('login-form-wrap').classList.add('hidden');
-    $('forgot-form-wrap').classList.add('hidden');
-}
-function showForgotForm() {
-    $('show-login-tab').classList.add('active');
-    $('show-register-tab').classList.remove('active');
-    $('login-form-wrap').classList.add('hidden');
-    $('register-form-wrap').classList.add('hidden');
-    $('forgot-form-wrap').classList.remove('hidden');
-}
-function backToLogin() {
-    showLoginForm();
-}
-
-$('show-login-tab').addEventListener('click', showLoginForm);
-$('show-register-tab').addEventListener('click', showRegisterForm);
-$('login-btn').addEventListener('click', login);
-$('register-btn').addEventListener('click', register);
-$('google-login-btn').addEventListener('click', () => window.location.href = '/api/auth/google');
-$('forgot-btn').addEventListener('click', showForgotForm);
-$('back-to-login').addEventListener('click', backToLogin);
-$('forgot-submit-btn').addEventListener('click', forgotPassword);
-$('open-password-modal').addEventListener('click', () => $('password-modal').style.display = 'flex');
-$('close-password-modal').addEventListener('click', () => $('password-modal').style.display = 'none');
-$('save-password-btn').addEventListener('click', changePassword);
-$('account-toggle-btn').addEventListener('click', () => {
-    const content = $('account-details-content');
-    if (content.classList.contains('hidden')) {
-        content.classList.remove('hidden');
-        $('account-toggle-btn').innerText = '−';
-    } else {
-        content.classList.add('hidden');
-        $('account-toggle-btn').innerText = '+';
-    }
-});
-$('logout-btn').addEventListener('click', logout);
-$('add-money-btn').addEventListener('click', () => $('payment-modal').style.display = 'flex');
-$('close-payment-modal').addEventListener('click', () => $('payment-modal').style.display = 'none');
-$('close-order-modal').addEventListener('click', closeOrderModal);
-$('check-otp-manual').addEventListener('click', async () => {
-    if (activeOrder) await pollOtp(activeOrder.id, false);
-});
-$('copy-number-btn').addEventListener('click', () => {
-    const num = $('order-number').innerText;
-    if (num && num !== 'Processing...') copyText(num);
-});
-$('contact-btn').addEventListener('click', () => {
-    if (window.Tawk_API) window.Tawk_API.toggle();
-    else toast('Support loading...', 'info');
-});
-
-$('addFundsForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = $('submit-payment-btn');
-    const orig = btn.innerHTML;
-    btn.innerHTML = 'Submitting...';
-    btn.disabled = true;
+    // One more try without maxPrice
     try {
-        const formData = new FormData(e.target);
-        const res = await fetch('/api/add-funds', { method: 'POST', body: formData, credentials: 'include' });
-        if (!res.ok) throw new Error(await res.text());
-        toast('Payment submitted', 'success');
-        $('payment-modal').style.display = 'none';
-        e.target.reset();
-    } catch (err) {
-        toast(err.message, 'error');
-    } finally {
-        btn.innerHTML = orig;
-        btn.disabled = false;
+        var url2 = FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getNumber&service=' + sc + '&country=' + cid;
+        console.log('[BUY] Final attempt URL: ' + url2);
+        var r2 = await axios.get(url2, { timeout: 60000 });
+        var result2 = extractPhone(r2.data);
+        console.log('[BUY] Final Result: ' + JSON.stringify(result2));
+        if (result2.ok) return result2;
+    } catch (e) {
+        console.log('[BUY] Final Error: ' + e.message);
+    }
+    return { ok: false, error: 'No number found' };
+}
+
+async function checkSms(aid) {
+    try {
+        var r = await axios.get(FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=getStatus&id=' + aid, { timeout: 30000 });
+        var t = String(r.data || '').trim();
+        if (t.indexOf('STATUS_OK:') === 0) return { ok: true, code: t.split(':')[1] };
+        if (t === 'STATUS_WAIT_CODE') return { ok: true, waiting: true };
+        return { ok: false, raw: t };
+    } catch (e) { return { ok: false, error: e.message }; }
+}
+
+function ensureAuth(req, res, next) { if (!req.session.userId) return res.status(401).send('Login required'); next(); }
+async function ensureAdmin(req, res, next) {
+    try { if (!req.session.userId) return res.status(401).send('Login required'); var u = await findUserById(req.session.userId); if (!u || u.role !== 'admin') return res.status(403).send('Admin only'); req.user = u; next(); }
+    catch (e) { res.status(500).send('Error'); }
+}
+
+app.get('/', function(req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/reset-password', function(req, res) { res.sendFile(path.join(__dirname, 'public', 'index.html')); });
+app.get('/api/countries', function(req, res) { res.json(countries); });
+app.get('/api/facebook/countries', function(req, res) { res.json(facebookCountries); });
+app.get('/api/instagram/countries', function(req, res) { res.json(instagramCountries); });
+app.get('/api/snapchat/countries', function(req, res) { res.json(snapchatCountries); });
+app.get('/api/google/countries', function(req, res) { res.json(googleCountries); });
+app.get('/api/tiktok/countries', function(req, res) { res.json(tiktokCountries); });
+
+app.post('/api/forgot-password', async function(req, res) {
+    try { var email = req.body.email; if (!vEmail(email)) return res.status(400).send('Valid email required'); var u = await findUser(email); if (!u) return res.json({ sent: false }); var token = crypto.randomBytes(32).toString('hex'); await qR('UPDATE users SET reset_token=$1,reset_token_expires=$2 WHERE id=$3', [token, new Date(Date.now() + 3600000).toISOString(), u.id]); res.json({ sent: true }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/reset-password', async function(req, res) {
+    try { var token = req.body.token, np = req.body.newPassword; if (!token || !vPass(np)) return res.status(400).send('Invalid'); var u = await q1('SELECT * FROM users WHERE reset_token=$1 AND reset_token_expires>NOW()', [token]); if (!u) return res.status(400).send('Expired'); await qR('UPDATE users SET password=$1,reset_token=NULL,reset_token_expires=NULL WHERE id=$2', [hashP(np), u.id]); res.json({ success: true }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/auth/google', function(req, res) { res.redirect('/auth/google'); });
+app.get('/auth/google', async function(req, res) {
+    if (!ensureG()) return res.status(500).send('Google not configured');
+    var state = crypto.randomBytes(16).toString('hex'); req.session.google_oauth_state = state;
+    res.redirect('https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, redirect_uri: GOOGLE_CALLBACK_URL, response_type: 'code', scope: 'openid email profile', state: state }).toString());
+});
+app.get('/auth/google/callback', async function(req, res) {
+    try {
+        if (!ensureG()) return res.status(500).send('Google not configured');
+        var code = req.query.code, state = req.query.state;
+        if (!code || state !== req.session.google_oauth_state) return res.redirect('/');
+        delete req.session.google_oauth_state;
+        var tr = await axios.post('https://oauth2.googleapis.com/token', new URLSearchParams({ client_id: GOOGLE_CLIENT_ID, client_secret: GOOGLE_CLIENT_SECRET, code: code, grant_type: 'authorization_code', redirect_uri: GOOGLE_CALLBACK_URL }).toString(), { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 30000 });
+        var pr = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: 'Bearer ' + tr.data.access_token }, timeout: 30000 });
+        if (!pr.data || !pr.data.email) return res.redirect('/');
+        var u = await findUser(pr.data.email); if (!u) { await createUser(pr.data.name || '', pr.data.email, randP()); u = await findUser(pr.data.email); }
+        if (!u || !u.is_active) return res.redirect('/');
+        req.session.regenerate(function(e) { if (e) return res.redirect('/'); req.session.userId = u.id; res.redirect('/'); });
+    } catch (e) { res.redirect('/'); }
+});
+app.post('/api/register', async function(req, res) {
+    try { var n = String(req.body.name || '').trim(), e = sEmail(req.body.email), p = req.body.password; if (!n || !vEmail(e) || !vPass(p)) return res.status(400).send('Invalid input'); if (await findUser(e)) return res.status(400).send('Email exists'); await createUser(n, e, p); res.json({ success: true }); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/login', async function(req, res) {
+    try {
+        var e = sEmail(req.body.email), p = req.body.password;
+        if (!vEmail(e) || !p) return res.status(400).send('Invalid input');
+        var u = await findUser(e); if (!u || !u.is_active) return res.status(401).send('Invalid credentials');
+        var match = await bcrypt.compare(p, u.password); if (!match) return res.status(401).send('Invalid credentials');
+        await qR('UPDATE users SET login_attempts=0,last_login=CURRENT_TIMESTAMP WHERE id=$1', [u.id]);
+        req.session.regenerate(function(e) { if (e) return res.status(500).send('Failed'); req.session.userId = u.id; res.json({ success: true }); });
+    } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.post('/api/change-password', ensureAuth, async function(req, res) {
+    try { var u = await findUserById(req.session.userId); if (!u) return res.status(404).send('Not found'); if (!(await bcrypt.compare(req.body.currentPassword, u.password))) return res.status(400).send('Wrong password'); await qR('UPDATE users SET password=$1 WHERE id=$2', [hashP(req.body.newPassword), u.id]); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/me', ensureAuth, async function(req, res) {
+    try { var u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); res.json({ id: u.id, name: u.name, email: u.email, balance: u.balance, role: u.role, referralCode: u.referral_code }); } catch (e) { res.status(500).send('Error'); }
+});
+app.get('/api/logout', function(req, res) { req.session.destroy(function() { res.clearCookie('mrf.sid'); res.send('OK'); }); });
+
+// ===== MAIN ORDER ENDPOINT =====
+app.post('/api/order', ensureAuth, async function(req, res) {
+    var client = await pool.connect();
+    try {
+        var countryName = req.body.countryName, price = req.body.price, countryId = req.body.countryId, service = req.body.service;
+        var cfg = svcConfig[service];
+        if (!cfg) { client.release(); return res.status(400).send('Invalid service'); }
+        var co = cfg.countries.find(function(c) { return c.name === countryName && Number(c.countryId) === Number(countryId); });
+        if (!co) { client.release(); return res.status(400).send('Invalid country'); }
+
+        await client.query('BEGIN');
+        var ur = (await client.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [req.session.userId])).rows[0];
+        if (!ur || Number(ur.balance) < Number(price)) { await client.query('ROLLBACK'); client.release(); return res.status(400).send('Insufficient balance'); }
+
+        console.log('[ORDER] ===== START BUYING =====');
+        console.log('[ORDER] service=' + cfg.code + ' country=' + countryId + ' maxUsd=' + pkrUsd(price));
+        var result = await buyNumber(countryId, pkrUsd(price), cfg.code);
+        console.log('[ORDER] ===== FINAL RESULT: ' + JSON.stringify(result) + ' =====');
+
+        if (!result.ok || !result.phone) {
+            await client.query('ROLLBACK'); client.release();
+            return res.status(500).send('No number available. Try again.');
+        }
+
+        var now = new Date();
+        await client.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(ur.balance) - Number(price), ur.id]);
+        var ins = (await client.query(
+            'INSERT INTO orders(user_id,user_email,service_type,service_name,country,country_code,country_id,price,payment_method,order_status,phone_number,activation_id,expires_at,cancel_available_at,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id',
+            [ur.id, ur.email, service, cfg.name, countryName, co.code, co.countryId, price, 'balance', 'active', result.phone, result.id || null, new Date(now.getTime() + 25 * 60000).toISOString(), new Date(now.getTime() + 60000).toISOString(), now.toISOString()]
+        )).rows[0];
+        await client.query('COMMIT');
+        client.release();
+        console.log('[ORDER] SUCCESS! id=' + ins.id + ' phone=' + result.phone);
+        res.json({ id: ins.id, number: result.phone });
+    } catch (e) {
+        await client.query('ROLLBACK'); client.release();
+        console.error('[ORDER] ERROR:', e);
+        res.status(500).send(safeErr(e));
     }
 });
 
-$('theme-toggle').addEventListener('click', () => {
-    document.body.classList.toggle('light');
-    localStorage.setItem('mrf-theme', document.body.classList.contains('light') ? 'light' : 'dark');
-});
-if (localStorage.getItem('mrf-theme') === 'light') document.body.classList.add('light');
+app.get('/api/orders/:id', ensureAuth, async function(req, res) { try { var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); var u = await findUserById(req.session.userId); if (!u || (o.user_id !== u.id && u.role !== 'admin')) return res.status(403).send('No access'); res.json(o); } catch (e) { res.status(500).send('Error'); } });
+app.get('/api/orders', ensureAuth, async function(req, res) { try { res.json(await getUserOrders(req.session.userId)); } catch (e) { res.status(500).send('Error'); } });
 
-document.querySelectorAll('.nav-item[data-service]').forEach(item => {
-    if (item.id === 'contact-btn') return;
-    item.addEventListener('click', () => {
-        document.querySelectorAll('.nav-item[data-service]').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        currentService = item.dataset.service;
-        const meta = SVC_META[currentService];
-        $('hero-title').innerText = `Available ${meta.label} Numbers`;
-        $('hero-svc').innerText = meta.label;
-        allCountries = [];
-        $('country-list').innerHTML = '';
-        $('country-search').value = '';
-        currentFilter = 'all';
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        document.querySelector('.chip[data-filter="all"]').classList.add('active');
-        loadCountries();
-        sidebar.classList.remove('open');
-    });
+app.post('/api/orders/:id/replace', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); var u = await findUserById(req.session.userId); if (!u || o.user_id !== u.id || o.order_status !== 'active' || o.otp_received) return res.status(400).send('Cannot replace'); try { await axios.get(FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {} var r = await buyNumber(o.country_id, pkrUsd(o.price), svcConfig[o.service_type] ? svcConfig[o.service_type].code : 'wa'); if (!r.ok) return res.status(500).send('No replacement'); var now = new Date(); await updateOrder(o.id, { phone_number: r.phone, activation_id: r.id || null, otp_received: false, otp_code: null, order_status: 'active', created_at: now.toISOString(), expires_at: new Date(now.getTime() + 25 * 60000).toISOString(), cancel_available_at: new Date(now.getTime() + 60000).toISOString() }); res.json({ number: r.phone }); } catch (e) { res.status(500).send(safeErr(e)); }
 });
 
-document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-        chip.classList.add('active');
-        currentFilter = chip.dataset.filter;
-        renderCountries();
-    });
-});
-$('country-search').addEventListener('input', renderCountries);
-
-window.addEventListener('click', (e) => {
-    if (e.target === $('payment-modal')) $('payment-modal').style.display = 'none';
-    if (e.target === $('order-modal')) closeOrderModal();
-    if (e.target === $('processing-modal')) $('processing-modal').style.display = 'none';
-    if (e.target === $('password-modal')) $('password-modal').style.display = 'none';
+app.post('/api/orders/:id/cancel', ensureAuth, async function(req, res) {
+    var c = await pool.connect(); try { await c.query('BEGIN'); var o = (await c.query('SELECT * FROM orders WHERE id=$1 FOR UPDATE', [Number(req.params.id)])).rows[0]; if (!o) { await c.query('ROLLBACK'); c.release(); return res.status(404).send('Not found'); } var u = (await c.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [req.session.userId])).rows[0]; if (!u || o.user_id !== u.id || o.order_status !== 'active' || o.otp_received || new Date() < new Date(o.cancel_available_at)) { await c.query('ROLLBACK'); c.release(); return res.status(400).send('Cannot cancel'); } try { await axios.get(FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {} await c.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(u.balance || 0) + Number(o.price || 0), u.id]); await c.query('UPDATE orders SET order_status=$1 WHERE id=$2', ['cancelled', o.id]); await c.query('COMMIT'); c.release(); res.send('OK'); } catch (e) { await c.query('ROLLBACK'); c.release(); res.status(500).send(safeErr(e)); }
 });
 
-loadCountries();
-checkAuth();
-</script>
-</body>
-</html>
-```
+app.post('/api/orders/:id/complete', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (!o || !o.otp_received) return res.status(400).send('Cannot complete'); try { await axios.get(FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=6', { timeout: 30000 }); } catch (e) {} await updateOrder(o.id, { order_status: 'completed', completed_at: new Date().toISOString() }); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.post('/api/orders/:id/expire', ensureAuth, async function(req, res) {
+    try { var o = await getOrderById(Number(req.params.id)); if (o && o.order_status === 'active' && !o.otp_received) { try { await axios.get(FULL_API_URL + '?api_key=' + SMSBOWER_API_KEY + '&action=setStatus&id=' + o.activation_id + '&status=8', { timeout: 30000 }); } catch (e) {} await updateOrder(o.id, { order_status: 'cancelled' }); } res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+
+app.get('/api/orders/:id/otp', ensureAuth, async function(req, res) {
+    try {
+        var o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found');
+        if (o.otp_received) return res.json({ received: true, code: o.otp_code });
+        if (!o.activation_id) return res.json({ received: false, error: 'No ID' });
+        if (new Date() >= new Date(o.expires_at) && !o.otp_received) { await updateOrder(o.id, { order_status: 'cancelled' }); return res.json({ received: false, expired: true }); }
+        var sr = await checkSms(o.activation_id);
+        if (sr.ok && sr.code) { await updateOrder(o.id, { otp_received: true, otp_code: sr.code, order_status: 'otp_received' }); return res.json({ received: true, code: sr.code }); }
+        if (sr.ok && sr.waiting) return res.json({ received: false, waiting: true });
+        return res.json({ received: false, error: true });
+    } catch (e) { res.status(500).json({ received: false, error: true }); }
+});
+
+app.get('/api/admin/stats', ensureAdmin, async function(req, res) {
+    try {
+        var t = await q1("SELECT COALESCE(SUM(price),0) as rev, COUNT(*) as cnt FROM orders WHERE created_at>=CURRENT_DATE");
+        var u = await q1("SELECT COUNT(*) as cnt FROM users");
+        var a = await q1("SELECT COUNT(*) as cnt FROM orders WHERE order_status='active'");
+        var s = await q1("SELECT COUNT(*) as total, COUNT(*) FILTER (WHERE otp_received=true) as ok FROM orders WHERE created_at>=CURRENT_DATE");
+        var tr = await q1("SELECT COALESCE(SUM(price),0) as rev FROM orders");
+        res.json({ todayRevenue: Number(t.rev || 0), todayOrders: Number(t.cnt || 0), totalUsers: Number(u.cnt || 0), activeOrders: Number(a.cnt || 0), todaySuccessRate: Number(s.total || 0) > 0 ? Math.round(Number(s.ok || 0) / Number(s.total || 0) * 100) : 0, totalRevenue: Number(tr.rev || 0), totalCost: 0, totalProfit: Number(tr.rev || 0) });
+    } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.get('/api/admin/orders', ensureAdmin, async function(req, res) { try { res.json(await getAllOrders()); } catch (e) { res.status(500).send('Error'); } });
+app.get('/api/admin/transactions', ensureAdmin, async function(req, res) { try { res.json(await qA("SELECT * FROM transactions WHERE status='pending' ORDER BY id DESC")); } catch (e) { res.status(500).send('Error'); } });
+app.post('/api/admin/transactions/:id/approve', ensureAdmin, async function(req, res) { try { var c = await pool.connect(); await c.query('BEGIN'); var tx = (await c.query('SELECT * FROM transactions WHERE id=$1 FOR UPDATE', [Number(req.params.id)])).rows[0]; var u = (await c.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [tx.user_id])).rows[0]; await c.query('UPDATE transactions SET status=$1 WHERE id=$2', ['approved', tx.id]); await c.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(u.balance || 0) + Number(tx.amount || 0), u.id]); await c.query('COMMIT'); c.release(); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
+app.post('/api/admin/transactions/:id/reject', ensureAdmin, async function(req, res) { try { await qR('UPDATE transactions SET status=$1 WHERE id=$2', ['rejected', Number(req.params.id)]); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); } });
+
+app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async function(req, res) {
+    try { var a = parseFloat(req.body.amount); if (!a || a < 150) return res.status(400).send('Min 150'); if (!req.file) return res.status(400).send('Screenshot required'); var u = await findUserById(req.session.userId); await qR('INSERT INTO transactions(user_id,user_email,amount,screenshot) VALUES($1,$2,$3,$4)', [req.session.userId, u.email, a, req.file.filename]); res.send('OK'); } catch (e) { res.status(500).send(safeErr(e)); }
+});
+app.use('/uploads', express.static(UPLOAD_DIR));
+
+var countries = [
+    { name: 'South Africa', code: '+27', price: 170, countryId: 31, flag: '🇿🇦' },
+    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
+    { name: 'Canada', code: '+1', price: 210, countryId: 36, flag: '🇨🇦' },
+    { name: 'Philippines', code: '+63', price: 210, countryId: 4, flag: '🇵🇭' },
+    { name: 'Thailand', code: '+66', price: 300, countryId: 52, flag: '🇹🇭' },
+    { name: 'Vietnam', code: '+84', price: 210, countryId: 10, flag: '🇻🇳' },
+    { name: 'Colombia', code: '+57', price: 270, countryId: 33, flag: '🇨🇴' },
+    { name: 'Saudi Arabia', code: '+966', price: 320, countryId: 53, flag: '🇸🇦' },
+    { name: 'Brazil', code: '+55', price: 370, countryId: 73, flag: '🇧🇷' },
+    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '🇺🇸' },
+    { name: 'United Kingdom', code: '+44', price: 450, countryId: 16, flag: '🇬🇧' }
+];
+var facebookCountries = [ { name: 'Canada', code: '+1', price: 70, countryId: 36, flag: '🇨🇦' }, { name: 'USA', code: '+1', price: 80, countryId: 187, flag: '🇺🇸' }, { name: 'USA Virtual', code: '+1', price: 70, countryId: 12, flag: '🇺🇸' } ];
+var instagramCountries = [ { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' }, { name: 'Indonesia', code: '+62', price: 30, countryId: 6, flag: '🇮🇩' }, { name: 'United Kingdom', code: '+44', price: 40, countryId: 16, flag: '🇬🇧' }, { name: 'Brazil', code: '+55', price: 30, countryId: 73, flag: '🇧🇷' } ];
+var snapchatCountries = [ { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' }, { name: 'Colombia', code: '+57', price: 30, countryId: 33, flag: '🇨🇴' }, { name: 'USA Virtual', code: '+1', price: 20, countryId: 12, flag: '🇺🇸' } ];
+var googleCountries = [ { name: 'Indonesia', code: '+62', price: 90, countryId: 6, flag: '🇮🇩' } ];
+var tiktokCountries = [ { name: 'United Kingdom', code: '+44', price: 70, countryId: 16, flag: '🇬🇧' }, { name: 'Indonesia', code: '+62', price: 40, countryId: 6, flag: '🇮🇩' }, { name: 'USA', code: '+1', price: 70, countryId: 187, flag: '🇺🇸' } ];
+var svcConfig = { whatsapp: { code: 'wa', countries: countries, name: 'WhatsApp Number' }, facebook: { code: 'fb', countries: facebookCountries, name: 'Facebook Number' }, instagram: { code: 'ig', countries: instagramCountries, name: 'Instagram Number' }, snapchat: { code: 'sc', countries: snapchatCountries, name: 'Snapchat Number' }, google: { code: 'go', countries: googleCountries, name: 'Google Number' }, tiktok: { code: 'tk', countries: tiktokCountries, name: 'TikTok Number' } };
+
+async function initDB() {
+    await qR('CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,name TEXT,balance NUMERIC(12,2) DEFAULT 0,role TEXT DEFAULT \'user\',referral_code TEXT,is_active BOOLEAN DEFAULT TRUE,login_attempts INTEGER DEFAULT 0,last_login TIMESTAMPTZ,reset_token TEXT,reset_token_expires TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)');
+    await qR('CREATE TABLE IF NOT EXISTS orders(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,user_email TEXT,service_type TEXT,service_name TEXT,country TEXT,country_code TEXT,country_id INTEGER,price NUMERIC(12,2),payment_method TEXT,order_status TEXT DEFAULT \'pending\',phone_number TEXT,activation_id TEXT,otp_received BOOLEAN DEFAULT FALSE,otp_code TEXT,expires_at TIMESTAMPTZ,cancel_available_at TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,completed_at TIMESTAMPTZ)');
+    await qR('CREATE TABLE IF NOT EXISTS transactions(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,user_email TEXT,amount NUMERIC(12,2),screenshot TEXT,status TEXT DEFAULT \'pending\',created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)');
+    try { await qR('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token TEXT'); } catch (e) {}
+    try { await qR('ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_token_expires TIMESTAMPTZ'); } catch (e) {}
+    if (ADMIN_EMAIL && ADMIN_PASSWORD) { var ae = sEmail(ADMIN_EMAIL); var ex = normUser(await q1('SELECT * FROM users WHERE email=$1', [ae])); if (!ex) { await qR('INSERT INTO users(email,password,name,role,referral_code) VALUES($1,$2,$3,$4,$5)', [ae, hashP(ADMIN_PASSWORD), ADMIN_NAME, 'admin', 'ADMIN']); } else if (ex.role !== 'admin') { await qR('UPDATE users SET role=$1 WHERE id=$2', ['admin', ex.id]); } }
+}
+async function findUser(e) { return normUser(await q1('SELECT * FROM users WHERE email=$1', [sEmail(e)])); }
+async function findUserById(id) { return normUser(await q1('SELECT * FROM users WHERE id=$1', [id])); }
+async function createUser(n, e, p) { return qR('INSERT INTO users(email,password,name,referral_code) VALUES($1,$2,$3,$4)', [sEmail(e), hashP(p), String(n || '').trim(), Math.random().toString(36).substring(2, 10).toUpperCase()]); }
+async function getUserOrders(uid) { return (await qA('SELECT * FROM orders WHERE user_id=$1 ORDER BY id DESC', [uid])).map(normOrder); }
+async function getOrderById(id) { return normOrder(await q1('SELECT * FROM orders WHERE id=$1', [id])); }
+async function updateOrder(id, u) { var k = Object.keys(u); if (!k.length) return; await qR('UPDATE orders SET ' + k.map(function(key, i) { return key + '=$' + (i + 1); }).join(',') + ' WHERE id=$' + (k.length + 1), k.map(function(key) { return u[key]; }).concat([id])); }
+async function getAllOrders() { return (await qA('SELECT * FROM orders ORDER BY id DESC')).map(normOrder); }
+
+initDB().then(function() { app.listen(PORT, '0.0.0.0', function() { console.log('Running on ' + PORT + ' | API URL: ' + FULL_API_URL); }); }).catch(function(e) { console.error('DB fail:', e); process.exit(1); });
