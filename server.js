@@ -342,9 +342,9 @@ const countries = [
 ];
 
 const facebookCountries = [
-    { name: 'Canada', code: '+1', price: 150, countryId: 36, flag: '🇨🇦' },
-    { name: 'USA', code: '+1', price: 250, countryId: 187, flag: '🇺🇸' },
-    { name: 'USA Virtual', code: '+1', price: 80, countryId: 189, flag: '🇺🇸' }
+    { name: 'Canada', code: '+1', price: 70, countryId: 36, flag: '🇨🇦' },
+    { name: 'USA', code: '+1', price: 80, countryId: 187, flag: '🇺🇸' },
+    { name: 'USA Virtual', code: '+1', price: 70, countryId: 12, flag: '🇺🇸' }
 ];
 
 function parseV1NumberResponse(text) {
