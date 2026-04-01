@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes">
 <title>MRF SMS – Premium OTP Portal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -11,246 +13,367 @@
 body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
 body{min-height:100vh;font-family:'Inter',sans-serif;color:var(--text);background:linear-gradient(140deg,var(--bg),var(--bg2));overflow-x:hidden}
 body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:28px 28px;pointer-events:none;z-index:0}
-.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.4;pointer-events:none;z-index:0}
-.blob-1{width:400px;height:400px;background:rgba(34,197,94,.12);top:-100px;left:-100px;animation:bfloat 25s ease-in-out infinite}
-.blob-2{width:350px;height:350px;background:rgba(56,189,248,.10);bottom:-80px;right:-80px;animation:bfloat 20s ease-in-out infinite reverse}
+.blob{position:fixed;border-radius:50%;filter:blur(80px);opacity:.35;pointer-events:none;z-index:0}
+.blob-1{width:400px;height:400px;background:rgba(34,197,94,.15);top:-100px;left:-100px;animation:bfloat 25s ease-in-out infinite}
+.blob-2{width:350px;height:350px;background:rgba(56,189,248,.12);bottom:-80px;right:-80px;animation:bfloat 20s ease-in-out infinite reverse}
 .blob-3{width:250px;height:250px;background:rgba(168,85,247,.08);top:50%;left:50%;animation:bfloat 30s ease-in-out infinite 5s}
 @keyframes bfloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(50px,-30px) scale(1.1)}50%{transform:translate(-30px,50px) scale(.9)}75%{transform:translate(40px,20px) scale(1.05)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.01)}}
-@keyframes confetti-fall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes confettiFall{to{transform:translateY(100vh) rotate(720deg);opacity:0}}
 .app-shell{position:relative;z-index:1;padding:18px}
-.dashboard{display:grid;grid-template-columns:260px 1fr 340px;gap:16px;min-height:calc(100vh - 36px)}
-.glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:28px}
-.sidebar{padding:16px;display:flex;flex-direction:column;gap:14px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.sidebar::-webkit-scrollbar{width:4px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
-.brand{display:flex;align-items:center;gap:12px;padding:14px;border-radius:20px;background:linear-gradient(145deg,rgba(74,222,128,.14),rgba(56,189,248,.10));border:1px solid rgba(255,255,255,.12)}
-.brand-mark{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;font-size:22px;font-weight:800;background:linear-gradient(135deg,#31d968,#1fc857);color:#04210f;box-shadow:0 10px 24px rgba(34,197,94,.28);flex-shrink:0}
-.brand h1{font-size:16px;font-weight:800;line-height:1.1}.brand p{margin-top:3px;color:var(--muted);font-size:11px}
-.nav-card{padding:12px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
-.nav-label{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;padding:0 8px}
-.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border-radius:16px;border:1px solid transparent;background:transparent;color:var(--text);cursor:pointer;transition:.25s;font-size:13px;font-weight:600}
+.dashboard{display:grid;grid-template-columns:250px 1fr 330px;gap:14px;min-height:calc(100vh - 36px)}
+.glass{background:var(--panel);backdrop-filter:blur(18px);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:24px}
+.sidebar{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:3px}.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.brand{display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.14),rgba(56,189,248,.10));border:1px solid rgba(255,255,255,.12)}
+.brand-mark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:20px;font-weight:800;background:linear-gradient(135deg,#31d968,#1fc857);color:#04210f;box-shadow:0 8px 20px rgba(34,197,94,.28);flex-shrink:0}
+.brand h1{font-size:15px;font-weight:800;line-height:1.1}.brand p{margin-top:2px;color:var(--muted);font-size:10px}
+.nav-card{padding:10px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
+.nav-label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;padding:0 6px}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border-radius:14px;border:1px solid transparent;background:transparent;color:var(--text);cursor:pointer;transition:.25s;font-size:12.5px;font-weight:600}
 .nav-item:hover{background:var(--card2);border-color:var(--border);transform:translateY(-1px)}
 .nav-item.active{background:linear-gradient(135deg,rgba(74,222,128,.20),rgba(56,189,248,.18));border-color:rgba(74,222,128,.22)}
-.nav-icon{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;overflow:hidden}
-.nav-icon svg{width:22px;height:22px}
-.main{padding:16px;overflow:hidden}
-.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:16px;padding:18px;border-radius:24px;background:radial-gradient(circle at top right,rgba(74,222,128,.18),transparent 28%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--border)}
-.hero h2{font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px}
-.hero p{color:var(--muted);line-height:1.6;max-width:700px;font-size:13px}
-.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.hero-badge{padding:8px 12px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:12px;font-weight:600}
-.hero-stats{min-width:200px;display:grid;gap:10px}
-.mini-stat{padding:14px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
-.mini-stat .label{color:var(--muted);font-size:11px;margin-bottom:6px}.mini-stat .value{font-size:20px;font-weight:800}
-.toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
-.search-wrap{display:flex;align-items:center;gap:10px;flex:1;padding:12px 14px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.search-wrap input{flex:1;border:none;outline:none;background:transparent;color:var(--text);font-size:13px}.search-wrap input::placeholder{color:var(--muted)}
-.chip{padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-weight:600;font-size:12px;cursor:pointer;transition:.2s}
+.nav-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;overflow:hidden}
+.nav-icon svg{width:20px;height:20px}
+.main{padding:14px;overflow:hidden}
+.hero{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;padding:16px;border-radius:22px;background:radial-gradient(circle at top right,rgba(74,222,128,.18),transparent 28%),linear-gradient(145deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--border)}
+.hero h2{font-size:24px;font-weight:800;letter-spacing:-.03em;margin-bottom:5px}
+.hero p{color:var(--muted);line-height:1.5;max-width:680px;font-size:12px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.hero-badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:11px;font-weight:600}
+.hero-stats{min-width:180px;display:grid;gap:8px}
+.mini-stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid var(--border)}
+.mini-stat .label{color:var(--muted);font-size:10px;margin-bottom:4px}.mini-stat .value{font-size:18px;font-weight:800}
+.toolbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:14px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
+.search-wrap{display:flex;align-items:center;gap:8px;flex:1;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
+.search-wrap input{flex:1;border:none;outline:none;background:transparent;color:var(--text);font-size:12px}
+.search-wrap input::placeholder{color:var(--muted)}
+.chip{padding:8px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-weight:600;font-size:11px;cursor:pointer;transition:.2s}
 .chip:hover,.chip.active{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.14)}
-.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.section-title h3{font-size:18px;font-weight:800}.section-title p{font-size:12px;color:var(--muted)}
-.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.country-card{position:relative;overflow:hidden;padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border);transition:.25s;box-shadow:0 12px 36px rgba(0,0,0,.16)}
-.country-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.22);box-shadow:0 18px 44px rgba(0,0,0,.22)}
-.country-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.country-flag{width:48px;height:48px;display:grid;place-items:center;font-size:26px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid var(--border)}
-.status-pill{padding:6px 8px;border-radius:999px;background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.18);color:#99f6b4;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
-.country-name{font-size:16px;font-weight:700;margin-bottom:4px}.country-code{color:var(--muted);font-size:12px;margin-bottom:14px}
-.country-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
-.price-box span{color:var(--muted);font-size:11px;margin-bottom:3px;display:block}
-.country-price{font-size:24px;font-weight:800;color:var(--primary);letter-spacing:-.04em}
+.section-title{margin-bottom:10px}
+.section-title h3{font-size:16px;font-weight:800}
+.country-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.country-card{padding:14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border);transition:.25s;box-shadow:0 10px 30px rgba(0,0,0,.14)}
+.country-card:hover{transform:translateY(-3px);border-color:rgba(74,222,128,.22)}
+.country-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.country-flag{width:44px;height:44px;display:grid;place-items:center;font-size:24px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--border)}
+.status-pill{padding:5px 7px;border-radius:999px;background:rgba(74,222,128,.13);border:1px solid rgba(74,222,128,.18);color:#99f6b4;font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.country-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.country-code{color:var(--muted);font-size:11px;margin-bottom:12px}
+.country-price{font-size:22px;font-weight:800;color:var(--primary);letter-spacing:-.04em}
 .btn{border:none;outline:none;cursor:pointer;transition:.22s;font-weight:700;font-family:inherit}
 .btn:disabled{opacity:.6;cursor:not-allowed;transform:none!important}
-.btn-primary{width:100%;padding:12px 16px;border-radius:16px;color:#04210f;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 10px 22px rgba(34,197,94,.26)}
-.btn-soft{padding:10px 14px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text)}
+.btn-primary{width:100%;padding:11px 14px;border-radius:14px;color:#04210f;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 8px 18px rgba(34,197,94,.26)}
+.btn-soft{padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text)}
 .btn-danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff}
 .btn-warning{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1f1300}
 .btn-info{background:linear-gradient(135deg,#67e8f9,#38bdf8);color:#062132}
-.btn-google{width:100%;padding:12px 16px;border-radius:16px;background:#fff;color:#111827;border:1px solid #d1d5db;font-weight:700}
+.btn-google{width:100%;padding:11px 14px;border-radius:14px;background:#fff;color:#111827;border:1px solid #d1d5db}
 .btn-reject{background:linear-gradient(135deg,#f87171,#dc2626);color:#fff}
-.right-panel{padding:16px;display:flex;flex-direction:column;gap:14px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
-.right-panel::-webkit-scrollbar{width:4px}.right-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
-.panel-block{padding:16px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
-.top-auth-card{padding:16px;border-radius:22px;background:radial-gradient(circle at top left,rgba(74,222,128,.18),transparent 25%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.top-auth-card h3{font-size:18px;font-weight:800;margin-bottom:6px}.top-auth-card p{color:var(--muted);line-height:1.5;font-size:13px}
-.auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin:14px 0}
-.auth-tab{padding:10px;border-radius:12px;border:none;background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:13px}
+.right-panel{padding:14px;display:flex;flex-direction:column;gap:12px;position:sticky;top:18px;max-height:calc(100vh - 36px);overflow-y:auto}
+.right-panel::-webkit-scrollbar{width:3px}.right-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
+.panel-block{padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--border)}
+.top-auth-card{padding:14px;border-radius:20px;background:radial-gradient(circle at top left,rgba(74,222,128,.18),transparent 25%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
+.top-auth-card h3{font-size:16px;font-weight:800;margin-bottom:4px}.top-auth-card p{color:var(--muted);line-height:1.4;font-size:12px}
+.auth-switch{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin:12px 0}
+.auth-tab{padding:9px;border-radius:10px;border:none;background:transparent;color:var(--text);font-weight:700;cursor:pointer;font-size:12px}
 .auth-tab.active{background:rgba(74,222,128,.16);color:#bcf7d2}
-.auth-form{display:flex;flex-direction:column;gap:10px}
-.input-wrap{display:flex;align-items:center;gap:10px;padding:12px;border-radius:16px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
-.input-wrap input{flex:1;border:none;background:transparent;outline:none;color:var(--text);font-size:13px}.input-wrap input::placeholder{color:var(--muted)}
-.sub-text{margin-top:3px;font-size:11px;color:var(--muted);line-height:1.4}
-.forgot-link{color:var(--info);font-size:12px;font-weight:600;cursor:pointer;text-align:center;padding:4px 0}
+.auth-form{display:flex;flex-direction:column;gap:8px}
+.input-wrap{display:flex;align-items:center;gap:8px;padding:10px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.04)}
+.input-wrap input{flex:1;border:none;background:transparent;outline:none;color:var(--text);font-size:12px}
+.input-wrap input::placeholder{color:var(--muted)}
+.sub-text{margin-top:2px;font-size:10px;color:var(--muted);line-height:1.3}
+.forgot-link{color:var(--info);font-size:11px;font-weight:600;cursor:pointer;text-align:center;padding:4px 0;display:block}
 .forgot-link:hover{text-decoration:underline}
-.balance-card{padding:18px;border-radius:22px;background:radial-gradient(circle at top right,rgba(74,222,128,.20),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
-.balance-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
-.balance-top .label{color:var(--muted);font-size:12px;margin-bottom:6px}
-.balance-amount{font-size:34px;font-weight:800;letter-spacing:-.05em;color:var(--primary);line-height:1}
-.balance-chip{padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid var(--border);font-size:11px;font-weight:700}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
-.orders-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
-.order-item{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
-.order-country{font-size:14px;font-weight:700}
-.order-status{display:inline-flex;padding:6px 8px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
-.order-number-small{font-size:12px;color:var(--muted);margin-bottom:8px;word-break:break-all}
-.order-actions{display:flex;gap:6px;flex-wrap:wrap}
-.mini-btn{padding:8px 10px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:11px;font-weight:700}
-.admin-panel{display:none;margin-top:16px;padding:16px;border-radius:22px;background:var(--card);border:1px solid var(--border)}
-.admin-panel h3{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:18px;font-weight:800}
-.badge{min-width:20px;height:20px;border-radius:999px;display:inline-grid;place-items:center;padding:0 6px;background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff;font-size:10px;font-weight:800}
-.admin-grid{display:grid;gap:14px}
-.admin-section{padding:14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
-.admin-section h4{font-size:14px;margin-bottom:10px;font-weight:700}
-.admin-card{padding:12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:8px;font-size:13px}
-.admin-meta{color:var(--muted);font-size:12px;line-height:1.5;margin:6px 0 10px}
-.admin-actions{display:flex;gap:6px;flex-wrap:wrap}
-.admin-profit{color:var(--primary);font-weight:800;font-size:13px}
-.admin-cost{color:var(--muted);font-size:11px}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.stat-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
-.stat-card .sv{font-size:22px;font-weight:800;margin-top:6px}
-.stat-card .sl{color:var(--muted);font-size:11px}
-.account-card{padding:16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.account-header{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.account-heading h3{font-size:16px}.account-heading p{font-size:12px;color:var(--muted)}
-.account-toggle-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:22px;font-weight:800;cursor:pointer;line-height:1;flex-shrink:0}
+.balance-card{padding:16px;border-radius:20px;background:radial-gradient(circle at top right,rgba(74,222,128,.20),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.03));border:1px solid var(--border)}
+.balance-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
+.balance-top .label{color:var(--muted);font-size:11px;margin-bottom:4px}
+.balance-amount{font-size:30px;font-weight:800;letter-spacing:-.05em;color:var(--primary);line-height:1}
+.balance-chip{padding:6px 8px;border-radius:12px;background:rgba(255,255,255,.08);border:1px solid var(--border);font-size:10px;font-weight:700}
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.orders-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.order-item{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:6px}
+.order-country{font-size:13px;font-weight:700}
+.order-status{padding:5px 7px;border-radius:999px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.20);color:#fcd34d;font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.order-number-small{font-size:11px;color:var(--muted);margin-bottom:6px;word-break:break-all}
+.order-actions{display:flex;gap:5px;flex-wrap:wrap}
+.mini-btn{padding:7px 9px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-size:10px;font-weight:700}
+.admin-panel{display:none;margin-top:14px;padding:14px;border-radius:20px;background:var(--card);border:1px solid var(--border)}
+.admin-panel h3{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:16px;font-weight:800}
+.badge{min-width:18px;height:18px;border-radius:999px;display:inline-grid;place-items:center;padding:0 5px;background:linear-gradient(135deg,#fb7185,#ef4444);color:#fff;font-size:9px;font-weight:800}
+.admin-grid{display:grid;gap:12px}
+.admin-section{padding:12px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(--border)}
+.admin-section h4{font-size:13px;margin-bottom:8px;font-weight:700}
+.admin-card{padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:6px;font-size:12px}
+.admin-meta{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}
+.admin-actions{display:flex;gap:5px;flex-wrap:wrap}
+.admin-profit{color:var(--primary);font-weight:800;font-size:12px}
+.admin-cost{color:var(--muted);font-size:10px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-card{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);text-align:center}
+.stat-card .sv{font-size:20px;font-weight:800;margin-top:4px}
+.stat-card .sl{color:var(--muted);font-size:10px}
+.account-card{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.account-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.account-heading h3{font-size:15px}.account-heading p{font-size:11px;color:var(--muted)}
+.account-toggle-btn{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:20px;font-weight:800;cursor:pointer;line-height:1;flex-shrink:0}
 .account-toggle-btn:hover{background:rgba(255,255,255,.09)}
-.account-content{margin-top:12px}
-.account-row{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.account-content{margin-top:10px}
+.account-row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
 .account-row:last-child{border-bottom:none}
-.account-label{color:var(--muted);font-size:12px}.account-value{font-weight:700;text-align:right;word-break:break-all;font-size:13px}
-.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(4px);z-index:3000;padding:16px;justify-content:center;align-items:center}
-.modal-content{width:min(680px,100%);max-height:90vh;overflow:auto;border-radius:24px;background:var(--panel2);border:1px solid var(--border);box-shadow:var(--shadow);padding:18px}
-.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
-.modal-header h3{font-size:22px;font-weight:800}.modal-header p{color:var(--muted);margin-top:4px;font-size:13px}
-.close-x{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:16px;cursor:pointer}
-.processing-wrap{text-align:center;padding:24px 10px}
-.ring{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;border:4px solid rgba(255,255,255,.08);border-top-color:var(--primary);animation:spin .9s linear infinite}
-.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 16px}
-.payment-box{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.payment-box strong{display:block;margin-bottom:6px;font-size:13px}.payment-box p{color:var(--muted);font-size:12px;line-height:1.5}
-.deposit-form{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.file-input{padding:12px;border:1px dashed var(--border);border-radius:16px;background:rgba(255,255,255,.04)}
-.order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;padding:16px;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:12px}
-.order-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.pill{padding:8px 10px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:11px;font-weight:700}
-.pill.warning{background:#22c55e!important;border-color:#16a34a!important;color:#fff!important}
-.order-number-box{padding:16px;border-radius:20px;background:linear-gradient(145deg,rgba(74,222,128,.10),rgba(56,189,248,.08));border:1px solid rgba(255,255,255,.12);margin-bottom:12px}
-.number-line{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.number-display{font-size:24px;font-weight:800;letter-spacing:-.03em;word-break:break-all}
-.otp-state{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:12px}
-.otp-wait{display:flex;align-items:center;gap:12px}
-.small-ring{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:var(--info);animation:spin .8s linear infinite;flex-shrink:0}
-.otp-code{display:none;padding:16px;border-radius:20px;background:linear-gradient(135deg,rgba(74,222,128,.16),rgba(56,189,248,.12));border:1px solid rgba(74,222,128,.24);margin-bottom:12px}
-.otp-code .label{color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
-.otp-code .value{font-size:32px;font-weight:800;letter-spacing:.2em}
-.timeline{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-.timeline-box{padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
-.timeline-box .t-label{color:var(--muted);font-size:11px;margin-bottom:6px}.timeline-box .t-value{font-size:20px;font-weight:800}
-.button-group{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
-.button-group .btn{padding:12px 14px;border-radius:16px;font-size:13px}
-.wide-btn{width:100%;margin-top:10px;padding:12px 14px;border-radius:16px}
-.toast-wrap{position:fixed;right:16px;bottom:16px;z-index:5000;display:flex;flex-direction:column;gap:8px}
-.toast{min-width:260px;max-width:360px;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);backdrop-filter:blur(16px);color:#fff;animation:slideUp .25s}
+.account-label{color:var(--muted);font-size:11px}
+.account-value{font-weight:700;text-align:right;word-break:break-all;font-size:12px}
+.modal{display:none;position:fixed;inset:0;background:rgba(2,6,23,.55);backdrop-filter:blur(4px);z-index:3000;padding:14px;justify-content:center;align-items:center}
+.modal-content{width:min(640px,100%);max-height:88vh;overflow:auto;border-radius:22px;background:var(--panel2);border:1px solid var(--border);box-shadow:var(--shadow);padding:16px}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}
+.modal-header h3{font-size:20px;font-weight:800}
+.modal-header p{color:var(--muted);margin-top:3px;font-size:12px}
+.close-x{width:36px;height:36px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--text);font-size:15px;cursor:pointer}
+.processing-wrap{text-align:center;padding:20px 8px}
+.ring{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;border:4px solid rgba(255,255,255,.08);border-top-color:var(--primary);animation:spin .9s linear infinite}
+.payment-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 14px}
+.payment-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.payment-box strong{display:block;margin-bottom:4px;font-size:12px}
+.payment-box p{color:var(--muted);font-size:11px;line-height:1.4}
+.deposit-form{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.file-input{padding:10px;border:1px dashed var(--border);border-radius:14px;background:rgba(255,255,255,.04)}
+.order-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;padding:14px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
+.order-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.pill{padding:7px 9px;border-radius:999px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--text);font-size:10px;font-weight:700}
+.pill.green{background:#22c55e!important;border-color:#16a34a!important;color:#fff!important}
+.order-number-box{padding:14px;border-radius:18px;background:linear-gradient(145deg,rgba(74,222,128,.10),rgba(56,189,248,.08));border:1px solid rgba(255,255,255,.12);margin-bottom:10px}
+.number-line{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.number-display{font-size:22px;font-weight:800;letter-spacing:-.03em;word-break:break-all}
+.otp-state{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border);margin-bottom:10px}
+.otp-wait{display:flex;align-items:center;gap:10px}
+.small-ring{width:32px;height:32px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:var(--info);animation:spin .8s linear infinite;flex-shrink:0}
+.otp-code{display:none;padding:14px;border-radius:18px;background:linear-gradient(135deg,rgba(74,222,128,.16),rgba(56,189,248,.12));border:1px solid rgba(74,222,128,.24);margin-bottom:10px}
+.otp-code .label{color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px}
+.otp-code .value{font-size:28px;font-weight:800;letter-spacing:.2em}
+.timeline{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.timeline-box{padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--border)}
+.timeline-box .t-label{color:var(--muted);font-size:10px;margin-bottom:4px}
+.timeline-box .t-value{font-size:18px;font-weight:800}
+.button-group{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+.button-group .btn{padding:10px 12px;border-radius:14px;font-size:12px}
+.wide-btn{width:100%;margin-top:8px;padding:10px 14px;border-radius:14px}
+.toast-wrap{position:fixed;right:14px;bottom:14px;z-index:5000;display:flex;flex-direction:column;gap:6px}
+.toast{min-width:240px;max-width:340px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);backdrop-filter:blur(16px);color:#fff;animation:slideUp .25s}
 .toast.success{background:rgba(34,197,94,.95)}.toast.error{background:rgba(239,68,68,.95)}.toast.info{background:rgba(56,189,248,.95)}
-.topbar-mobile{display:none;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
-.topbar-brand{font-size:18px;font-weight:800}
-.icon-btn{width:42px;height:42px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer}
+.topbar-mobile{display:none;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.topbar-brand{font-size:16px;font-weight:800}
+.icon-btn{width:38px;height:38px;border-radius:12px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer}
 .sidebar-overlay{display:none;position:fixed;inset:0;background:transparent;z-index:2000}
-.theme-toggle{position:fixed;right:16px;top:16px;z-index:2500;padding:10px 14px;border-radius:16px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer;font-weight:700;font-size:12px}
+.theme-toggle{position:fixed;right:14px;top:14px;z-index:2500;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--panel);color:var(--text);backdrop-filter:blur(18px);cursor:pointer;font-weight:700;font-size:11px}
 .hidden{display:none!important}
-.notif-bar{display:none;padding:10px 14px;border-radius:14px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;animation:pulse 1s infinite;margin-bottom:10px}
-.confetti-piece{position:fixed;width:10px;height:10px;z-index:9999;pointer-events:none;border-radius:2px;animation:confetti-fall var(--dur) ease-in forwards}
-@media(max-width:1100px){.dashboard{grid-template-columns:240px 1fr}.right-panel{grid-column:1/-1;position:static;max-height:none;order:1}.main{order:2}}
-@media(max-width:860px){.dashboard{grid-template-columns:1fr}.sidebar{position:fixed;left:16px;top:16px;bottom:16px;width:min(300px,calc(100vw - 32px));transform:translateX(-120%);transition:.25s;z-index:2200;max-height:none}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.topbar-mobile{display:flex}.theme-toggle{top:auto;bottom:16px}.hero{flex-direction:column}.hero-stats{width:100%;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.payment-grid,.timeline,.button-group,.action-row{grid-template-columns:1fr}.right-panel{order:1}.main{order:2}}
-@media(max-width:600px){.app-shell{padding:10px}.dashboard{gap:10px}.main,.right-panel,.sidebar{padding:12px}.hero{padding:14px}.hero h2{font-size:22px}.country-grid{grid-template-columns:1fr}.modal{padding:10px}.modal-content{padding:14px}.number-display{font-size:20px}.otp-code .value{font-size:26px}.toast-wrap{right:10px;left:10px;bottom:10px}.toast{min-width:auto;max-width:none}}
+.notif-bar{display:none;padding:8px 12px;border-radius:12px;background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;animation:pulse 1s infinite;margin-bottom:8px}
+.confetti-piece{position:fixed;width:8px;height:8px;z-index:9999;pointer-events:none;border-radius:2px;animation:confettiFall var(--dur) ease-in forwards}
+@media(max-width:1100px){.dashboard{grid-template-columns:220px 1fr}.right-panel{grid-column:1/-1;position:static;max-height:none;order:1}.main{order:2}}
+@media(max-width:860px){.dashboard{grid-template-columns:1fr}.sidebar{position:fixed;left:14px;top:14px;bottom:14px;width:min(280px,calc(100vw - 28px));transform:translateX(-120%);transition:.25s;z-index:2200;max-height:none}.sidebar.open{transform:translateX(0)}.sidebar-overlay.show{display:block}.topbar-mobile{display:flex}.theme-toggle{top:auto;bottom:14px}.hero{flex-direction:column}.hero-stats{width:100%;grid-template-columns:1fr 1fr}.stat-grid{grid-template-columns:1fr 1fr}.payment-grid,.timeline,.button-group,.action-row{grid-template-columns:1fr}.right-panel{order:1}.main{order:2}}
+@media(max-width:600px){.app-shell{padding:10px}.dashboard{gap:8px}.main,.right-panel,.sidebar{padding:10px}.hero{padding:12px}.hero h2{font-size:20px}.country-grid{grid-template-columns:1fr}.modal{padding:8px}.modal-content{padding:12px}.number-display{font-size:18px}.otp-code .value{font-size:24px}.toast-wrap{right:8px;left:8px;bottom:8px}.toast{min-width:auto;max-width:none}}
 </style>
 </head>
 <body>
 <button class="theme-toggle" id="theme-toggle">🌗</button>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
-<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
 <div class="app-shell">
-<div class="topbar-mobile"><button class="icon-btn" id="hamburger">☰</button><div class="topbar-brand">MRF SMS</div></div>
+<div class="topbar-mobile">
+<button class="icon-btn" id="hamburger">☰</button>
+<div class="topbar-brand">MRF SMS</div>
+</div>
+
 <div class="dashboard">
 <aside class="sidebar glass" id="sidebar">
 <div class="brand"><div class="brand-mark">M</div><div><h1>MRF SMS</h1><p>Premium OTP Portal</p></div></div>
 <div class="nav-card">
 <div class="nav-label">Services</div>
-<button class="nav-item active" data-service="whatsapp"><span class="nav-icon" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.47 14.38c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></span><span>WhatsApp</span></button>
-<button class="nav-item" data-service="facebook"><span class="nav-icon" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span><span>Facebook</span></button>
-<button class="nav-item" data-service="instagram"><span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span><span>Instagram</span></button>
-<button class="nav-item" data-service="snapchat"><span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.206.793c.99 0 4.347.276 5.93 1.18.546.319.842.564 1.1.858.39.44.615.878.78 1.368.13.386.22.815.262 1.253.022.238.065.595.065 1.003v.026c0 .409-.043.766-.065 1.003-.042.438-.132.867-.262 1.253-.165.49-.39.928-.78 1.368-.258.294-.554.54-1.1.858-1.583.925-4.94 1.18-5.93 1.18-.99 0-4.347-.255-5.93-1.18-.546-.318-.842-.564-1.1-.858a4.128 4.128 0 01-.78-1.368 3.726 3.726 0 01-.262-1.253c-.022-.237-.065-.594-.065-1.003v-.026c0-.408.043-.765.065-1.003.042-.438.132-.867.262-1.253.165-.49.39-.928.78-1.368.258-.294.554-.54 1.1-.858C7.859 1.069 11.216.793 12.206.793z"/></svg></span><span>Snapchat</span></button>
-<button class="nav-item" data-service="google"><span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82H9.18c-.45 0-.82.37-.82.82v2.65H5.08c-3.36 0-6.08-2.72-6.08-6.08s2.72-6.08 6.08-6.08h10.4c3.36 0 6.08 2.72 6.08 6.08z" fill="#4285F4"/><path d="M5.08 5.08h10.4c3.36 0 6.08 2.72 6.08 6.08 0 .64-.1 1.25-.28 1.84l-2.2 4.5H5.08c-3.36 0-6.08-2.72-6.08-6.08 0-.64.1-1.25.28-1.84l2.2-4.5z" fill="#34A853"/><path d="M17.36 15.1H9.18c-.45 0-.82.37-.82.82v2.65h7c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#FBBC05"/><path d="M17.36 12.25H9.18c0 .45.37.82.82.82v2.83h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#EA4335"/></svg></span><span>Google</span></button>
-<button class="nav-item" data-service="tiktok"><span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/></svg></span><span>TikTok</span></button>
-<button class="nav-item" id="contact-btn"><span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:18px">💬</span></span><span>Support</span></button>
+
+<button class="nav-item active" data-service="whatsapp">
+<span class="nav-icon" style="background:#25D366"><svg viewBox="0 0 24 24" fill="#fff"><path d="M17.47 14.38c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.074-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118 5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 01-3.48-8.413v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z"/></svg></span>
+<span>WhatsApp</span>
+</button>
+
+<button class="nav-item" data-service="facebook">
+<span class="nav-icon" style="background:#1877F2"><svg viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></span>
+<span>Facebook</span>
+</button>
+
+<button class="nav-item" data-service="instagram">
+<span class="nav-icon" style="background:linear-gradient(45deg,#f09433,#e6683c,#bc1888,#4c68d7,#65a2db)"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.948.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></span>
+<span>Instagram</span>
+</button>
+
+<button class="nav-item" data-service="snapchat">
+<span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="none"><path d="M12.2 2C6.6 2 2 6.4 2 11.8c0 1.5.3 3 .8 4.3l-2.4 4.9h4.8c.45 0 .82-.37.82-.82v-2.5c0-.45-.37-.82-.82-.82H9.2c-.45 0-.82.37-.82.82v2.5c0-.45.37-.82-.82-.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37.82-.82.82v2.65c0 .45.37.82.82.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#000"/><circle cx="9.5" cy="14.5" r="1.5" fill="#000"/><circle cx="14.5" cy="14.5" r="1.5" fill="#000"/><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82h-7.72c-.45 0-.82-.37-.82-.82V15.1c0-.45.37-.82-.82-.82h7.72z" fill="#000"/></svg></span>
+<span>Snapchat</span>
+</button>
+
+<button class="nav-item" data-service="google">
+<span class="nav-icon" style="background:#fff"><svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82H9.18c-.45 0-.82.37-.82.82v2.65h7.72c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#4285F4"/><path d="M5.08 5.08h10.4c3.36 0 6.08 2.72 6.08 6.08s-2.72 6.08-6.08 6.08c0-.64.1-1.25-.1-1.84l2.2-4.5H5.08c-3.36 0-6.08-2.72-6.08-6.08 0-.64.1-1.25.28-1.84l2.2-4.5z" fill="#34A853"/><path d="M17.36 15.1H9.18c0-.45.37-.82-.82-.82v-2.65h7.72c.45 0 .82-.37.82-.82.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37-.82-.82-.82.82v2.65c0 .45.37.82.37.82.82h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#FBBC05"/><path d="M17.36 12.25H9.18c0 .45.37.82.82.82v2.83h7.72c.45 0 .82-.37.82-.82V13.07c0-.45-.37-.82-.82-.82z" fill="#EA4335"/></svg></span>
+<span>Google / Gmail</span>
+</button>
+
+<button class="nav-item" data-service="tiktok">
+<span class="nav-icon" style="background:#010101"><svg viewBox="0 0 24 24" fill="none"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#25F4EE"/><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 16.3a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 005.58 2.18v-3.46a4.85 4.85 0 01-1.09-.18z" fill="#FE2C55"/></svg></span>
+<span>TikTok</span>
+</button>
+
+<button class="nav-item" id="contact-btn">
+<span class="nav-icon" style="background:rgba(255,255,255,.07)"><span style="font-size:16px">💬</span></span>
+<span>Contact Support</span>
+</button>
 </div>
 </aside>
+
 <main class="main glass">
-<section class="hero"><div><h2 id="hero-title">Available WhatsApp Numbers</h2><p>Lowest-price providers try honge. 10 second per tier. Please wait calmly.</p><div class="hero-badges"><div class="hero-badge">Auto OTP</div><div class="hero-badge">Manual Check</div><div class="hero-badge">1 Min Lock</div><div class="hero-badge">MRF SMS</div></div></div><div class="hero-stats"><div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div><div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div></div></section>
-<section class="toolbar"><div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="chip active" data-filter="all">All</button><button class="chip" data-filter="cheap">Budget</button><button class="chip" data-filter="premium">Premium</button></div></section>
-<section><div class="section-title"><div><h3>Number Catalog</h3></div></div><div class="country-grid" id="country-list"></div></section>
+<section class="hero">
+<div>
+<h2 id="hero-title">Available WhatsApp Numbers</h2>
+<p>Lowest-price providers try honge. 10 second per tier. Wait calmly.</p>
+<div class="hero-badges">
+<div class="hero-badge">Auto OTP</div>
+<div class="hero-badge">Manual Check</div>
+<div class="hero-badge">1 Min Lock</div>
+<div class="hero-badge">MRF SMS</div>
+</div>
+</div>
+<div class="hero-stats">
+<div class="mini-stat"><div class="label">Service</div><div class="value" id="hero-svc">WhatsApp</div></div>
+<div class="mini-stat"><div class="label">Cancel Unlock</div><div class="value">1 Min</div></div>
+</div>
+</section>
+
+<section class="toolbar">
+<div class="search-wrap"><span>🔎</span><input type="text" id="country-search" placeholder="Search country..."></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap">
+<button class="chip active" data-filter="all">All</button>
+<button class="chip" data-filter="cheap">Budget</button>
+<button class="chip" data-filter="premium">Premium</button>
+</div>
+</section>
+
+<section>
+<div class="section-title"><h3>Number Catalog</h3></div>
+<div class="country-grid" id="country-list"></div>
+</section>
+
 <section id="admin-panel" class="admin-panel">
 <div class="notif-bar" id="notif-bar">⚠️ New pending payment</div>
 <h3>Admin Panel <span id="payment-badge" class="badge hidden">0</span></h3>
 <div class="stat-grid" id="admin-stats-grid"></div>
-<div class="admin-grid"><div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div><div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div><div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div></div>
+<div class="admin-grid">
+<div class="admin-section"><h4>All Orders</h4><div id="admin-orders-list"></div></div>
+<div class="admin-section"><h4>Pending Transactions</h4><div id="admin-tx-list"></div></div>
+<div class="admin-section"><h4>Password Resets</h4><div id="admin-resets-list"></div></div>
+</div>
 </section>
 </main>
+
 <aside class="right-panel glass">
 <div id="login-prompt">
 <div class="top-auth-card"><h3>Login / Sign Up</h3><p>Premium OTP service.</p></div>
-<div class="auth-switch"><button class="auth-tab active" id="show-login-tab">Login</button><button class="auth-tab" id="show-register-tab">Sign Up</button></div>
-<div class="panel-block" id="login-form-wrap"><div class="auth-form">
-<div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email"></div>
+<div class="auth-switch">
+<button class="auth-tab active" id="show-login-tab">Login</button>
+<button class="auth-tab" id="show-register-tab">Sign Up</button>
+</div>
+
+<div class="panel-block" id="login-form-wrap">
+<div class="auth-form">
+<div class="input-wrap"><span>📧</span><input type="email" id="login-email" placeholder="Email address"></div>
 <div class="input-wrap"><span>🔐</span><input type="password" id="login-password" placeholder="Password"></div>
-<button class="btn btn-primary" id="login-btn">Login</button>
+<button class="btn btn-primary" id="login-btn">Login to Dashboard</button>
 <button class="btn btn-google" id="google-login-btn">🔐 Continue with Google</button>
 <div class="forgot-link" id="forgot-btn">Forgot Password?</div>
-</div></div>
-<div class="panel-block hidden" id="register-form-wrap"><div class="auth-form">
+</div>
+</div>
+
+<div class="panel-block hidden" id="register-form-wrap">
+<div class="auth-form">
 <div class="input-wrap"><span>👤</span><input type="text" id="reg-name" placeholder="Full name"></div>
 <div class="input-wrap"><span>📧</span><input type="email" id="reg-email" placeholder="Email"></div>
 <div class="input-wrap"><span>🔒</span><input type="password" id="reg-password" placeholder="Password"></div>
 <button class="btn btn-primary" id="register-btn">Create Account</button>
-</div></div>
-<div class="panel-block hidden" id="forgot-form-wrap"><div class="auth-form">
-<h3 style="font-size:16px;margin-bottom:8px;">Reset Password</h3>
+</div>
+</div>
+
+<div class="panel-block hidden" id="forgot-form-wrap">
+<div class="auth-form">
+<h3 style="font-size:15px;margin-bottom:6px">Reset Password</h3>
 <div class="input-wrap"><span>📧</span><input type="email" id="forgot-email" placeholder="Your email address"></div>
 <button class="btn btn-primary" id="forgot-submit-btn">Send Reset Link</button>
 <div class="forgot-link" id="back-to-login">Back to Login</div>
-</div></div>
 </div>
+</div>
+</div>
+
 <div id="user-info" class="hidden">
-<div class="balance-card"><div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div><div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div></div>
-<div class="account-card"><div class="account-header"><div class="account-heading"><h3>Account</h3><p>Your profile</p></div><button class="account-toggle-btn" id="account-toggle-btn">+</button></div><div class="account-content hidden" id="account-details-content">
+<div class="balance-card">
+<div class="balance-top"><div><div class="label">Wallet Balance</div><div class="balance-amount" id="user-balance">0</div></div><div class="balance-chip">PKR</div></div>
+<div class="action-row"><button class="btn btn-primary" id="add-money-btn">Add Money</button><button class="btn btn-soft" id="logout-btn">Logout</button></div>
+</div>
+
+<div class="account-card">
+<div class="account-header">
+<div class="account-heading"><h3>Account</h3><p>Your profile</p></div>
+<button class="account-toggle-btn" id="account-toggle-btn">+</button>
+</div>
+<div class="account-content hidden" id="account-details-content">
 <div class="account-row"><div class="account-label">Name</div><div class="account-value" id="account-name">-</div></div>
 <div class="account-row"><div class="account-label">Email</div><div class="account-value" id="account-email">-</div></div>
 <div class="account-row"><div class="account-label">Password</div><div class="account-value" id="account-password">********</div></div>
 <div class="account-row"><div class="account-label">Referral</div><div class="account-value" id="account-referral">-</div></div>
 <button class="btn btn-soft wide-btn" id="open-password-modal">Change Password</button>
-</div></div>
-<div class="panel-block"><div class="section-title"><h3 style="font-size:16px;">Active Orders</h3></div><div class="orders-list" id="active-orders-list"></div></div>
+</div>
+</div>
+
+<div class="panel-block">
+<div class="section-title"><h3 style="font-size:15px">Active Orders</h3></div>
+<div class="orders-list" id="active-orders-list"></div>
+</div>
 </div>
 </aside>
 </div>
 </div>
 
-<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:22px;font-weight:800;margin-bottom:8px;">Searching Number</h3><p style="color:var(--muted);font-size:13px;">10 second per tier. Please wait 10-60 seconds.</p></div></div></div>
-<div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password"></div><button class="btn btn-primary" id="save-password-btn">Save</button></div></div></div>
-<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div><div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div><form id="addFundsForm" class="deposit-form" enctype="multipart/form-data"><div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div><div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div><button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit</button></form></div></div>
-<div id="order-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Order Details</h3><p>Auto OTP checking active.</p></div><button class="close-x" id="close-order-modal">✕</button></div>
-<div class="order-head"><div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;">Order</div><div style="font-size:18px;font-weight:800;margin-top:6px;" id="order-country-title">...</div><div class="order-badges"><span class="pill warning" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div><div class="pill" id="order-created-pill">Live</div></div>
-<div class="order-number-box"><div class="number-line"><div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;">Number</div><div class="number-display" id="order-number">Processing...</div></div><button class="btn btn-soft" id="copy-number-btn">Copy</button></div></div>
+<div id="processing-modal" class="modal"><div class="modal-content"><div class="processing-wrap"><div class="ring"></div><h3 style="font-size:20px;font-weight:800;margin-bottom:6px;">Searching Number</h3><p style="color:var(--muted);font-size:12px;">10 second per tier. Please wait 10-60 seconds.</p></div></div></div>
+
+<div id="password-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Change Password</h3></div><button class="close-x" id="close-password-modal">✕</button></div><div class="auth-form"><div class="input-wrap"><span>🔐</span><input type="password" id="current-password" placeholder="Current password"></div><div class="input-wrap"><span>🆕</span><input type="password" id="new-password" placeholder="New password"></div><button class="btn btn-primary" id="save-password-btn">Save Password</button></div></div></div>
+
+<div id="payment-modal" class="modal"><div class="modal-content"><div class="modal-header"><div><h3>Add Funds</h3></div><button class="close-x" id="close-payment-modal">✕</button></div>
+<div class="payment-grid"><div class="payment-box"><strong>🏦 Method</strong><p>Easypaisa only</p></div><div class="payment-box"><strong>💰 Minimum</strong><p>150 PKR</p></div><div class="payment-box"><strong>📱 Number</strong><p>03439898333</p></div><div class="payment-box"><strong>👤 Name</strong><p>Nihayat</p></div></div>
+<form id="addFundsForm" class="deposit-form" enctype="multipart/form-data">
+<div class="input-wrap"><span>₨</span><input type="number" name="amount" placeholder="Amount (min 150)" min="150" required></div>
+<div class="file-input"><input type="file" name="screenshot" accept="image/*" required style="width:100%;color:var(--text);background:transparent"></div>
+<button type="submit" class="btn btn-primary wide-btn" id="submit-payment-btn">Submit Payment</button>
+</form>
+</div></div>
+
+<div id="order-modal" class="modal"><div class="modal-content">
+<div class="modal-header"><div><h3>Order Details</h3><p>Auto OTP checking active.</p></div><button class="close-x" id="close-order-modal">✕</button></div>
+<div class="order-head">
+<div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Order</div>
+<div style="font-size:17px;font-weight:800;margin-top:5px;" id="order-country-title">...</div>
+<div class="order-badges"><span class="pill green" id="order-status-pill">ACTIVE</span><span class="pill" id="order-price-pill">0 PKR</span></div></div>
+<div class="pill" id="order-created-pill">Live</div>
+</div>
+<div class="order-number-box">
+<div class="number-line"><div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;">Number</div><div class="number-display" id="order-number">Processing...</div></div>
+<button class="btn btn-soft" id="copy-number-btn">Copy</button>
+</div>
 <div class="timeline"><div class="timeline-box"><div class="t-label">Expiry</div><div class="t-value" id="order-timer">25:00</div></div><div class="timeline-box"><div class="t-label">Cancel Unlock</div><div class="t-value" id="order-cancel-timer">01:00</div></div></div>
-<div class="otp-state" id="order-waiting"><div class="otp-wait"><div class="small-ring"></div><div><div style="font-weight:700;font-size:14px;">Waiting for OTP...</div><div style="color:var(--muted);font-size:13px;">Auto-check every 5s.</div></div></div></div>
+<div class="otp-state" id="order-waiting"><div class="otp-wait"><div class="small-ring"></div><div><div style="font-weight:700;font-size:13px;">Waiting for OTP...</div><div style="color:var(--muted);font-size:12px;">Auto-check every 5s.</div></div></div></div>
 <div class="otp-code" id="order-otp"><div class="label">Received OTP</div><div class="value" id="otp-value">------</div></div>
 <button class="btn btn-info wide-btn" id="check-otp-manual">Check OTP Now</button>
 <div class="button-group" id="order-buttons"></div>
 </div></div>
+
 <div class="toast-wrap" id="toast-wrap"></div>
 
 <script type="text/javascript">var Tawk_API=Tawk_API||{};var Tawk_LoadStart=new Date();(function(){var s=document.createElement("script");s.async=true;s.src='https://embed.tawk.to/69c3a5ccacf0f81c37903f0d/1jki3vag6';s.charset='UTF-8';s.setAttribute('crossorigin','*');var s0=document.getElementsByTagName("script")[0];s0.parentNode.insertBefore(s,s0)})();</script>
@@ -258,32 +381,341 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 <script>
 let currentUser=null,activeOrder=null,otpInterval=null,timerInterval=null,adminRefresh=null,adminAlertInterval=null,lastPending=0,allCountries=[],currentFilter='all',currentService='whatsapp';
 
-const SVC_META={whatsapp:{label:'WhatsApp',api:'/api/countries'},facebook:{label:'Facebook',api:'/api/facebook/countries'},instagram:{label:'Instagram',api:'/api/instagram/countries'},snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},google:{label:'Google',api:'/api/google/countries'},tiktok:{label:'TikTok',api:'/api/tiktok/countries'}};
+const SVC_META={
+    whatsapp:{label:'WhatsApp',api:'/api/countries'},
+    facebook:{label:'Facebook',api:'/api/facebook/countries'},
+    instagram:{label:'Instagram',api:'/api/instagram/countries'},
+    snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},
+    google:{label:'Google / Gmail',api:'/api/google/countries'},
+    tiktok:{label:'TikTok',api:'/api/tiktok/countries'}
+};
 
 const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay'),hamburger=document.getElementById('hamburger');
 function openSidebar(){sidebar.classList.add('open');overlay.classList.add('show')}
 function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('show')}
-hamburger.addEventListener('click',openSidebar);overlay.addEventListener('click',closeSidebar);
+hamburger.addEventListener('click',openSidebar);
+overlay.addEventListener('click',closeSidebar);
 
-function toast(m,t='info',d=4000){const w=document.getElementById('toast-wrap');const e=document.createElement('div');e.className=`toast ${t}`;e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),d)}
+function toast(m,t='info',d=4000){const w=document.getElementById('toast-wrap');const e=document.createElement('div');e.className=`toast ${t}`;e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),d);}
+
 function qs(id){return document.getElementById(id)}
 function setLoading(b,t){b.dataset.original=b.innerHTML;b.innerHTML=t;b.disabled=true}
 function resetLoading(b){if(b.dataset.original){b.innerHTML=b.dataset.original;b.disabled=false}}
+
 async function fJSON(u,o={}){const r=await fetch(u,{...o,credentials:'include'});if(!r.ok)throw new Error(await r.text());return r.json();}
+
 function copyT(t){navigator.clipboard.writeText(t).then(()=>toast('Copied','success')).catch(()=>toast('Copy failed','error'))}
 
 function playDing(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(880,c.currentTime);o.frequency.exponentialRampToValueAtTime(1320,c.currentTime+.08);o.frequency.exponentialRampToValueAtTime(880,c.currentTime+.25);g.gain.setValueAtTime(.25,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start(c.currentTime);o.stop(c.currentTime+.4);}catch{}}
 
-function showConfetti(){const colors=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa','#fb7185','#fbbf24'];for(let i=0;i<60;i++){const e=document.createElement('div');e.className='confetti-piece';e.style.cssText=`left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length)]};--dur:${1.5+Math.random()*2}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>0.5?'50%':'2px'}`;document.body.appendChild(e);setTimeout(()=>e.remove(),4000);}}
+function showConfetti(){const colors=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa','#fb7185','#fbbf24'];for(let i=0;i<50;i++){const e=document.createElement('div');e.className='confetti-piece';e.style.cssText=`left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length]};--dur:${1.5+Math.random()*2}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;document.body.appendChild(e);setTimeout(()=>e.remove(),4000);}}
 
-function renderCountries(){let f=[...allCountries];const s=qs('country-search').value.trim().toLowerCase();if(s)f=f.filter(c=>c.name.toLowerCase().includes(s));if(currentFilter==='cheap')f=f.filter(c=>c.price<=250);else if(currentFilter==='premium')f=f.filter(c=>c.price>=300);const el=qs('country-list');if(!f.length){el.innerHTML='<div class="panel-block" style="grid-column:1/-1;text-align:center;padding:30px"><h3 style="font-size:16px;margin-bottom:6px">No country found</h3><p style="color:var(--muted)">Try another filter.</p></div>';return;}
-el.innerHTML=f.map(c=>`<div class="country-card" data-id="${c.countryId}" data-name="${c.name}" data-price="${c.price}"><div class="country-top"><div class="country-flag">${c.flag}</div><div class="status-pill">Available</div></div><div class="country-name">${c.name}</div><div class="country-code">${c.code}</div><div class="country-meta"><div class="price-box"><span>Price</span><div class="country-price">${c.price} PKR</div></div></div><button class="btn btn-primary buy-btn">Buy Number</button></div>`).join('');
-document.querySelectorAll('.buy-btn').forEach(b=>{b.addEventListener('click',e=>{const card=e.currentTarget.closest('.country-card');orderCountry(card.dataset.name,Number(card.dataset.price),Number(card.dataset.id));});});}
+function renderCountries(){
+    let f=[...allCountries];
+    const s=qs('country-search').value.trim().toLowerCase();
+    if(s)f=f.filter(c=>c.name.toLowerCase().includes(s));
+    if(currentFilter==='cheap')f=f.filter(c=>c.price<=250);
+    else if(currentFilter==='premium')f=f.filter(c=>c.price>=300);
+    const el=qs('country-list');
+    if(!f.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px"><h3 style="font-size:16px;margin-bottom:6px">No country found</h3><p style="color:var(--muted)">Try another filter.</p></div>';return;}
+    el.innerHTML=f.map(c=>`<div class="country-card" data-id="${c.countryId}" data-name="${c.name}" data-price="${c.price}">
+    <div class="country-top"><div class="country-flag">${c.flag}</div><div class="status-pill">Available</div></div>
+    <div class="country-name">${c.name}</div>
+    <div class="country-code">${c.code}</div>
+    <div class="country-meta"><div class="price-box"><span>Price</span><div class="country-price">${c.price} PKR</div></div></div>
+    <button class="btn btn-primary buy-btn">Buy Number</button>
+</div>`).join('');
+    document.querySelectorAll('.buy-btn').forEach(b=>{
+        b.addEventListener('click',e=>{
+            const card=e.currentTarget.closest('.country-card');
+            orderCountry(card.dataset.name,Number(card.dataset.price),Number(card.dataset.id));
+        });
+    });
+}
 
-async function loadCountries(){try{const meta=SVC_META[currentService];allCountries=await fJSON(meta.api);renderCountries();}catch{toast('Failed to load','error')}}
+async function loadCountries(){
+    try{
+        const meta=SVC_META[currentService];
+        allCountries=await fJSON(meta.api);
+        renderCountries();
+    }catch{toast('Failed to load countries','error')}
+}
 
-async function orderCountry(name,price,id){if(!currentUser){toast('Login first','error');return;}qs('processing-modal').style.display='flex';try{const r=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({countryName:name,price,countryId:id,service:currentService}),credentials:'include'});qs('processing-modal').style.display='none';if(!r.ok){toast(await r.text(),'error');return;}const o=await r.json();toast('Number purchased!','success');showConfetti();playDing();await refreshUser();openOrderModal(o.id);}catch(e){qs('processing-modal').style.display='none';toast('Failed: '+e.message,'error');}}
+async function orderCountry(name,price,id){
+    if(!currentUser){toast('Login first','error');return;}
+    qs('processing-modal').style.display='flex';
+    try{
+        const r=await fetch('/api/order',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({countryName:name,price,countryId:id,service:currentService}),
+            credentials:'include'
+        });
+        qs('processing-modal').style.display='none';
+        if(!r.ok){toast(await r.text(),'error');return;}
+        const o=await r.json();
+        toast('Number purchased!','success');
+        showConfetti();
+        playDing();
+        await refreshUser();
+        openOrderModal(o.id);
+    }catch(e){
+        qs('processing-modal').style.display='none';
+        toast('Failed: '+e.message,'error');
+    }
+}
 
 function stopIntervals(){if(otpInterval)clearInterval(otpInterval);if(timerInterval)clearInterval(timerInterval);otpInterval=null;timerInterval=null;}
 
-function updateOrderVis(o){const lbl=o.service_name?o.service_name.replace(' Number',''):'WhatsApp';qs('order-country-title').innerText=`${o.country} • ${lbl}`;qs('order-status-pill').innerText=(o.order_status||'active').replace('_',' ').toUpperCase();qs('order-price-pill').innerText=`${o.price} PKR`;qs('order-created-pill').innerText=new Date(o.created_at).toLocaleString();qs('order-number').innerText=o.phone_number||'Processing...';const ob=qs('order-otp'),wb=qs('order-waiting');if(o.otp_code){qs('otp-value').innerText=o.otp_code;ob.style
+function updateOrderVis(o){
+    const lbl=o.service_name?o.service_name.replace(' Number',''):'WhatsApp';
+    qs('order-country-title').innerText=`${o.country} • ${lbl}`;
+    qs('order-status-pill').innerText=(o.order_status||'active').replace('_',' ').toUpperCase();
+    qs('order-price-pill').innerText=`${o.price} PKR`;
+    qs('order-created-pill').innerText=new Date(o.created_at).toLocaleString();
+    qs('order-number').innerText=o.phone_number||'Processing...';
+    const ob=qs('order-otp'),wb=qs('order-waiting');
+    if(o.otp_code){qs('otp-value').innerText=o.otp_code;ob.style.display='block';wb.style.display='none';}
+    else{ob.style.display='none';wb.style.display='block';}
+    updateOrderBtns(o);updateTimer(o);
+}
+
+function updateTimer(o){
+    const now=new Date();
+    const exp=new Date(o.expires_at||new Date(new Date(o.created_at).getTime()+25*60*1000));
+    const cancelAt=new Date(o.cancel_available_at||new Date(new Date(o.created_at).getTime()+60*1000));
+    const ed=Math.max(0,exp-now);
+    const cd=Math.floor(ed/60000),cs=Math.floor((ed%60000)/1000);
+    qs('order-timer').innerText=ed<=0?'Expired':`${cd}:${String(cs).padStart(2,'0')}`;
+    const cdd=Math.floor((cancelAt-now)/60000),csd=Math.floor((cancelAt-now)%60000);
+    qs('order-cancel-timer').innerText=cdd<=0?'Unlocked':`${cdd}:${String(csd).padStart(2,'0')}`;
+}
+
+function updateOrderBtns(o){
+    const c=qs('order-buttons');c.innerHTML='';
+    if(o.otp_code){
+        c.innerHTML=`<button class="btn btn-primary" id="complete-order-btn">Complete Order</button><button class="btn btn-soft" id="close-order-btn">Close</button><button class="btn btn-info" id="copy-otp-btn">Copy OTP</button>`;
+        qs('complete-order-btn').addEventListener('click',async()=>{try{const r=await fetch(`/api/orders/${o.id}/complete`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Order completed','success');closeOrderModal();refreshUser();}catch(e){toast(e.message,'error');}});
+        qs('close-order-btn').addEventListener('click',closeOrderModal);
+        qs('copy-otp-btn').addEventListener('click',()=>copyT(o.otp_code));
+        return;
+    }
+    if(o.order_status!=='active'&&o.order_status!=='otp_received'){c.innerHTML=`<button class="btn btn-soft" id="close-order-btn">Close</button>`;qs('close-order-btn').addEventListener('click',closeOrderModal);return;}
+    const ce=new Date()>=new Date(o.cancel_available_at);
+    c.innerHTML=`<button class="btn btn-warning" id="replace-order-btn">Replace Number</button><button class="btn btn-danger" id="cancel-order-btn" ${ce?'':'disabled'}>${ce?'Cancel & Refund':'Cancel Locked'}</button><button class="btn btn-soft" id="close-order-btn">Close</button>`;
+    qs('replace-order-btn').addEventListener('click',async()=>{if(!confirm('Replace number?'))return;try{const r=await fetch(`/api/orders/${o.id}/replace`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Replaced','success');openOrderModal(o.id);refreshUser();}catch(e){toast(e.message,'error');}});
+    if(ce){qs('cancel-order-btn').addEventListener('click',async()=>{if(!confirm('Cancel and refund?'))return;try{const r=await fetch(`/api/orders/${o.id}/cancel`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Cancelled','success');closeOrderModal();refreshUser();}catch(e){toast(e.message,'error');}});
+    qs('close-order-btn').addEventListener('click',closeOrderModal);
+}
+
+async function pollOtp(id,silent=false){
+    try{
+        const r=await fJSON(`/api/orders/${id}/otp`);
+        if(r.received){
+            const o=await fJSON(`/api/orders/${id}`);
+            activeOrder=o;updateOrderVis(o);stopIntervals();playDing();toast('OTP received!','success');await refreshUser();return true;
+        }
+        if(r.expired){const o=await fJSON(`/api/orders/${id}`);activeOrder=o;updateOrderVis(o);stopIntervals();toast('Expired','error');await refreshUser();return true;
+    }catch{if(!silent)toast('OTP check failed','error');return false;}
+}
+
+async function openOrderModal(id){
+    try{
+        const o=await fJSON(`/api/orders/${id}`);
+        activeOrder=o;updateOrderVis(o);
+        qs('order-modal').style.display='flex';
+        stopIntervals();
+        otpInterval=setInterval(async()=>{if(!activeOrder)return;await pollOtp(activeOrder.id,true);},5000);
+        timerInterval=setInterval(async()=>{
+            if(!activeOrder)return;
+            try{
+                const u=await fJSON(`/api/orders/${activeOrder.id}`);
+                activeOrder=u;updateOrderVis(u);
+                if(new Date()>=new Date(u.expires_at)&&!u.otp_received&&u.order_status==='active'){
+                    await fetch(`/api/orders/${u.id}/expire`,{method:'POST',credentials:'include'});
+                    const ref=await fJSON(`/api/orders/${u.id}`);
+                    activeOrder=ref;updateOrderVis(ref);await refreshUser();
+                }
+                if(u.otp_code||u.order_status==='cancelled'||u.order_status==='completed')stopIntervals();
+            }catch{}
+        },1000);
+    }catch{toast('Could not load order','error');}
+}
+
+function closeOrderModal(){qs('order-modal').style.display='none';stopIntervals();activeOrder=null;}
+
+async function refreshUser(){
+    if(!currentUser)return;
+    try{
+        const u=await fJSON('/api/me');
+        currentUser=u;
+        qs('user-balance').innerText=u.balance;
+        qs('account-name').innerText=u.name||'-';
+        qs('account-email').innerText=u.email||'-';
+        qs('account-password').innerText='********';
+        qs('account-referral').innerText=u.referralCode||'-';
+        const orders=await fJSON('/api/orders');
+        const active=orders.filter(o=>o.order_status==='active'||o.order_status==='otp_received');
+        const el=qs('active-orders-list');
+        if(!active.length){el.innerHTML='<div class="sub-text">No active orders.</div>';return;}
+        el.innerHTML=active.map(o=>{
+            const tag=o.service_type==='whatsapp'?'📱 WA':o.service_type==='facebook'?'📘 FB':o.service_type==='instagram'?'📸 IG':o.service_type==='snapchat'?'📱 SC':o.service_type==='google'?'📧 GO':o.service_type==='tiktok'?'🎵 TK':'📱 OT':'📱 OT';
+            return `<div class="order-item"><div class="order-top"><div class="order-country">${tag} ${o.country}</div><div class="order-status">${o.otp_code?'OTP Ready':'Waiting'}</div></div><div class="order-number-small">${o.phone_number||'Processing...'}</div><div class="order-actions"><button class="mini-btn view-order-btn" data-id="${o.id}">View Details</button>${o.phone_number?`<button class="mini-btn copy-order-btn" data-number="${o.phone_number}">Copy Number</button>`:''}</div></div>`;
+        }).join('');
+        document.querySelectorAll('.view-order-btn').forEach(b=>{b.addEventListener('click',()=>openOrderModal(b.dataset.id));});
+        document.querySelectorAll('.copy-order-btn').forEach(b=>{b.addEventListener('click',()=>copyT(b.dataset.number));});
+
+        if(u.role==='admin'){
+            qs('admin-panel').style.display='block';
+            await loadAdminData();
+            if(!adminRefresh){adminRefresh=setInterval(()=>{if(currentUser&&currentUser.role==='admin')loadAdminData();},10000);}
+        }else{
+            qs('admin-panel').style.display='none';
+            if(adminRefresh){clearInterval(adminRefresh);adminRefresh=null;}
+        }
+    }catch{toast('Refresh failed','error');}
+}
+
+async function loadAdminData(){
+    try{
+        const orders=await fJSON('/api/admin/orders');
+        const tx=await fJSON('/api/admin/transactions');
+        const stats=await fJSON('/api/admin/stats');
+
+        qs('admin-stats-grid').innerHTML=`
+            <div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">${stats.todayRevenue} PKR</div></div>
+            <div class="stat-card"><div class="sl">Today Orders</div><div class="sv">${stats.todayOrders}</div></div>
+            <div class="stat-card"><div class="sl">Total Users</div><div class="sv">${stats.totalUsers}</div></div>
+            <div class="stat-card"><div class="sl">Active Orders</div><div class="sv">${stats.activeOrders}</div></div>
+            <div class="stat-card"><div class="sl">Success Rate</div><div class="sv">${stats.todaySuccessRate}%</div></div>
+            <div class="stat-card"><div class="sl">Total Revenue</div><div class="sv">${stats.totalRevenue} PKR</div></div>
+            <div class="stat-card"><div class="sl">Total Profit</div><div class="sv">${stats.totalProfit} PKR</div></div>
+        `;
+
+        const ol=qs('admin-orders-list');
+        ol.innerHTML=orders.length?orders.map(o=>{
+            const tag=o.service_type==='whatsapp'?'📱 WA':o.service_type==='facebook'?'📘 FB':o.service_type==='instagram'?'📸 IG':o.service_type==='snapchat'?'📱 SC':o.service_type==='google'?'📧 GO':o.service_type==='tiktok'?'🎵 TK':'📱 OT':'📱 OT':'📱 WA';
+            const profit=o.provider_cost_usd?`Profit: ${Number((o.price-o.provider_cost_usd*280).toFixed(0)} PKR`:'';
+            const cost=o.provider_cost_usd?`Cost: $${o.provider_cost_usd.toFixed(2)}`:'';
+            return `<div class="admin-card"><div><strong>${o.user_email}</strong><div class="admin-meta">${tag} ${o.country} • ${o.price} PKR<br>${profit} ${cost}</div></div>`;
+        }).join(''):'<div class="sub-text">No orders yet.</div>';
+
+        const badge=qs('payment-badge');
+        const pc=tx.length;
+        if(pc>0){
+            badge.classList.remove('hidden');
+            badge.textContent=pc;
+            if(pc>lastPending){
+                toast(`${pc} pending payment(s)`,`success`,6000);
+            }
+        }else{
+            badge.classList.add('hidden');
+        }
+        lastPending=pc;
+
+        const tl=qs('admin-tx-list');
+        tl.innerHTML=tx.length?tx.map(t=>{
+            return `<div class="admin-card"><div><strong>${t.user_email}</strong><div class="admin-meta">Amount: ${t.amount} PKR</div><div class="admin-actions"><a href="/uploads/${t.screenshot}" target="_blank" style="text-decoration:none;color:var(--info);" class="mini-btn">View Screenshot</a><button class="mini-btn approve-btn" data-id="${t.id}">Approve</button><button class="mini-btn reject-btn" data-id="${t.id}" style="background:linear-gradient(135deg,#f87171,#dc2626);color:#fff">Reject</button></div></div>`;
+        }).join(''):'<div class="sub-text">No pending payments.</div>';
+
+        document.querySelectorAll('.approve-btn').forEach(b=>{b.addEventListener('click',async()=>{
+            try{
+                const r=await fetch(`/api/admin/transactions/${b.dataset.id}/approve`,{method:'POST',credentials:'include'});
+                if(!r.ok)throw new Error(await r.text());
+                toast('Approved!','success');
+                await loadAdminData();
+                if(currentUser){const m=await fJSON('/api/me');qs('user-balance').innerText=m.balance;}
+            }catch(e){toast(e.message,'error');}
+        });});
+
+        document.querySelectorAll('.reject-btn').forEach(b=>{b.addEventListener('click',async()=>{
+            try{
+                const r=await fetch(`/api/admin/transactions/${b.dataset.id}/reject`,{method:'POST',credentials:'include'});
+                if(!r.ok)throw new Error(await r.text());
+                toast('Rejected!','success');
+                await loadAdminData();
+            }catch(e){toast(e.message,'error');}
+        });
+
+        const rl=qs('admin-resets-list');
+        const resets=await fJSON('/api/admin/resets');
+        rl.innerHTML=resets.length?resets.map(r=>`<div class="admin-card"><div><strong>${r.email}</strong><div class="admin-meta">Requested at: ${new Date(r.reset_token_expires).toLocaleString()}</div></div>`).join(''):'<div class="sub-text">No pending resets.</div>';
+
+    }catch{toast('Admin data failed','error');}
+}
+
+async function login(){const b=qs('login-btn');setLoading(b,'Signing in...');try{const e=sEmail(qs('login-email').value.trim()),p=qs('login-password').value;if(!vEmail(e))return toast('Valid email required','error');if(typeof p!=='string'||!p)return toast('Password required','error');const u=await findUser(e);if(!u)return toast('Invalid credentials','error');if(!u.is_active)return toast('Account blocked','error');const pc=await verifyP(p,u.password);if(!pc.valid){const na=Number(u.login_attempts||0)+1;await updateLoginAttempts(u.id,na);if(na>=5)await qR('UPDATE users SET is_active=FALSE WHERE id=$1',[u.id]);return toast('Invalid credentials','error');}if(pc.needsUpgrade)await updatePassHash(u.id,await hashP(p));await updateLoginAttempts(u.id,0);await updateLastLogin(u.id);req.session.regenerate(e=>{if(e)return res.status(500).send('Login failed');req.session.userId=u.id;req.session.save(s=>{if(s)return res.status(500).send('Login failed');res.json({success:true});});});}catch(e){res.status(500).send('Login failed');}} catch(e){res.status(500).send('Login failed');}}
+
+async function register(){const b=qs('register-btn');setLoading(b,'Creating...');try{const n=qs('reg-name').value.trim(),e=sEmail(qs('reg-email').value.trim()),p=qs('reg-password').value;if(!n)return toast('Name required','error');if(!vEmail(e))return toast('Valid email required','error');if(!vPass(p))return toast('Password min 6 chars','error');if(await findUser(e))return toast('Email exists','error');await createUser(n,e,p);toast('Account created','success');showLoginForm();}catch(e){toast(e.message,'error');}finally{resetLoading(b);}}
+
+async function savePassword(){const b=qs('save-password-btn');setLoading(b,'Saving...');try{const cp=qs('current-password').value,np=qs('new-password').value;if(!cp)return toast('Current password required','error');if(!vPass(np))return toast('Min 6 chars','error');const u=await findUserById(req.session.userId);if(!u)return toast('Not found','error');if(!(await verifyP(cp,u.password)).valid)return toast('Wrong password','error');await updatePass(u.id,np);toast('Saved!','success');qs('password-modal').style.display='none';qs('current-password').value='';qs('new-password').value='';resetLoading(b);}catch(e){toast(e.message,'error');}finally{resetLoading(b);}}
+
+async function logout(){await fetch('/api/logout',{credentials:'include'});currentUser=null;qs('user-info').classList.add('hidden');qs('login-prompt').classList.remove('hidden');qs('admin-panel').style.display='none';stopIntervals();stopAdminAlert();if(adminRefresh){clearInterval(adminRefresh);}adminRefresh=null;toast('Logged out','success');}
+
+async function checkAuth(){try{const r=await fetch('/api/me',{credentials:'include'});if(!r.ok)throw new Error('No session');currentUser=await r.json();qs('login-prompt').classList.add('hidden');qs('user-info').classList.remove('hidden');await refreshUser();}catch{currentUser=null;qs('login-prompt').classList.remove('hidden');qs('user-info').classList.add('hidden');}}
+
+function showLoginForm(){qs('show-login-tab').classList.add('active');qs('show-register-tab').classList.remove('active');qs('login-form-wrap').classList.remove('hidden');qs('register-form-wrap').classList.add('hidden');qs('forgot-form-wrap').classList.add('hidden');}
+function showRegisterForm(){qs('show-register-tab').classList.add('active');qs('show-login-tab').classList.remove('active');qs('register-form-wrap').classList.remove('hidden');qs('login-form-wrap').classList.add('hidden');}
+function showForgotForm(){qs('show-login-tab').classList.add('active');qs('show-register-tab').classList.remove('active');qs('login-form-wrap').classList.add('hidden');qs('register-form-wrap').classList.add('hidden');qs('forgot-form-wrap').classList.remove('hidden');}
+function backToLogin(){showForgotForm();}
+
+qs('show-login-tab').addEventListener('click',showLoginForm);
+qs('show-register-tab').addEventListener('click',showRegisterForm);
+qs('login-btn').addEventListener('click',login);
+qs('register-btn').addEventListener('click',register);
+qs('google-login-btn').addEventListener('click',()=>{window.location.href='/api/auth/google';});
+qs('forgot-btn').addEventListener('click',showForgotForm);
+qs('back-to-login').addEventListener('click',backToLogin);
+qs('open-password-modal').addEventListener('click',()=>qs('password-modal').style.display='flex'));
+qs('close-password-modal').addEventListener('click',()=>qs('password-modal').style.display='none');
+qs('save-password-btn').addEventListener('click',savePassword);
+qs('account-toggle-btn').addEventListener('click',()=>{const h=qs('account-details-content');if(!h)return;const isHidden=h.classList.contains('hidden');h.classList.toggle('hidden',isHidden);qs('account-toggle-btn').innerText=isHidden?'−':'+';});
+qs('logout-btn').addEventListener('click',logout);
+qs('add-money-btn').addEventListener('click',()=>qs('payment-modal').style.display='flex');
+qs('close-payment-modal').addEventListener('click',()=>qs('payment-modal').style.display='none');
+qs('close-order-modal').addEventListener('click',closeOrderModal);
+
+qs('addFundsForm').addEventListener('submit',async(e)=>{
+    e.preventDefault();const b=qs('submit-payment-btn');setLoading(b,'Submitting...');try{const fd=new FormData(e.target);const r=await fetch('/api/add-funds',{method:'POST',body:fd,credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Submitted!','success',6000);qs('payment-modal').style.display='none';e.target.reset();}catch(err){toast(err.message,'error');}finally{resetLoading(b);}
+});
+
+qs('check-otp-manual').addEventListener('click',async()=>{if(!activeOrder)return;await pollOtp(activeOrder.id,false);});
+qs('copy-number-btn').addEventListener('click',()=>{const n=qs('order-number').innerText.trim();if(n&&n!=='Processing...')copyT(n);});
+qs('contact-btn').addEventListener('click',()=>{if(window.Tawk_API)window.Tawk_API.toggle();else toast('Loading support...','info');});
+
+qs('theme-toggle').addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('mrf-theme',document.body.classList.contains('light')?'light':'dark');});
+if(localStorage.getItem('mrf-theme')==='light')document.body.classList.add('light');
+
+document.querySelectorAll('.nav-item[data-service]').forEach(item=>{
+    if(item.id==='contact-btn')return;
+    item.addEventListener('click',()=>{
+        document.querySelectorAll('.nav-item[data-service]').forEach(i=>i.classList.remove('active'));
+        item.classList.add('active');
+        currentService=item.dataset.service;
+        const meta=SVC_META[currentService];
+        qs('hero-title').innerText=`Available ${meta.label} Numbers`;
+        qs('hero-svc').innerText=meta.label;
+        allCountries=[];qs('country-list').innerHTML='';qs('country-search').value='';
+        currentFilter='all';
+        document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        document.querySelector('.chip[data-filter="all"]').classList.add('active');
+        loadCountries();
+        closeSidebar();
+    });
+});
+
+document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');currentFilter=c.dataset.filter;renderCountries();});});
+qs('country-search').addEventListener('input',renderCountries);
+
+window.addEventListener('click',(e)=>{
+    if(e.target===qs('payment-modal'))qs('payment-modal').style.display='none';
+    if(e.target===qs('order-modal'))closeOrderModal();
+    if(e.target===qs('processing-modal'))qs('processing-modal').style.display='none';
+    if(e.target===qs('password-modal'))qs('password-modal').style.display='none';
+});
+
+loadCountries();
+checkAuth();
+</script>
+</body>
+</html>
