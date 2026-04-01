@@ -43,9 +43,7 @@ app.use(session({
     cookie: { secure: 'auto', httpOnly: true, sameSite: 'lax', maxAge: 1000 * 60 * 60 * 24 * 7 }
 }));
 
-// ------------------------------------------------------------------
-// Helper functions
-// ------------------------------------------------------------------
+// Rate limiter
 const rateStore = {};
 function rateLimit(req, res, next) {
     const ip = req.ip; const now = Date.now();
@@ -56,6 +54,7 @@ function rateLimit(req, res, next) {
     next();
 }
 
+// Helpers
 function normUser(r) { if (!r) return null; return { ...r, balance: Number(r.balance || 0), referralCode: r.referral_code, is_active: r.is_active, login_attempts: r.login_attempts }; }
 function normOrder(r) { if (!r) return null; return { ...r, price: Number(r.price || 0), provider_cost_usd: Number(r.provider_cost_usd || 0), otp_received: r.otp_received }; }
 async function q1(s, p = []) { const r = await pool.query(s, p); return r.rows[0] || null; }
@@ -73,14 +72,11 @@ function waitMs(ms) { return new Promise(r => setTimeout(r, ms)); }
 function pkrUsd(p) { return parseFloat((p / 280).toFixed(3)); }
 function safeErr(e, f = 'Server error') { if (!e) return f; if (typeof e.message === 'string' && e.message.trim()) return e.message; return f; }
 
-// ------------------------------------------------------------------
-// Middleware for authentication
-// ------------------------------------------------------------------
+// Authentication middleware
 function ensureAuth(req, res, next) {
     if (!req.session.userId) return res.status(401).send('Login required');
     next();
 }
-
 async function ensureAdmin(req, res, next) {
     try {
         if (!req.session.userId) return res.status(401).send('Login required');
@@ -88,14 +84,10 @@ async function ensureAdmin(req, res, next) {
         if (!u || u.role !== 'admin') return res.status(403).send('Admin only');
         req.user = u;
         next();
-    } catch {
-        res.status(500).send('Server error');
-    }
+    } catch { res.status(500).send('Server error'); }
 }
 
-// ------------------------------------------------------------------
-// Database initialization
-// ------------------------------------------------------------------
+// Database init
 async function initDB() {
     await qR(`CREATE TABLE IF NOT EXISTS users(id SERIAL PRIMARY KEY,email TEXT UNIQUE NOT NULL,password TEXT NOT NULL,name TEXT,balance NUMERIC(12,2) DEFAULT 0,role TEXT DEFAULT 'user',referral_code TEXT,is_active BOOLEAN DEFAULT TRUE,login_attempts INTEGER DEFAULT 0,last_login TIMESTAMPTZ,reset_token TEXT,reset_token_expires TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)`);
     await qR(`CREATE TABLE IF NOT EXISTS orders(id SERIAL PRIMARY KEY,user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,user_email TEXT,service_type TEXT,service_name TEXT,country TEXT,country_code TEXT,country_id INTEGER,price NUMERIC(12,2),provider_cost_usd NUMERIC(12,4) DEFAULT 0,payment_method TEXT,payment_status TEXT DEFAULT 'pending',order_status TEXT DEFAULT 'pending',phone_number TEXT,activation_id TEXT,otp_received BOOLEAN DEFAULT FALSE,otp_code TEXT,expires_at TIMESTAMPTZ,cancel_available_at TIMESTAMPTZ,created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,completed_at TIMESTAMPTZ)`);
@@ -111,9 +103,7 @@ async function initDB() {
     }
 }
 
-// ------------------------------------------------------------------
-// User management functions
-// ------------------------------------------------------------------
+// User functions
 async function findUser(e) { return normUser(await q1('SELECT * FROM users WHERE email=$1', [sEmail(e)])); }
 async function findUserById(id) { return normUser(await q1('SELECT * FROM users WHERE id=$1', [id])); }
 async function createUser(n, e, p) { const rc = Math.random().toString(36).substring(2, 10).toUpperCase(); return qR('INSERT INTO users(email,password,name,referral_code) VALUES($1,$2,$3,$4)', [sEmail(e), await hashP(p), String(n || '').trim(), rc]); }
@@ -140,9 +130,7 @@ async function getAllOrders() { return (await qA('SELECT * FROM orders ORDER BY 
 async function updateLoginAttempts(uid, a) { return qR('UPDATE users SET login_attempts=$1 WHERE id=$2', [a, uid]); }
 async function updateLastLogin(uid) { return qR('UPDATE users SET last_login=CURRENT_TIMESTAMP WHERE id=$1', [uid]); }
 
-// ------------------------------------------------------------------
-// Country lists (exactly as in your original code)
-// ------------------------------------------------------------------
+// Country lists
 const countries = [
     { name: 'South Africa', code: '+27', price: 170, countryId: 31, flag: '🇿🇦' },
     { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
@@ -190,141 +178,65 @@ const svcConfig = {
     tiktok: { code: SVC_TK, countries: tiktokCountries, label: 'TikTok', name: 'TikTok Number' }
 };
 
-// ------------------------------------------------------------------
-// SMSBower functions (improved)
-// ------------------------------------------------------------------
-function parseSMSBowerResponse(raw) {
-    const str = String(raw).trim();
-    // JSON response
-    if (str.startsWith('{') || str.startsWith('[')) {
-        try {
-            const obj = JSON.parse(str);
-            if (obj.activationId && obj.phoneNumber) {
-                return { success: true, activationId: String(obj.activationId), phoneNumber: String(obj.phoneNumber).startsWith('+') ? obj.phoneNumber : `+${obj.phoneNumber}` };
-            }
-            if (obj.activationId && obj.phone) {
-                return { success: true, activationId: String(obj.activationId), phoneNumber: String(obj.phone).startsWith('+') ? obj.phone : `+${obj.phone}` };
-            }
-        } catch (e) { /* ignore */ }
-    }
-    // ACCESS_NUMBER:activationId:phoneNumber
-    if (str.startsWith('ACCESS_NUMBER:')) {
-        const parts = str.split(':');
-        if (parts.length >= 3) {
-            const phone = parts[2].startsWith('+') ? parts[2] : `+${parts[2]}`;
-            return { success: true, activationId: parts[1], phoneNumber: phone };
-        }
-    }
-    // Sometimes it's just the phone number
-    if (/^\+?\d{7,15}$/.test(str)) {
-        return { success: true, activationId: '', phoneNumber: str.startsWith('+') ? str : `+${str}` };
-    }
-    return { success: false, error: str };
+// SMSBower parsing
+function parseNumResp(d) {
+    if (typeof d === 'string') { const t = d.trim(); if (t.startsWith('{') || t.startsWith('[')) { try { return parseNumResp(JSON.parse(t)); } catch { return parseV1(t); } } return parseV1(t); }
+    if (d && typeof d === 'object' && d.activationId && d.phoneNumber) return { success: true, activationId: String(d.activationId), phoneNumber: String(d.phoneNumber).startsWith('+') ? String(d.phoneNumber) : `+${String(d.phoneNumber)}` };
+    return { success: false, error: 'No number' };
 }
-
-async function fetchTiers(cid, sc = 'wa') {
-    try {
-        const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getPricesV3&service=${sc}&country=${cid}`;
-        const resp = await axios.get(url, { timeout: 15000 });
-        const data = resp.data;
-        return extractProviders(data);
-    } catch (e) {
-        return [];
-    }
-}
+function parseV1(t) { const r = String(t || '').trim(); if (r.startsWith('ACCESS_NUMBER:')) { const p = r.split(':'); if (p.length >= 3) return { success: true, activationId: p[1], phoneNumber: p[2].startsWith('+') ? p[2] : `+${p[2]}` }; } return { success: false, error: r || 'No number' }; }
 
 function extractProviders(node) {
     const b = [], s = new Set();
-    (function rec(n) {
-        if (!n || typeof n !== 'object') return;
-        if (Object.prototype.hasOwnProperty.call(n, 'provider_id') && Object.prototype.hasOwnProperty.call(n, 'price')) {
-            const pi = Number(n.provider_id), pp = Number(n.price);
-            if (!Number.isNaN(pi) && !Number.isNaN(pp)) {
-                const k = `${pi}:${pp}`;
-                if (!s.has(k)) {
-                    s.add(k);
-                    b.push({ provider_id: pi, price: pp });
-                }
-            }
-        }
-        for (const v of Object.values(n)) {
-            if (v && typeof v === 'object') rec(v);
-        }
-    })(node);
+    (function rec(n) { if (!n || typeof n !== 'object') return; if (Object.prototype.hasOwnProperty.call(n, 'provider_id') && Object.prototype.hasOwnProperty.call(n, 'price')) { const pi = Number(n.provider_id), pp = Number(n.price); if (!Number.isNaN(pi) && !Number.isNaN(pp)) { const k = `${pi}:${pp}`; if (!s.has(k)) { s.add(k); b.push({ provider_id: pi, price: pp }); } } } for (const v of Object.values(n)) { if (v && typeof v === 'object') rec(v); } })(node);
     return b.sort((a, b) => a.price - b.price);
 }
 
-async function buyFromProv(cid, prov, sc) {
-    try {
-        const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getNumberV2&service=${sc}&country=${cid}&maxPrice=${prov.price}&providerIds=${prov.provider_id}`;
-        const resp = await axios.get(url, { timeout: 15000 });
-        const parsed = parseSMSBowerResponse(resp.data);
-        if (parsed.success) {
-            return { ...parsed, provider_id: prov.provider_id, provider_price: prov.price };
-        }
-        return { success: false, error: parsed.error };
-    } catch (e) {
-        return { success: false, error: e.message };
-    }
+async function fetchTiers(cid, sc = 'wa') {
+    const r = await axios.get(`${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getPricesV3&service=${sc}&country=${cid}`, { timeout: 15000 });
+    const d = r.data; let prov = [];
+    if (d && typeof d === 'object') { const cn = d[String(cid)] ?? d[cid] ?? (Object.keys(d).length === 1 ? Object.values(d)[0] : null); const sn = cn?.[sc] ?? (cn && Object.keys(cn).length === 1 ? Object.values(cn)[0] : null); prov = extractProviders(sn || d); }
+    return prov.filter(p => Number.isFinite(p.provider_id) && Number.isFinite(p.price)).sort((a, b) => a.price - b.price);
 }
 
-async function getBestNum(cid, maxUsd, sc = 'wa') {
-    // First try tiered purchase
+async function buyFromProv(cid, prov, sc = 'wa') {
+    try { const r = await axios.get(`${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getNumberV2&service=${sc}&country=${cid}&maxPrice=${prov.price}&providerIds=${prov.provider_id}`, { timeout: 15000 }); const p = parseNumResp(r.data); if (p.success) return { ...p, provider_id: prov.provider_id, provider_price: prov.price }; return { success: false, error: p.error }; } catch (e) { return { success: false, error: e.message }; }
+}
+
+async function buyByTier(cid, maxUsd, sc = 'wa') {
     try {
         const provs = await fetchTiers(cid, sc);
-        const affordable = provs.filter(p => p.price <= maxUsd + 0.001).slice(0, 5);
-        for (const prov of affordable) {
+        const aff = provs.filter(p => p.price <= maxUsd + 0.000001).slice(0, 5);
+        if (!aff.length) return { success: false, strategy: 'unavailable', error: 'No tiers in range' };
+        for (const prov of aff) {
             const start = Date.now();
             while (Date.now() - start < 10000) {
                 const r = await buyFromProv(cid, prov, sc);
-                if (r.success) {
-                    if (!r.phoneNumber) continue;
-                    return { success: true, activationId: r.activationId, phoneNumber: r.phoneNumber, strategy: 'tier', provider_id: r.provider_id, provider_price: r.provider_price };
-                }
-                await waitMs(2000);
+                if (r.success) return { success: true, activationId: r.activationId, phoneNumber: r.phoneNumber, strategy: 'provider', provider_id: r.provider_id, provider_price: r.provider_price };
+                const rem = 10000 - (Date.now() - start); if (rem <= 0) break;
+                await waitMs(Math.min(5000, rem));
             }
         }
-    } catch (e) { /* ignore */ }
+        return { success: false, strategy: 'exhausted', error: 'No number in tiers' };
+    } catch (e) { return { success: false, strategy: 'unavailable', error: e.message }; }
+}
 
-    // Fallback to simple getNumber with increasing price
-    for (let i = 0; i < 3; i++) {
-        const mp = (maxUsd * (1 + i * 0.05)).toFixed(3);
-        try {
-            const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getNumber&service=${sc}&country=${cid}&maxPrice=${mp}`;
-            const resp = await axios.get(url, { timeout: 15000 });
-            const parsed = parseSMSBowerResponse(resp.data);
-            if (parsed.success) {
-                return { success: true, activationId: parsed.activationId, phoneNumber: parsed.phoneNumber, strategy: 'fallback', provider_price: parseFloat(mp) };
-            }
-        } catch (e) { /* ignore */ }
-        await waitMs(5000);
-    }
+async function buyRetry(cid, baseUsd, sc = 'wa') {
+    for (let i = 0; i < 3; i++) { const mp = (baseUsd * (1 + i * 0.05)).toFixed(3); try { const r = await axios.get(`${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getNumber&service=${sc}&country=${cid}&maxPrice=${mp}`, { timeout: 15000 }); const p = parseNumResp(r.data); if (p.success) return { success: true, activationId: p.activationId, phoneNumber: p.phoneNumber, strategy: 'fallback' }; if (i < 2) await waitMs(8000); } catch (e) { if (i === 2) return { success: false, error: e.message }; await waitMs(8000); } }
+    return { success: false, error: 'No number after retries' };
+}
 
-    return { success: false, error: 'No number available after retries' };
+async function getBestNum(cid, maxUsd, sc = 'wa') {
+    let r = await buyByTier(cid, maxUsd, sc);
+    if (!r.success && r.strategy === 'unavailable') r = await buyRetry(cid, maxUsd, sc);
+    return r;
 }
 
 async function checkSms(aid) {
-    try {
-        const r = await axios.get(`${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getStatus&id=${aid}`, { timeout: 15000 });
-        const t = String(r.data || '').trim();
-        if (t.startsWith('STATUS_OK:')) return { success: true, code: t.split(':')[1] };
-        if (t === 'STATUS_WAIT_CODE') return { success: true, waiting: true };
-        return { success: false, raw: t };
-    } catch (e) {
-        return { success: false, error: e.message };
-    }
+    try { const r = await axios.get(`${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getStatus&id=${aid}`, { timeout: 15000 }); const t = String(r.data || '').trim(); if (t.startsWith('STATUS_OK:')) return { success: true, code: t.split(':')[1] }; if (t === 'STATUS_WAIT_CODE') return { success: true, waiting: true }; return { success: false, raw: t }; } catch (e) { return { success: false, error: e.message }; }
 }
 
-function playDing() {
-    try {
-        const { exec } = require('child_process');
-        exec('echo -e "\\a"');
-    } catch (e) {}
-}
-
-// ------------------------------------------------------------------
-// Routes (static and API)
-// ------------------------------------------------------------------
+// Routes
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
@@ -401,8 +313,7 @@ app.post('/api/order', ensureAuth, rateLimit, async (req, res) => {
         const ur = (await client.query('SELECT * FROM users WHERE id=$1 FOR UPDATE', [req.session.userId])).rows[0];
         if (!ur) { await client.query('ROLLBACK'); return res.status(401).send('Not found'); }
         if (Number(ur.balance) < Number(price)) { await client.query('ROLLBACK'); return res.status(400).send('Insufficient balance'); }
-        const maxUsd = pkrUsd(price);
-        const result = await getBestNum(countryId, maxUsd, cfg.code);
+        const maxUsd = pkrUsd(price); const result = await getBestNum(countryId, maxUsd, cfg.code);
         if (!result.success) {
             await client.query('ROLLBACK');
             const errMsg = result.error && result.error.includes('end of the range')
@@ -415,24 +326,13 @@ app.post('/api/order', ensureAuth, rateLimit, async (req, res) => {
             console.error('Missing phone number in result', result);
             return res.status(500).send('Internal error: missing phone number');
         }
-        const now = new Date();
-        const exp = new Date(now.getTime() + 25 * 60000).toISOString();
-        const cancelAt = new Date(now.getTime() + 60000).toISOString();
+        const now = new Date(); const exp = new Date(now.getTime() + 25 * 60000).toISOString(); const cancelAt = new Date(now.getTime() + 60000).toISOString();
         const costUsd = result.provider_price || 0;
         await client.query('UPDATE users SET balance=$1 WHERE id=$2', [Number(ur.balance) - Number(price), ur.id]);
-        const ins = (await client.query(`
-            INSERT INTO orders(user_id,user_email,service_type,service_name,country,country_code,country_id,price,provider_cost_usd,payment_method,order_status,phone_number,activation_id,expires_at,cancel_available_at,created_at)
-            VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id
-        `, [ur.id, ur.email, service, cfg.name, countryName, co.code, co.countryId, price, costUsd, 'balance', 'active', result.phoneNumber, result.activationId, exp, cancelAt, now.toISOString()])).rows[0];
+        const ins = (await client.query(`INSERT INTO orders(user_id,user_email,service_type,service_name,country,country_code,country_id,price,provider_cost_usd,payment_method,order_status,phone_number,activation_id,expires_at,cancel_available_at,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`, [ur.id, ur.email, service, cfg.name, countryName, co.code, co.countryId, price, costUsd, 'balance', 'active', result.phoneNumber, result.activationId, exp, cancelAt, now.toISOString()])).rows[0];
         await client.query('COMMIT');
         res.json({ id: ins.id, number: result.phoneNumber });
-    } catch (e) {
-        await client.query('ROLLBACK');
-        console.error('Order error:', e);
-        res.status(500).send(safeErr(e, 'Order failed'));
-    } finally {
-        client.release();
-    }
+    } catch (e) { await client.query('ROLLBACK'); res.status(500).send(safeErr(e, 'Order failed')); } finally { client.release(); }
 });
 
 app.get('/api/orders/:id', ensureAuth, async (req, res) => { try { const o = await getOrderById(Number(req.params.id)); if (!o) return res.status(404).send('Not found'); const u = await findUserById(req.session.userId); if (!u) return res.status(401).send('Not found'); if (o.user_id !== u.id && u.role !== 'admin') return res.status(403).send('Unauthorized'); res.json(o); } catch { res.status(500).send('Server error'); } });
@@ -506,12 +406,11 @@ app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, 
 
 app.use('/uploads', express.static(UPLOAD_DIR));
 
-// ------------------------------------------------------------------
-// Start server
-// ------------------------------------------------------------------
-initDB().then(() => {
-    app.listen(PORT, '0.0.0.0', () => console.log(`Running on port ${PORT}`));
-}).catch(e => {
-    console.error('DB init failed:', e);
-    process.exit(1);
-});
+function playDing() {
+    try {
+        const { exec } = require('child_process');
+        exec('echo -e "\\a"');
+    } catch (e) {}
+}
+
+initDB().then(() => { app.listen(PORT, '0.0.0.0', () => console.log(`Running on port ${PORT}`)); }).catch(e => { console.error('DB init failed:', e); process.exit(1); });
