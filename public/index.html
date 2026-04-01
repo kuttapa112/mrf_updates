@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* (keep the same CSS as before – we will reuse it) */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#07111f;--bg2:#0b1728;--panel:rgba(13,25,45,.88);--panel2:rgba(17,34,59,.95);--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.08);--border:rgba(255,255,255,.10);--text:#e7edf7;--muted:#90a0ba;--primary:#31d968;--primary2:#1fc857;--danger:#ef4444;--warning:#f59e0b;--info:#38bdf8;--shadow:0 20px 60px rgba(0,0,0,.32)}
 body.light{--bg:#eef4ff;--bg2:#dfeaff;--panel:rgba(255,255,255,.94);--panel2:rgba(255,255,255,.98);--card:rgba(12,22,40,.04);--card2:rgba(12,22,40,.06);--border:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b;--shadow:0 20px 60px rgba(15,23,42,.12)}
@@ -211,7 +212,7 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 </button>
 
 <button class="nav-item" data-service="snapchat">
-<span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="none"><path d="M12.2 2C6.6 2 2 6.4 2 11.8c0 1.5.3 3 .8 4.3l-2.4 4.9h4.8c.45 0 .82-.37.82-.82v-2.5c0-.45-.37-.82-.82-.82H9.2c-.45 0-.82.37-.82.82v2.5c0-.45.37-.82-.82-.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37.82-.82.82v2.65c0 .45.37.82.82.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z" fill="#000"/><circle cx="9.5" cy="14.5" r="1.5" fill="#000"/><circle cx="14.5" cy="14.5" r="1.5" fill="#000"/><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82h-7.72c-.45 0-.82-.37-.82-.82V15.1c0-.45.37-.82-.82-.82h7.72z" fill="#000"/></svg></span>
+<span class="nav-icon" style="background:#FFFC00"><svg viewBox="0 0 24 24" fill="#000"><path d="M12.2 2C6.6 2 2 6.4 2 11.8c0 1.5.3 3 .8 4.3l-2.4 4.9h4.8c.45 0 .82-.37.82-.82v-2.5c0-.45-.37-.82-.82-.82H9.2c-.45 0-.82.37-.82.82v2.5c0-.45.37-.82-.82-.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82H9.18c0-.45.37.82-.82.82v2.65c0 .45.37.82.82.82h7.2c.45 0 .82-.37.82-.82v-2.65c0-.45-.37-.82-.82-.82z"/><circle cx="9.5" cy="14.5" r="1.5"/><circle cx="14.5" cy="14.5" r="1.5"/><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v-4.87c0-.45.37-.82-.82-.82h4.87c.45 0 .82-.37.82-.82V3.44c0-1.85-1.5-3.35-3.35-3.35H8.65c-1.85 0-3.35 1.5-3.35 3.35v11.12c0 1.85 1.5 3.35 3.35 3.35h5.63c.78 0 1.53.07 2.25.2-.13.63-.5 1.2-.87 1.7l-1.4 2.9h4.43c.45 0 .82-.37.82-.82V15.1c0-.45-.37-.82-.82-.82h-7.72c-.45 0-.82-.37-.82-.82V15.1c0-.45.37-.82-.82-.82h7.72z"/></svg></span>
 <span>Snapchat</span>
 </button>
 
@@ -376,213 +377,528 @@ body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(
 
 <div class="toast-wrap" id="toast-wrap"></div>
 
-<script type="text/javascript">var Tawk_API=Tawk_API||{};var Tawk_LoadStart=new Date();(function(){var s=document.createElement("script");s.async=true;s.src='https://embed.tawk.to/69c3a5ccacf0f81c37903f0d/1jki3vag6';s.charset='UTF-8';s.setAttribute('crossorigin','*');var s0=document.getElementsByTagName("script")[0];s0.parentNode.insertBefore(s,s0)})();</script>
-
 <script>
-let currentUser=null,activeOrder=null,otpInterval=null,timerInterval=null,adminRefresh=null,adminAlertInterval=null,lastPending=0,allCountries=[],currentFilter='all',currentService='whatsapp';
+// ------------------------------------------------------------------
+// Helper functions
+// ------------------------------------------------------------------
+function $(id) { return document.getElementById(id); }
+function toast(msg, type = 'info', duration = 4000) {
+    const wrap = $('toast-wrap');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(() => el.remove(), duration);
+}
 
-const SVC_META={
-    whatsapp:{label:'WhatsApp',api:'/api/countries'},
-    facebook:{label:'Facebook',api:'/api/facebook/countries'},
-    instagram:{label:'Instagram',api:'/api/instagram/countries'},
-    snapchat:{label:'Snapchat',api:'/api/snapchat/countries'},
-    google:{label:'Google / Gmail',api:'/api/google/countries'},
-    tiktok:{label:'TikTok',api:'/api/tiktok/countries'}
+async function fetchJSON(url, options = {}) {
+    const res = await fetch(url, { ...options, credentials: 'include' });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => toast('Copied!', 'success')).catch(() => toast('Copy failed', 'error'));
+}
+
+function playDing() {
+    try {
+        const audio = new AudioContext();
+        const osc = audio.createOscillator();
+        const gain = audio.createGain();
+        osc.connect(gain);
+        gain.connect(audio.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, audio.currentTime + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(880, audio.currentTime + 0.25);
+        gain.gain.setValueAtTime(0.25, audio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + 0.4);
+        osc.start();
+        osc.stop(audio.currentTime + 0.4);
+    } catch(e) { /* ignore */ }
+}
+
+function showConfetti() {
+    const colors = ['#31d968', '#38bdf8', '#f59e0b', '#ef4444', '#a78bfa'];
+    for (let i = 0; i < 50; i++) {
+        const div = document.createElement('div');
+        div.className = 'confetti-piece';
+        div.style.left = Math.random() * 100 + 'vw';
+        div.style.background = colors[Math.floor(Math.random() * colors.length)];
+        div.style.setProperty('--dur', (1.5 + Math.random() * 2) + 's');
+        div.style.width = (6 + Math.random() * 8) + 'px';
+        div.style.height = (6 + Math.random() * 8) + 'px';
+        div.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 4000);
+    }
+}
+
+// ------------------------------------------------------------------
+// Global state
+// ------------------------------------------------------------------
+let currentUser = null;
+let activeOrder = null;
+let otpInterval = null;
+let timerInterval = null;
+let adminRefresh = null;
+let lastPending = 0;
+let allCountries = [];
+let currentFilter = 'all';
+let currentService = 'whatsapp';
+
+const SVC_META = {
+    whatsapp: { label: 'WhatsApp', api: '/api/countries' },
+    facebook: { label: 'Facebook', api: '/api/facebook/countries' },
+    instagram: { label: 'Instagram', api: '/api/instagram/countries' },
+    snapchat: { label: 'Snapchat', api: '/api/snapchat/countries' },
+    google: { label: 'Google / Gmail', api: '/api/google/countries' },
+    tiktok: { label: 'TikTok', api: '/api/tiktok/countries' }
 };
 
-const sidebar=document.getElementById('sidebar'),overlay=document.getElementById('sidebar-overlay'),hamburger=document.getElementById('hamburger');
-function openSidebar(){sidebar.classList.add('open');overlay.classList.add('show')}
-function closeSidebar(){sidebar.classList.remove('open');overlay.classList.remove('show')}
-hamburger.addEventListener('click',openSidebar);
-overlay.addEventListener('click',closeSidebar);
+// ------------------------------------------------------------------
+// Sidebar
+// ------------------------------------------------------------------
+const sidebar = $('sidebar');
+const overlay = $('sidebar-overlay');
+$('hamburger').addEventListener('click', () => sidebar.classList.add('open'));
+overlay.addEventListener('click', () => sidebar.classList.remove('open'));
 
-function toast(m,t='info',d=4000){const w=document.getElementById('toast-wrap');const e=document.createElement('div');e.className=`toast ${t}`;e.textContent=m;w.appendChild(e);setTimeout(()=>e.remove(),d);}
+// ------------------------------------------------------------------
+// Country rendering
+// ------------------------------------------------------------------
+function renderCountries() {
+    let list = [...allCountries];
+    const search = $('country-search').value.trim().toLowerCase();
+    if (search) list = list.filter(c => c.name.toLowerCase().includes(search));
+    if (currentFilter === 'cheap') list = list.filter(c => c.price <= 250);
+    else if (currentFilter === 'premium') list = list.filter(c => c.price >= 300);
 
-function qs(id){return document.getElementById(id)}
-function setLoading(b,t){b.dataset.original=b.innerHTML;b.innerHTML=t;b.disabled=true}
-function resetLoading(b){if(b.dataset.original){b.innerHTML=b.dataset.original;b.disabled=false}}
-
-async function fJSON(u,o={}){const r=await fetch(u,{...o,credentials:'include'});if(!r.ok)throw new Error(await r.text());return r.json();}
-
-function copyT(t){navigator.clipboard.writeText(t).then(()=>toast('Copied','success')).catch(()=>toast('Copy failed','error'))}
-
-function playDing(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(880,c.currentTime);o.frequency.exponentialRampToValueAtTime(1320,c.currentTime+.08);o.frequency.exponentialRampToValueAtTime(880,c.currentTime+.25);g.gain.setValueAtTime(.25,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.4);o.start(c.currentTime);o.stop(c.currentTime+.4);}catch{}}
-
-function showConfetti(){const colors=['#31d968','#38bdf8','#f59e0b','#ef4444','#a78bfa','#fb7185','#fbbf24'];for(let i=0;i<50;i++){const e=document.createElement('div');e.className='confetti-piece';e.style.cssText=`left:${Math.random()*100}vw;background:${colors[Math.floor(Math.random()*colors.length]};--dur:${1.5+Math.random()*2}s;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'}`;document.body.appendChild(e);setTimeout(()=>e.remove(),4000);}}
-
-function renderCountries(){
-    let f=[...allCountries];
-    const s=qs('country-search').value.trim().toLowerCase();
-    if(s)f=f.filter(c=>c.name.toLowerCase().includes(s));
-    if(currentFilter==='cheap')f=f.filter(c=>c.price<=250);
-    else if(currentFilter==='premium')f=f.filter(c=>c.price>=300);
-    const el=qs('country-list');
-    if(!f.length){el.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px"><h3 style="font-size:16px;margin-bottom:6px">No country found</h3><p style="color:var(--muted)">Try another filter.</p></div>';return;}
-    el.innerHTML=f.map(c=>`<div class="country-card" data-id="${c.countryId}" data-name="${c.name}" data-price="${c.price}">
-    <div class="country-top"><div class="country-flag">${c.flag}</div><div class="status-pill">Available</div></div>
-    <div class="country-name">${c.name}</div>
-    <div class="country-code">${c.code}</div>
-    <div class="country-meta"><div class="price-box"><span>Price</span><div class="country-price">${c.price} PKR</div></div></div>
-    <button class="btn btn-primary buy-btn">Buy Number</button>
-</div>`).join('');
-    document.querySelectorAll('.buy-btn').forEach(b=>{
-        b.addEventListener('click',e=>{
-            const card=e.currentTarget.closest('.country-card');
-            orderCountry(card.dataset.name,Number(card.dataset.price),Number(card.dataset.id));
+    const container = $('country-list');
+    if (!list.length) {
+        container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px"><h3>No country found</h3><p>Try another filter.</p></div>';
+        return;
+    }
+    container.innerHTML = list.map(c => `
+        <div class="country-card" data-id="${c.countryId}" data-name="${c.name}" data-price="${c.price}">
+            <div class="country-top"><div class="country-flag">${c.flag}</div><div class="status-pill">Available</div></div>
+            <div class="country-name">${c.name}</div>
+            <div class="country-code">${c.code}</div>
+            <div class="country-price">${c.price} PKR</div>
+            <button class="btn btn-primary buy-btn">Buy Number</button>
+        </div>
+    `).join('');
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.country-card');
+            orderCountry(card.dataset.name, Number(card.dataset.price), Number(card.dataset.id));
         });
     });
 }
 
-async function loadCountries(){
-    try{
-        const meta=SVC_META[currentService];
-        allCountries=await fJSON(meta.api);
+async function loadCountries() {
+    try {
+        allCountries = await fetchJSON(SVC_META[currentService].api);
         renderCountries();
-    }catch{toast('Failed to load countries','error')}
+    } catch (err) {
+        toast('Failed to load countries', 'error');
+    }
 }
 
-async function orderCountry(name,price,id){
-    if(!currentUser){toast('Login first','error');return;}
-    qs('processing-modal').style.display='flex';
-    try{
-        const r=await fetch('/api/order',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({countryName:name,price,countryId:id,service:currentService}),
-            credentials:'include'
+// ------------------------------------------------------------------
+// Order functions
+// ------------------------------------------------------------------
+async function orderCountry(name, price, id) {
+    if (!currentUser) { toast('Please login first', 'error'); return; }
+    $('processing-modal').style.display = 'flex';
+    try {
+        const res = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ countryName: name, price, countryId: id, service: currentService }),
+            credentials: 'include'
         });
-        qs('processing-modal').style.display='none';
-        if(!r.ok){toast(await r.text(),'error');return;}
-        const o=await r.json();
-        toast('Number purchased!','success');
+        $('processing-modal').style.display = 'none';
+        if (!res.ok) throw new Error(await res.text());
+        const order = await res.json();
+        toast('Number purchased!', 'success');
         showConfetti();
         playDing();
         await refreshUser();
-        openOrderModal(o.id);
-    }catch(e){
-        qs('processing-modal').style.display='none';
-        toast('Failed: '+e.message,'error');
+        openOrderModal(order.id);
+    } catch (err) {
+        $('processing-modal').style.display = 'none';
+        toast(err.message, 'error');
     }
 }
 
-function stopIntervals(){if(otpInterval)clearInterval(otpInterval);if(timerInterval)clearInterval(timerInterval);otpInterval=null;timerInterval=null;}
-
-function updateOrderVis(o){
-    const lbl=o.service_name?o.service_name.replace(' Number',''):'WhatsApp';
-    qs('order-country-title').innerText=`${o.country} • ${lbl}`;
-    qs('order-status-pill').innerText=(o.order_status||'active').replace('_',' ').toUpperCase();
-    qs('order-price-pill').innerText=`${o.price} PKR`;
-    qs('order-created-pill').innerText=new Date(o.created_at).toLocaleString();
-    qs('order-number').innerText=o.phone_number||'Processing...';
-    const ob=qs('order-otp'),wb=qs('order-waiting');
-    if(o.otp_code){qs('otp-value').innerText=o.otp_code;ob.style.display='block';wb.style.display='none';}
-    else{ob.style.display='none';wb.style.display='block';}
-    updateOrderBtns(o);updateTimer(o);
+function stopIntervals() {
+    if (otpInterval) clearInterval(otpInterval);
+    if (timerInterval) clearInterval(timerInterval);
+    otpInterval = null;
+    timerInterval = null;
 }
 
-function updateTimer(o){
-    const now=new Date();
-    const exp=new Date(o.expires_at||new Date(new Date(o.created_at).getTime()+25*60*1000));
-    const cancelAt=new Date(o.cancel_available_at||new Date(new Date(o.created_at).getTime()+60*1000));
-    const ed=Math.max(0,exp-now);
-    const cd=Math.floor(ed/60000),cs=Math.floor((ed%60000)/1000);
-    qs('order-timer').innerText=ed<=0?'Expired':`${cd}:${String(cs).padStart(2,'0')}`;
-    const cdd=Math.floor((cancelAt-now)/60000),csd=Math.floor((cancelAt-now)%60000);
-    qs('order-cancel-timer').innerText=cdd<=0?'Unlocked':`${cdd}:${String(csd).padStart(2,'0')}`;
+function updateOrderVis(o) {
+    $('order-country-title').innerText = `${o.country} • ${o.service_name || 'Number'}`;
+    $('order-status-pill').innerText = (o.order_status || 'active').replace('_', ' ').toUpperCase();
+    $('order-price-pill').innerText = `${o.price} PKR`;
+    $('order-created-pill').innerText = new Date(o.created_at).toLocaleString();
+    $('order-number').innerText = o.phone_number || 'Processing...';
+    if (o.otp_code) {
+        $('otp-value').innerText = o.otp_code;
+        $('order-otp').style.display = 'block';
+        $('order-waiting').style.display = 'none';
+    } else {
+        $('order-otp').style.display = 'none';
+        $('order-waiting').style.display = 'block';
+    }
+    updateOrderBtns(o);
+    updateTimer(o);
 }
 
-function updateOrderBtns(o){
-    const c=qs('order-buttons');c.innerHTML='';
-    if(o.otp_code){
-        c.innerHTML=`<button class="btn btn-primary" id="complete-order-btn">Complete Order</button><button class="btn btn-soft" id="close-order-btn">Close</button><button class="btn btn-info" id="copy-otp-btn">Copy OTP</button>`;
-        qs('complete-order-btn').addEventListener('click',async()=>{try{const r=await fetch(`/api/orders/${o.id}/complete`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Order completed','success');closeOrderModal();refreshUser();}catch(e){toast(e.message,'error');}});
-        qs('close-order-btn').addEventListener('click',closeOrderModal);
-        qs('copy-otp-btn').addEventListener('click',()=>copyT(o.otp_code));
+function updateTimer(o) {
+    const now = new Date();
+    const exp = new Date(o.expires_at || new Date(o.created_at).getTime() + 25*60*1000);
+    const cancelAt = new Date(o.cancel_available_at || new Date(o.created_at).getTime() + 60*1000);
+    const ed = Math.max(0, exp - now);
+    const cdd = Math.max(0, cancelAt - now);
+    $('order-timer').innerText = ed <= 0 ? 'Expired' : `${Math.floor(ed/60000)}:${String(Math.floor((ed%60000)/1000)).padStart(2,'0')}`;
+    $('order-cancel-timer').innerText = cdd <= 0 ? 'Unlocked' : `${Math.floor(cdd/60000)}:${String(Math.floor((cdd%60000)/1000)).padStart(2,'0')}`;
+}
+
+function updateOrderBtns(o) {
+    const container = $('order-buttons');
+    container.innerHTML = '';
+    if (o.otp_code) {
+        container.innerHTML = `
+            <button class="btn btn-primary" id="complete-order-btn">Complete Order</button>
+            <button class="btn btn-soft" id="close-order-btn">Close</button>
+            <button class="btn btn-info" id="copy-otp-btn">Copy OTP</button>
+        `;
+        $('complete-order-btn').addEventListener('click', async () => {
+            try {
+                await fetch(`/api/orders/${o.id}/complete`, { method: 'POST', credentials: 'include' });
+                toast('Order completed', 'success');
+                closeOrderModal();
+                refreshUser();
+            } catch (err) { toast(err.message, 'error'); }
+        });
+        $('close-order-btn').addEventListener('click', closeOrderModal);
+        $('copy-otp-btn').addEventListener('click', () => copyText(o.otp_code));
         return;
     }
-    if(o.order_status!=='active'&&o.order_status!=='otp_received'){c.innerHTML=`<button class="btn btn-soft" id="close-order-btn">Close</button>`;qs('close-order-btn').addEventListener('click',closeOrderModal);return;}
-    const ce=new Date()>=new Date(o.cancel_available_at);
-    c.innerHTML=`<button class="btn btn-warning" id="replace-order-btn">Replace Number</button><button class="btn btn-danger" id="cancel-order-btn" ${ce?'':'disabled'}>${ce?'Cancel & Refund':'Cancel Locked'}</button><button class="btn btn-soft" id="close-order-btn">Close</button>`;
-    qs('replace-order-btn').addEventListener('click',async()=>{if(!confirm('Replace number?'))return;try{const r=await fetch(`/api/orders/${o.id}/replace`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Replaced','success');openOrderModal(o.id);refreshUser();}catch(e){toast(e.message,'error');}});
-    if(ce){qs('cancel-order-btn').addEventListener('click',async()=>{if(!confirm('Cancel and refund?'))return;try{const r=await fetch(`/api/orders/${o.id}/cancel`,{method:'POST',credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Cancelled','success');closeOrderModal();refreshUser();}catch(e){toast(e.message,'error');}});
-    qs('close-order-btn').addEventListener('click',closeOrderModal);
+    if (o.order_status !== 'active' && o.order_status !== 'otp_received') {
+        container.innerHTML = '<button class="btn btn-soft" id="close-order-btn">Close</button>';
+        $('close-order-btn').addEventListener('click', closeOrderModal);
+        return;
+    }
+    const canCancel = new Date() >= new Date(o.cancel_available_at);
+    container.innerHTML = `
+        <button class="btn btn-warning" id="replace-order-btn">Replace Number</button>
+        <button class="btn btn-danger" id="cancel-order-btn" ${canCancel ? '' : 'disabled'}>${canCancel ? 'Cancel & Refund' : 'Cancel Locked'}</button>
+        <button class="btn btn-soft" id="close-order-btn">Close</button>
+    `;
+    $('replace-order-btn').addEventListener('click', async () => {
+        if (!confirm('Replace number?')) return;
+        try {
+            const res = await fetch(`/api/orders/${o.id}/replace`, { method: 'POST', credentials: 'include' });
+            if (!res.ok) throw new Error(await res.text());
+            toast('Replaced', 'success');
+            openOrderModal(o.id);
+            refreshUser();
+        } catch (err) { toast(err.message, 'error'); }
+    });
+    if (canCancel) {
+        $('cancel-order-btn').addEventListener('click', async () => {
+            if (!confirm('Cancel and refund?')) return;
+            try {
+                const res = await fetch(`/api/orders/${o.id}/cancel`, { method: 'POST', credentials: 'include' });
+                if (!res.ok) throw new Error(await res.text());
+                toast('Cancelled', 'success');
+                closeOrderModal();
+                refreshUser();
+            } catch (err) { toast(err.message, 'error'); }
+        });
+    }
+    $('close-order-btn').addEventListener('click', closeOrderModal);
 }
 
-async function pollOtp(id,silent=false){
-    try{
-        const r=await fJSON(`/api/orders/${id}/otp`);
-        if(r.received){
-            const o=await fJSON(`/api/orders/${id}`);
-            activeOrder=o;updateOrderVis(o);stopIntervals();playDing();toast('OTP received!','success');await refreshUser();return true;
+async function pollOtp(id, silent = false) {
+    try {
+        const data = await fetchJSON(`/api/orders/${id}/otp`);
+        if (data.received) {
+            const order = await fetchJSON(`/api/orders/${id}`);
+            activeOrder = order;
+            updateOrderVis(order);
+            stopIntervals();
+            playDing();
+            toast('OTP received!', 'success');
+            refreshUser();
+            return true;
         }
-        if(r.expired){const o=await fJSON(`/api/orders/${id}`);activeOrder=o;updateOrderVis(o);stopIntervals();toast('Expired','error');await refreshUser();return true;
-    }catch{if(!silent)toast('OTP check failed','error');return false;}
+        if (data.expired) {
+            const order = await fetchJSON(`/api/orders/${id}`);
+            activeOrder = order;
+            updateOrderVis(order);
+            stopIntervals();
+            toast('Order expired', 'error');
+            refreshUser();
+            return true;
+        }
+        return false;
+    } catch (err) {
+        if (!silent) toast('OTP check failed', 'error');
+        return false;
+    }
 }
 
-async function openOrderModal(id){
-    try{
-        const o=await fJSON(`/api/orders/${id}`);
-        activeOrder=o;updateOrderVis(o);
-        qs('order-modal').style.display='flex';
+async function openOrderModal(id) {
+    try {
+        const order = await fetchJSON(`/api/orders/${id}`);
+        activeOrder = order;
+        updateOrderVis(order);
+        $('order-modal').style.display = 'flex';
         stopIntervals();
-        otpInterval=setInterval(async()=>{if(!activeOrder)return;await pollOtp(activeOrder.id,true);},5000);
-        timerInterval=setInterval(async()=>{
-            if(!activeOrder)return;
-            try{
-                const u=await fJSON(`/api/orders/${activeOrder.id}`);
-                activeOrder=u;updateOrderVis(u);
-                if(new Date()>=new Date(u.expires_at)&&!u.otp_received&&u.order_status==='active'){
-                    await fetch(`/api/orders/${u.id}/expire`,{method:'POST',credentials:'include'});
-                    const ref=await fJSON(`/api/orders/${u.id}`);
-                    activeOrder=ref;updateOrderVis(ref);await refreshUser();
+        otpInterval = setInterval(async () => {
+            if (activeOrder) await pollOtp(activeOrder.id, true);
+        }, 5000);
+        timerInterval = setInterval(async () => {
+            if (!activeOrder) return;
+            try {
+                const updated = await fetchJSON(`/api/orders/${activeOrder.id}`);
+                activeOrder = updated;
+                updateOrderVis(updated);
+                if (new Date() >= new Date(updated.expires_at) && !updated.otp_received && updated.order_status === 'active') {
+                    await fetch(`/api/orders/${updated.id}/expire`, { method: 'POST', credentials: 'include' });
+                    const ref = await fetchJSON(`/api/orders/${updated.id}`);
+                    activeOrder = ref;
+                    updateOrderVis(ref);
+                    refreshUser();
                 }
-                if(u.otp_code||u.order_status==='cancelled'||u.order_status==='completed')stopIntervals();
-            }catch{}
-        },1000);
-    }catch{toast('Could not load order','error');}
+                if (updated.otp_code || updated.order_status === 'cancelled' || updated.order_status === 'completed') stopIntervals();
+            } catch (err) { /* ignore */ }
+        }, 1000);
+    } catch (err) {
+        toast('Could not load order', 'error');
+    }
 }
 
-function closeOrderModal(){qs('order-modal').style.display='none';stopIntervals();activeOrder=null;}
+function closeOrderModal() {
+    $('order-modal').style.display = 'none';
+    stopIntervals();
+    activeOrder = null;
+}
 
-async function refreshUser(){
-    if(!currentUser)return;
-    try{
-        const u=await fJSON('/api/me');
-        currentUser=u;
-        qs('user-balance').innerText=u.balance;
-        qs('account-name').innerText=u.name||'-';
-        qs('account-email').innerText=u.email||'-';
-        qs('account-password').innerText='********';
-        qs('account-referral').innerText=u.referralCode||'-';
-        const orders=await fJSON('/api/orders');
-        const active=orders.filter(o=>o.order_status==='active'||o.order_status==='otp_received');
-        const el=qs('active-orders-list');
-        if(!active.length){el.innerHTML='<div class="sub-text">No active orders.</div>';return;}
-        el.innerHTML=active.map(o=>{
-            const tag=o.service_type==='whatsapp'?'📱 WA':o.service_type==='facebook'?'📘 FB':o.service_type==='instagram'?'📸 IG':o.service_type==='snapchat'?'📱 SC':o.service_type==='google'?'📧 GO':o.service_type==='tiktok'?'🎵 TK':'📱 OT':'📱 OT';
-            return `<div class="order-item"><div class="order-top"><div class="order-country">${tag} ${o.country}</div><div class="order-status">${o.otp_code?'OTP Ready':'Waiting'}</div></div><div class="order-number-small">${o.phone_number||'Processing...'}</div><div class="order-actions"><button class="mini-btn view-order-btn" data-id="${o.id}">View Details</button>${o.phone_number?`<button class="mini-btn copy-order-btn" data-number="${o.phone_number}">Copy Number</button>`:''}</div></div>`;
-        }).join('');
-        document.querySelectorAll('.view-order-btn').forEach(b=>{b.addEventListener('click',()=>openOrderModal(b.dataset.id));});
-        document.querySelectorAll('.copy-order-btn').forEach(b=>{b.addEventListener('click',()=>copyT(b.dataset.number));});
+// ------------------------------------------------------------------
+// User / Auth functions
+// ------------------------------------------------------------------
+async function login() {
+    const btn = $('login-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Signing in...';
+    btn.disabled = true;
+    try {
+        const email = $('login-email').value.trim().toLowerCase();
+        const password = $('login-password').value;
+        if (!email || !password) throw new Error('Email and password required');
+        const res = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        await checkAuth();
+        toast('Logged in!', 'success');
+        $('login-email').value = '';
+        $('login-password').value = '';
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }
+}
 
-        if(u.role==='admin'){
-            qs('admin-panel').style.display='block';
-            await loadAdminData();
-            if(!adminRefresh){adminRefresh=setInterval(()=>{if(currentUser&&currentUser.role==='admin')loadAdminData();},10000);}
-        }else{
-            qs('admin-panel').style.display='none';
-            if(adminRefresh){clearInterval(adminRefresh);adminRefresh=null;}
+async function register() {
+    const btn = $('register-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Creating...';
+    btn.disabled = true;
+    try {
+        const name = $('reg-name').value.trim();
+        const email = $('reg-email').value.trim().toLowerCase();
+        const password = $('reg-password').value;
+        if (!name) throw new Error('Name required');
+        if (!email) throw new Error('Email required');
+        if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
+        const res = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password }),
+            credentials: 'include'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        toast('Account created! Please login.', 'success');
+        showLoginForm();
+        $('reg-name').value = '';
+        $('reg-email').value = '';
+        $('reg-password').value = '';
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }
+}
+
+async function forgotPassword() {
+    const btn = $('forgot-submit-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Sending...';
+    btn.disabled = true;
+    try {
+        const email = $('forgot-email').value.trim().toLowerCase();
+        if (!email) throw new Error('Email required');
+        const res = await fetch('/api/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+            credentials: 'include'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        if (data.sent) toast('Reset link sent (check console for demo)', 'info');
+        else toast('If email exists, a link was sent.', 'info');
+        $('forgot-email').value = '';
+        backToLogin();
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }
+}
+
+async function changePassword() {
+    const btn = $('save-password-btn');
+    const original = btn.innerHTML;
+    btn.innerHTML = 'Saving...';
+    btn.disabled = true;
+    try {
+        const current = $('current-password').value;
+        const newPwd = $('new-password').value;
+        if (!current || !newPwd) throw new Error('Both passwords required');
+        if (newPwd.length < 6) throw new Error('New password min 6 chars');
+        const res = await fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currentPassword: current, newPassword: newPwd }),
+            credentials: 'include'
+        });
+        if (!res.ok) throw new Error(await res.text());
+        toast('Password changed!', 'success');
+        $('password-modal').style.display = 'none';
+        $('current-password').value = '';
+        $('new-password').value = '';
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.innerHTML = original;
+        btn.disabled = false;
+    }
+}
+
+async function logout() {
+    await fetch('/api/logout', { method: 'GET', credentials: 'include' });
+    currentUser = null;
+    $('user-info').classList.add('hidden');
+    $('login-prompt').classList.remove('hidden');
+    $('admin-panel').style.display = 'none';
+    if (adminRefresh) clearInterval(adminRefresh);
+    adminRefresh = null;
+    stopIntervals();
+    toast('Logged out', 'success');
+}
+
+async function refreshUser() {
+    if (!currentUser) return;
+    try {
+        const user = await fetchJSON('/api/me');
+        currentUser = user;
+        $('user-balance').innerText = user.balance;
+        $('account-name').innerText = user.name || '-';
+        $('account-email').innerText = user.email;
+        $('account-referral').innerText = user.referralCode || '-';
+        const orders = await fetchJSON('/api/orders');
+        const activeOrders = orders.filter(o => o.order_status === 'active' || o.order_status === 'otp_received');
+        const container = $('active-orders-list');
+        if (!activeOrders.length) {
+            container.innerHTML = '<div class="sub-text">No active orders.</div>';
+        } else {
+            container.innerHTML = activeOrders.map(o => `
+                <div class="order-item">
+                    <div class="order-top">
+                        <div class="order-country">${o.service_type.toUpperCase()} ${o.country}</div>
+                        <div class="order-status">${o.otp_code ? 'OTP Ready' : 'Waiting'}</div>
+                    </div>
+                    <div class="order-number-small">${o.phone_number || 'Processing...'}</div>
+                    <div class="order-actions">
+                        <button class="mini-btn view-order-btn" data-id="${o.id}">View Details</button>
+                        ${o.phone_number ? `<button class="mini-btn copy-order-btn" data-number="${o.phone_number}">Copy Number</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', () => openOrderModal(btn.dataset.id));
+            });
+            document.querySelectorAll('.copy-order-btn').forEach(btn => {
+                btn.addEventListener('click', () => copyText(btn.dataset.number));
+            });
         }
-    }catch{toast('Refresh failed','error');}
+        if (user.role === 'admin') {
+            $('admin-panel').style.display = 'block';
+            await loadAdminData();
+            if (!adminRefresh) adminRefresh = setInterval(() => {
+                if (currentUser && currentUser.role === 'admin') loadAdminData();
+            }, 10000);
+        } else {
+            $('admin-panel').style.display = 'none';
+            if (adminRefresh) clearInterval(adminRefresh);
+            adminRefresh = null;
+        }
+    } catch (err) {
+        toast('Failed to refresh user', 'error');
+    }
 }
 
-async function loadAdminData(){
-    try{
-        const orders=await fJSON('/api/admin/orders');
-        const tx=await fJSON('/api/admin/transactions');
-        const stats=await fJSON('/api/admin/stats');
+async function checkAuth() {
+    try {
+        const user = await fetchJSON('/api/me');
+        currentUser = user;
+        $('login-prompt').classList.add('hidden');
+        $('user-info').classList.remove('hidden');
+        await refreshUser();
+    } catch {
+        currentUser = null;
+        $('login-prompt').classList.remove('hidden');
+        $('user-info').classList.add('hidden');
+    }
+}
 
-        qs('admin-stats-grid').innerHTML=`
+// ------------------------------------------------------------------
+// Admin functions
+// ------------------------------------------------------------------
+async function loadAdminData() {
+    try {
+        const stats = await fetchJSON('/api/admin/stats');
+        const orders = await fetchJSON('/api/admin/orders');
+        const transactions = await fetchJSON('/api/admin/transactions');
+        const resets = await fetchJSON('/api/admin/resets');
+
+        $('admin-stats-grid').innerHTML = `
             <div class="stat-card"><div class="sl">Today Revenue</div><div class="sv">${stats.todayRevenue} PKR</div></div>
             <div class="stat-card"><div class="sl">Today Orders</div><div class="sv">${stats.todayOrders}</div></div>
             <div class="stat-card"><div class="sl">Total Users</div><div class="sv">${stats.totalUsers}</div></div>
@@ -592,128 +908,206 @@ async function loadAdminData(){
             <div class="stat-card"><div class="sl">Total Profit</div><div class="sv">${stats.totalProfit} PKR</div></div>
         `;
 
-        const ol=qs('admin-orders-list');
-        ol.innerHTML=orders.length?orders.map(o=>{
-            const tag=o.service_type==='whatsapp'?'📱 WA':o.service_type==='facebook'?'📘 FB':o.service_type==='instagram'?'📸 IG':o.service_type==='snapchat'?'📱 SC':o.service_type==='google'?'📧 GO':o.service_type==='tiktok'?'🎵 TK':'📱 OT':'📱 OT':'📱 WA';
-            const profit=o.provider_cost_usd?`Profit: ${Number((o.price-o.provider_cost_usd*280).toFixed(0)} PKR`:'';
-            const cost=o.provider_cost_usd?`Cost: $${o.provider_cost_usd.toFixed(2)}`:'';
-            return `<div class="admin-card"><div><strong>${o.user_email}</strong><div class="admin-meta">${tag} ${o.country} • ${o.price} PKR<br>${profit} ${cost}</div></div>`;
-        }).join(''):'<div class="sub-text">No orders yet.</div>';
+        $('admin-orders-list').innerHTML = orders.length ? orders.map(o => `
+            <div class="admin-card">
+                <strong>${o.user_email}</strong>
+                <div class="admin-meta">${o.service_type.toUpperCase()} ${o.country} • ${o.price} PKR<br>Profit: ${(o.price - (o.provider_cost_usd * 280)).toFixed(0)} PKR</div>
+            </div>
+        `).join('') : '<div class="sub-text">No orders yet.</div>';
 
-        const badge=qs('payment-badge');
-        const pc=tx.length;
-        if(pc>0){
+        const badge = $('payment-badge');
+        if (transactions.length) {
             badge.classList.remove('hidden');
-            badge.textContent=pc;
-            if(pc>lastPending){
-                toast(`${pc} pending payment(s)`,`success`,6000);
-            }
-        }else{
+            badge.innerText = transactions.length;
+            if (transactions.length > lastPending) toast(`${transactions.length} pending payment(s)`, 'success', 6000);
+        } else {
             badge.classList.add('hidden');
         }
-        lastPending=pc;
+        lastPending = transactions.length;
 
-        const tl=qs('admin-tx-list');
-        tl.innerHTML=tx.length?tx.map(t=>{
-            return `<div class="admin-card"><div><strong>${t.user_email}</strong><div class="admin-meta">Amount: ${t.amount} PKR</div><div class="admin-actions"><a href="/uploads/${t.screenshot}" target="_blank" style="text-decoration:none;color:var(--info);" class="mini-btn">View Screenshot</a><button class="mini-btn approve-btn" data-id="${t.id}">Approve</button><button class="mini-btn reject-btn" data-id="${t.id}" style="background:linear-gradient(135deg,#f87171,#dc2626);color:#fff">Reject</button></div></div>`;
-        }).join(''):'<div class="sub-text">No pending payments.</div>';
+        $('admin-tx-list').innerHTML = transactions.length ? transactions.map(t => `
+            <div class="admin-card">
+                <strong>${t.user_email}</strong>
+                <div class="admin-meta">Amount: ${t.amount} PKR</div>
+                <div class="admin-actions">
+                    <a href="/uploads/${t.screenshot}" target="_blank" class="mini-btn">View Screenshot</a>
+                    <button class="mini-btn approve-btn" data-id="${t.id}">Approve</button>
+                    <button class="mini-btn reject-btn" data-id="${t.id}">Reject</button>
+                </div>
+            </div>
+        `).join('') : '<div class="sub-text">No pending payments.</div>';
 
-        document.querySelectorAll('.approve-btn').forEach(b=>{b.addEventListener('click',async()=>{
-            try{
-                const r=await fetch(`/api/admin/transactions/${b.dataset.id}/approve`,{method:'POST',credentials:'include'});
-                if(!r.ok)throw new Error(await r.text());
-                toast('Approved!','success');
-                await loadAdminData();
-                if(currentUser){const m=await fJSON('/api/me');qs('user-balance').innerText=m.balance;}
-            }catch(e){toast(e.message,'error');}
-        });});
-
-        document.querySelectorAll('.reject-btn').forEach(b=>{b.addEventListener('click',async()=>{
-            try{
-                const r=await fetch(`/api/admin/transactions/${b.dataset.id}/reject`,{method:'POST',credentials:'include'});
-                if(!r.ok)throw new Error(await r.text());
-                toast('Rejected!','success');
-                await loadAdminData();
-            }catch(e){toast(e.message,'error');}
+        document.querySelectorAll('.approve-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    const res = await fetch(`/api/admin/transactions/${btn.dataset.id}/approve`, { method: 'POST', credentials: 'include' });
+                    if (!res.ok) throw new Error(await res.text());
+                    toast('Approved', 'success');
+                    await loadAdminData();
+                    if (currentUser) refreshUser();
+                } catch (err) { toast(err.message, 'error'); }
+            });
+        });
+        document.querySelectorAll('.reject-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                try {
+                    const res = await fetch(`/api/admin/transactions/${btn.dataset.id}/reject`, { method: 'POST', credentials: 'include' });
+                    if (!res.ok) throw new Error(await res.text());
+                    toast('Rejected', 'success');
+                    await loadAdminData();
+                } catch (err) { toast(err.message, 'error'); }
+            });
         });
 
-        const rl=qs('admin-resets-list');
-        const resets=await fJSON('/api/admin/resets');
-        rl.innerHTML=resets.length?resets.map(r=>`<div class="admin-card"><div><strong>${r.email}</strong><div class="admin-meta">Requested at: ${new Date(r.reset_token_expires).toLocaleString()}</div></div>`).join(''):'<div class="sub-text">No pending resets.</div>';
+        $('admin-resets-list').innerHTML = resets.length ? resets.map(r => `
+            <div class="admin-card">
+                <strong>${r.email}</strong>
+                <div class="admin-meta">Expires: ${new Date(r.reset_token_expires).toLocaleString()}</div>
+            </div>
+        `).join('') : '<div class="sub-text">No pending resets.</div>';
 
-    }catch{toast('Admin data failed','error');}
+    } catch (err) {
+        toast('Admin data load failed', 'error');
+    }
 }
 
-async function login(){const b=qs('login-btn');setLoading(b,'Signing in...');try{const e=sEmail(qs('login-email').value.trim()),p=qs('login-password').value;if(!vEmail(e))return toast('Valid email required','error');if(typeof p!=='string'||!p)return toast('Password required','error');const u=await findUser(e);if(!u)return toast('Invalid credentials','error');if(!u.is_active)return toast('Account blocked','error');const pc=await verifyP(p,u.password);if(!pc.valid){const na=Number(u.login_attempts||0)+1;await updateLoginAttempts(u.id,na);if(na>=5)await qR('UPDATE users SET is_active=FALSE WHERE id=$1',[u.id]);return toast('Invalid credentials','error');}if(pc.needsUpgrade)await updatePassHash(u.id,await hashP(p));await updateLoginAttempts(u.id,0);await updateLastLogin(u.id);req.session.regenerate(e=>{if(e)return res.status(500).send('Login failed');req.session.userId=u.id;req.session.save(s=>{if(s)return res.status(500).send('Login failed');res.json({success:true});});});}catch(e){res.status(500).send('Login failed');}} catch(e){res.status(500).send('Login failed');}}
+// ------------------------------------------------------------------
+// UI helpers
+// ------------------------------------------------------------------
+function showLoginForm() {
+    $('show-login-tab').classList.add('active');
+    $('show-register-tab').classList.remove('active');
+    $('login-form-wrap').classList.remove('hidden');
+    $('register-form-wrap').classList.add('hidden');
+    $('forgot-form-wrap').classList.add('hidden');
+}
+function showRegisterForm() {
+    $('show-register-tab').classList.add('active');
+    $('show-login-tab').classList.remove('active');
+    $('register-form-wrap').classList.remove('hidden');
+    $('login-form-wrap').classList.add('hidden');
+    $('forgot-form-wrap').classList.add('hidden');
+}
+function showForgotForm() {
+    $('show-login-tab').classList.add('active');
+    $('show-register-tab').classList.remove('active');
+    $('login-form-wrap').classList.add('hidden');
+    $('register-form-wrap').classList.add('hidden');
+    $('forgot-form-wrap').classList.remove('hidden');
+}
+function backToLogin() {
+    showLoginForm();
+}
 
-async function register(){const b=qs('register-btn');setLoading(b,'Creating...');try{const n=qs('reg-name').value.trim(),e=sEmail(qs('reg-email').value.trim()),p=qs('reg-password').value;if(!n)return toast('Name required','error');if(!vEmail(e))return toast('Valid email required','error');if(!vPass(p))return toast('Password min 6 chars','error');if(await findUser(e))return toast('Email exists','error');await createUser(n,e,p);toast('Account created','success');showLoginForm();}catch(e){toast(e.message,'error');}finally{resetLoading(b);}}
-
-async function savePassword(){const b=qs('save-password-btn');setLoading(b,'Saving...');try{const cp=qs('current-password').value,np=qs('new-password').value;if(!cp)return toast('Current password required','error');if(!vPass(np))return toast('Min 6 chars','error');const u=await findUserById(req.session.userId);if(!u)return toast('Not found','error');if(!(await verifyP(cp,u.password)).valid)return toast('Wrong password','error');await updatePass(u.id,np);toast('Saved!','success');qs('password-modal').style.display='none';qs('current-password').value='';qs('new-password').value='';resetLoading(b);}catch(e){toast(e.message,'error');}finally{resetLoading(b);}}
-
-async function logout(){await fetch('/api/logout',{credentials:'include'});currentUser=null;qs('user-info').classList.add('hidden');qs('login-prompt').classList.remove('hidden');qs('admin-panel').style.display='none';stopIntervals();stopAdminAlert();if(adminRefresh){clearInterval(adminRefresh);}adminRefresh=null;toast('Logged out','success');}
-
-async function checkAuth(){try{const r=await fetch('/api/me',{credentials:'include'});if(!r.ok)throw new Error('No session');currentUser=await r.json();qs('login-prompt').classList.add('hidden');qs('user-info').classList.remove('hidden');await refreshUser();}catch{currentUser=null;qs('login-prompt').classList.remove('hidden');qs('user-info').classList.add('hidden');}}
-
-function showLoginForm(){qs('show-login-tab').classList.add('active');qs('show-register-tab').classList.remove('active');qs('login-form-wrap').classList.remove('hidden');qs('register-form-wrap').classList.add('hidden');qs('forgot-form-wrap').classList.add('hidden');}
-function showRegisterForm(){qs('show-register-tab').classList.add('active');qs('show-login-tab').classList.remove('active');qs('register-form-wrap').classList.remove('hidden');qs('login-form-wrap').classList.add('hidden');}
-function showForgotForm(){qs('show-login-tab').classList.add('active');qs('show-register-tab').classList.remove('active');qs('login-form-wrap').classList.add('hidden');qs('register-form-wrap').classList.add('hidden');qs('forgot-form-wrap').classList.remove('hidden');}
-function backToLogin(){showForgotForm();}
-
-qs('show-login-tab').addEventListener('click',showLoginForm);
-qs('show-register-tab').addEventListener('click',showRegisterForm);
-qs('login-btn').addEventListener('click',login);
-qs('register-btn').addEventListener('click',register);
-qs('google-login-btn').addEventListener('click',()=>{window.location.href='/api/auth/google';});
-qs('forgot-btn').addEventListener('click',showForgotForm);
-qs('back-to-login').addEventListener('click',backToLogin);
-qs('open-password-modal').addEventListener('click',()=>qs('password-modal').style.display='flex'));
-qs('close-password-modal').addEventListener('click',()=>qs('password-modal').style.display='none');
-qs('save-password-btn').addEventListener('click',savePassword);
-qs('account-toggle-btn').addEventListener('click',()=>{const h=qs('account-details-content');if(!h)return;const isHidden=h.classList.contains('hidden');h.classList.toggle('hidden',isHidden);qs('account-toggle-btn').innerText=isHidden?'−':'+';});
-qs('logout-btn').addEventListener('click',logout);
-qs('add-money-btn').addEventListener('click',()=>qs('payment-modal').style.display='flex');
-qs('close-payment-modal').addEventListener('click',()=>qs('payment-modal').style.display='none');
-qs('close-order-modal').addEventListener('click',closeOrderModal);
-
-qs('addFundsForm').addEventListener('submit',async(e)=>{
-    e.preventDefault();const b=qs('submit-payment-btn');setLoading(b,'Submitting...');try{const fd=new FormData(e.target);const r=await fetch('/api/add-funds',{method:'POST',body:fd,credentials:'include'});if(!r.ok)throw new Error(await r.text());toast('Submitted!','success',6000);qs('payment-modal').style.display='none';e.target.reset();}catch(err){toast(err.message,'error');}finally{resetLoading(b);}
+// ------------------------------------------------------------------
+// Event listeners
+// ------------------------------------------------------------------
+$('show-login-tab').addEventListener('click', showLoginForm);
+$('show-register-tab').addEventListener('click', showRegisterForm);
+$('login-btn').addEventListener('click', login);
+$('register-btn').addEventListener('click', register);
+$('google-login-btn').addEventListener('click', () => window.location.href = '/api/auth/google');
+$('forgot-btn').addEventListener('click', showForgotForm);
+$('back-to-login').addEventListener('click', backToLogin);
+$('forgot-submit-btn').addEventListener('click', forgotPassword);
+$('open-password-modal').addEventListener('click', () => $('password-modal').style.display = 'flex');
+$('close-password-modal').addEventListener('click', () => $('password-modal').style.display = 'none');
+$('save-password-btn').addEventListener('click', changePassword);
+$('account-toggle-btn').addEventListener('click', () => {
+    const content = $('account-details-content');
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        $('account-toggle-btn').innerText = '−';
+    } else {
+        content.classList.add('hidden');
+        $('account-toggle-btn').innerText = '+';
+    }
+});
+$('logout-btn').addEventListener('click', logout);
+$('add-money-btn').addEventListener('click', () => $('payment-modal').style.display = 'flex');
+$('close-payment-modal').addEventListener('click', () => $('payment-modal').style.display = 'none');
+$('close-order-modal').addEventListener('click', closeOrderModal);
+$('check-otp-manual').addEventListener('click', async () => {
+    if (activeOrder) await pollOtp(activeOrder.id, false);
+});
+$('copy-number-btn').addEventListener('click', () => {
+    const num = $('order-number').innerText;
+    if (num && num !== 'Processing...') copyText(num);
+});
+$('contact-btn').addEventListener('click', () => {
+    if (window.Tawk_API) window.Tawk_API.toggle();
+    else toast('Support loading...', 'info');
 });
 
-qs('check-otp-manual').addEventListener('click',async()=>{if(!activeOrder)return;await pollOtp(activeOrder.id,false);});
-qs('copy-number-btn').addEventListener('click',()=>{const n=qs('order-number').innerText.trim();if(n&&n!=='Processing...')copyT(n);});
-qs('contact-btn').addEventListener('click',()=>{if(window.Tawk_API)window.Tawk_API.toggle();else toast('Loading support...','info');});
+$('addFundsForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = $('submit-payment-btn');
+    const orig = btn.innerHTML;
+    btn.innerHTML = 'Submitting...';
+    btn.disabled = true;
+    try {
+        const formData = new FormData(e.target);
+        const res = await fetch('/api/add-funds', { method: 'POST', body: formData, credentials: 'include' });
+        if (!res.ok) throw new Error(await res.text());
+        toast('Payment submitted', 'success');
+        $('payment-modal').style.display = 'none';
+        e.target.reset();
+    } catch (err) {
+        toast(err.message, 'error');
+    } finally {
+        btn.innerHTML = orig;
+        btn.disabled = false;
+    }
+});
 
-qs('theme-toggle').addEventListener('click',()=>{document.body.classList.toggle('light');localStorage.setItem('mrf-theme',document.body.classList.contains('light')?'light':'dark');});
-if(localStorage.getItem('mrf-theme')==='light')document.body.classList.add('light');
+// Theme toggle
+$('theme-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    localStorage.setItem('mrf-theme', document.body.classList.contains('light') ? 'light' : 'dark');
+});
+if (localStorage.getItem('mrf-theme') === 'light') document.body.classList.add('light');
 
-document.querySelectorAll('.nav-item[data-service]').forEach(item=>{
-    if(item.id==='contact-btn')return;
-    item.addEventListener('click',()=>{
-        document.querySelectorAll('.nav-item[data-service]').forEach(i=>i.classList.remove('active'));
+// Service selection
+document.querySelectorAll('.nav-item[data-service]').forEach(item => {
+    if (item.id === 'contact-btn') return;
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.nav-item[data-service]').forEach(i => i.classList.remove('active'));
         item.classList.add('active');
-        currentService=item.dataset.service;
-        const meta=SVC_META[currentService];
-        qs('hero-title').innerText=`Available ${meta.label} Numbers`;
-        qs('hero-svc').innerText=meta.label;
-        allCountries=[];qs('country-list').innerHTML='';qs('country-search').value='';
-        currentFilter='all';
-        document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        currentService = item.dataset.service;
+        const meta = SVC_META[currentService];
+        $('hero-title').innerText = `Available ${meta.label} Numbers`;
+        $('hero-svc').innerText = meta.label;
+        allCountries = [];
+        $('country-list').innerHTML = '';
+        $('country-search').value = '';
+        currentFilter = 'all';
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         document.querySelector('.chip[data-filter="all"]').classList.add('active');
         loadCountries();
-        closeSidebar();
+        sidebar.classList.remove('open');
     });
 });
 
-document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));c.classList.add('active');currentFilter=c.dataset.filter;renderCountries();});});
-qs('country-search').addEventListener('input',renderCountries);
+// Filter chips
+document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        currentFilter = chip.dataset.filter;
+        renderCountries();
+    });
+});
+$('country-search').addEventListener('input', renderCountries);
 
-window.addEventListener('click',(e)=>{
-    if(e.target===qs('payment-modal'))qs('payment-modal').style.display='none';
-    if(e.target===qs('order-modal'))closeOrderModal();
-    if(e.target===qs('processing-modal'))qs('processing-modal').style.display='none';
-    if(e.target===qs('password-modal'))qs('password-modal').style.display='none';
+// Modal backdrop clicks
+window.addEventListener('click', (e) => {
+    if (e.target === $('payment-modal')) $('payment-modal').style.display = 'none';
+    if (e.target === $('order-modal')) closeOrderModal();
+    if (e.target === $('processing-modal')) $('processing-modal').style.display = 'none';
+    if (e.target === $('password-modal')) $('password-modal').style.display = 'none';
 });
 
+// Initial load
 loadCountries();
 checkAuth();
 </script>
