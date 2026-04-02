@@ -117,13 +117,38 @@ function getStatusTone(status) {
     return 'bg-amber-500/10 text-amber-200 ring-1 ring-amber-400/20';
 }
 
+function getCountryFlag(country) {
+    return country?.flag || '🌐';
+}
+
+function renderStatusBadge(status) {
+    return `<span class="inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap ${getStatusTone(status)}">${escapeHtml(formatStatus(status))}</span>`;
+}
+
+function renderAdminTable(headers, rowsMarkup, minWidthClass = 'min-w-[860px]') {
+    return `
+        <div class="${minWidthClass}">
+            <table class="table-auto w-full text-left text-sm text-slate-200">
+                <thead>
+                    <tr>
+                        ${headers.map((header, index) => `
+                            <th class="bg-slate-800/95 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300 ${index === 0 ? 'rounded-l-2xl' : ''} ${index === headers.length - 1 ? 'rounded-r-2xl' : ''}">${escapeHtml(header)}</th>
+                        `).join('')}
+                    </tr>
+                </thead>
+                <tbody>${rowsMarkup}</tbody>
+            </table>
+        </div>
+    `;
+}
+
 function renderEmptyState(title, description) {
     return `
-        <div class="rounded-3xl border border-white/10 bg-slate-900/60 p-8 text-center shadow-2xl shadow-slate-950/25">
+        <div class="rounded-[28px] border border-dashed border-white/15 bg-slate-950/45 p-6 text-center text-slate-300">
+            <div class="text-lg font-semibold text-white">${escapeHtml(title)}</div>
             <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-300">
                 <i class="fa-solid fa-inbox text-lg"></i>
             </div>
-            <h3 class="text-lg font-semibold text-white">${escapeHtml(title)}</h3>
             <p class="mt-2 text-sm leading-6 text-slate-400">${escapeHtml(description)}</p>
         </div>
     `;
@@ -283,40 +308,29 @@ function renderCountries() {
         updateHero();
         return;
     }
-    container.innerHTML = filtered.map((country) => `
-        <article class="group rounded-[28px] border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/20 transition duration-300 hover:-translate-y-1 hover:border-blue-400/30 hover:bg-slate-900/90">
-            <div class="flex items-start justify-between gap-4">
-                <div class="flex items-center gap-3">
-                    ${renderServiceLogo(state.currentService, 'lg')}
-                    <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">${escapeHtml(getServiceMeta(state.currentService).label)}</p>
-                        <h3 class="mt-1 text-xl font-semibold text-white">${escapeHtml(country.name)}</h3>
+    container.innerHTML = `
+        <div class="overflow-hidden rounded-[24px] border border-white/10 bg-slate-950/55 shadow-glow">
+            <div class="hidden grid-cols-[56px_minmax(0,1fr)_140px_120px] gap-3 border-b border-slate-700/80 bg-slate-900/90 px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 sm:grid">
+                <div>Flag</div>
+                <div>Country</div>
+                <div class="text-right">Price</div>
+                <div class="text-right">Action</div>
+            </div>
+            ${filtered.map((country, index) => `
+                <div class="grid grid-cols-[34px_minmax(0,1fr)_auto_auto] items-center gap-2 px-3 py-3 sm:grid-cols-[56px_minmax(0,1fr)_140px_120px] sm:gap-3 sm:px-4 ${index !== filtered.length - 1 ? 'border-b border-slate-700/80' : ''}">
+                    <div class="flex items-center justify-center text-lg sm:text-2xl">${escapeHtml(getCountryFlag(country))}</div>
+                    <div class="min-w-0">
+                        <div class="truncate text-sm font-semibold text-white">${escapeHtml(country.name)}</div>
+                        <div class="mt-1 truncate text-xs text-slate-400">${escapeHtml(country.code || 'N/A')}</div>
+                    </div>
+                    <div class="text-right text-sm font-bold text-white whitespace-nowrap">${formatMoney(country.price)}</div>
+                    <div class="flex justify-end">
+                        <button class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-3 py-1.5 text-[11px] font-semibold text-white whitespace-nowrap transition hover:bg-blue-500" data-action="buy-country" data-country-name="${escapeAttr(country.name)}" data-country-id="${escapeAttr(country.countryId)}">Buy Number</button>
                     </div>
                 </div>
-                <span class="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/20">Available</span>
-            </div>
-            <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div class="text-xs uppercase tracking-[0.22em] text-slate-400">Dial code</div>
-                    <div class="mt-2 text-lg font-semibold text-slate-100">${escapeHtml(country.code)}</div>
-                </div>
-                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div class="text-xs uppercase tracking-[0.22em] text-slate-400">Current price</div>
-                    <div class="mt-2 text-lg font-semibold text-emerald-300">${formatMoney(country.price)}</div>
-                </div>
-            </div>
-            <div class="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
-                <div>
-                    <div class="text-xs uppercase tracking-[0.22em] text-slate-500">Order flow</div>
-                    <div class="mt-1 text-sm text-slate-300">Automatic OTP tracking and instant status refresh</div>
-                </div>
-                <button class="inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400" data-action="buy-country" data-country-name="${escapeAttr(country.name)}" data-country-id="${escapeAttr(country.countryId)}">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>Buy Number</span>
-                </button>
-            </div>
-        </article>
-    `).join('');
+            `).join('')}
+        </div>
+    `;
     updateHero();
 }
 
@@ -339,23 +353,23 @@ function renderOrderButtons(order) {
     if (!container) return;
     if (order.otp_code) {
         container.innerHTML = `
-            <button class="rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" data-action="complete-order">Complete Order</button>
-            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="copy-otp">Copy OTP</button>
-            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+            <button class="rounded-xl bg-emerald-500 px-3 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" data-action="complete-order">Complete Order</button>
+            <button class="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="copy-otp">Copy OTP</button>
+            <button class="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
         `;
         return;
     }
     if (order.order_status !== 'active' && order.order_status !== 'otp_received') {
         container.innerHTML = `
-            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+            <button class="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
         `;
         return;
     }
     const cancelEnabled = new Date() >= new Date(order.cancel_available_at);
     container.innerHTML = `
-        <button class="rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400" data-action="replace-order">Replace Number</button>
-        <button class="rounded-2xl ${cancelEnabled ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20 hover:bg-rose-400' : 'border border-white/10 bg-white/5 text-slate-500'} px-4 py-3 text-sm font-semibold transition" data-action="cancel-order" ${cancelEnabled ? '' : 'disabled'}>${cancelEnabled ? 'Cancel & Refund' : 'Cancel Locked'}</button>
-        <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+        <button class="rounded-xl bg-amber-500 px-3 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400" data-action="replace-order">Replace Number</button>
+        <button class="rounded-xl ${cancelEnabled ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20 hover:bg-rose-400' : 'border border-white/10 bg-white/5 text-slate-500'} px-3 py-2.5 text-sm font-semibold transition" data-action="cancel-order" ${cancelEnabled ? '' : 'disabled'}>${cancelEnabled ? 'Cancel & Refund' : 'Cancel Locked'}</button>
+        <button class="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
     `;
 }
 
@@ -530,37 +544,30 @@ function renderAdminOrders(orders) {
         container.innerHTML = renderEmptyState('No orders yet', 'Recent orders will appear here for quick admin review.');
         return;
     }
-    container.innerHTML = orders.map((order) => {
+    const rows = orders.map((order) => {
         const meta = getServiceMeta(order.service_type);
         return `
-            <article class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/20">
-                <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-start gap-3">
+            <tr class="border-b border-slate-800/80 align-top last:border-b-0">
+                <td class="px-4 py-3 font-medium text-white break-all">${escapeHtml(order.user_email || '—')}</td>
+                <td class="px-4 py-3">
+                    <div class="inline-flex items-center gap-2">
                         ${renderServiceLogo(order.service_type, 'sm')}
-                        <div>
-                            <h4 class="text-sm font-semibold text-white">${escapeHtml(order.user_email)}</h4>
-                            <p class="mt-1 text-sm text-slate-400">${escapeHtml(meta.label)} • ${escapeHtml(order.country)}</p>
-                        </div>
+                        <span class="font-medium text-slate-100">${escapeHtml(meta.label)}</span>
                     </div>
-                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusTone(order.order_status)}">${formatStatus(order.order_status)}</span>
-                </div>
-                <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Price</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">${formatMoney(order.price)}</div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Phone</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(order.phone_number || 'Pending')}</div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Created</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(formatRelativeTime(order.created_at))}</div>
-                    </div>
-                </div>
-            </article>
+                </td>
+                <td class="px-4 py-3 text-slate-300">${escapeHtml(order.country || '—')}</td>
+                <td class="px-4 py-3 font-medium text-slate-200">${escapeHtml(order.phone_number || 'Pending')}</td>
+                <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">${formatMoney(order.price)}</td>
+                <td class="px-4 py-3">${renderStatusBadge(order.order_status)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-slate-400">${escapeHtml(formatRelativeTime(order.created_at))}</td>
+            </tr>
         `;
     }).join('');
+    container.innerHTML = renderAdminTable(
+        ['User Email', 'Service', 'Country', 'Number', 'Price', 'Status', 'Created'],
+        rows,
+        'min-w-[920px]'
+    );
 }
 
 function renderTransactionCards(transactions, mode) {
@@ -572,52 +579,44 @@ function renderTransactionCards(transactions, mode) {
                 : 'Approved and cancelled payment requests will appear here once processed.'
         );
     }
-    return transactions.map((transaction) => {
+    const rows = transactions.map((transaction) => {
         const displayName = transaction.user_name || 'Customer';
         const displayEmail = transaction.user_email || 'Unknown email';
         const status = transaction.status || (mode === 'pending' ? 'pending' : 'processed');
         return `
-            <article class="rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl shadow-slate-950/20">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <div class="text-base font-semibold text-white">${escapeHtml(displayName)}</div>
-                        <div class="mt-1 text-sm text-slate-400">${escapeHtml(displayEmail)}</div>
-                    </div>
-                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusTone(status)}">${formatStatus(status)}</span>
-                </div>
-                <div class="mt-4 grid gap-3 sm:grid-cols-3">
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Amount</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">${formatMoney(transaction.amount)}</div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Submitted</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(formatRelativeTime(transaction.created_at))}</div>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
-                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Reference</div>
-                        <div class="mt-1 text-sm font-semibold text-slate-100">#${escapeHtml(transaction.id)}</div>
-                    </div>
-                </div>
-                <div class="mt-5 flex flex-wrap gap-2">
-                    <button class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="view-screenshot" data-image="${escapeAttr(`/uploads/${transaction.screenshot}`)}" data-user="${escapeAttr(displayName)}" data-email="${escapeAttr(displayEmail)}" data-amount="${escapeAttr(formatMoney(transaction.amount))}" data-status="${escapeAttr(formatStatus(status))}">
-                        <i class="fa-regular fa-image"></i>
-                        <span>View Screenshot</span>
-                    </button>
-                    ${mode === 'pending' ? `
-                        <button class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" data-action="approve-transaction" data-tx-id="${escapeAttr(transaction.id)}">
-                            <i class="fa-solid fa-check"></i>
-                            <span>Approve Payment</span>
+            <tr class="border-b border-slate-800/80 align-top last:border-b-0">
+                <td class="px-4 py-3 font-medium text-white">${escapeHtml(displayName)}</td>
+                <td class="px-4 py-3 break-all text-slate-300">${escapeHtml(displayEmail)}</td>
+                <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">${formatMoney(transaction.amount)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-slate-300">#${escapeHtml(transaction.id)}</td>
+                <td class="px-4 py-3 whitespace-nowrap text-slate-400">${escapeHtml(formatRelativeTime(transaction.created_at))}</td>
+                <td class="px-4 py-3">${renderStatusBadge(status)}</td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-2">
+                        <button class="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10" data-action="view-screenshot" data-image="${escapeAttr(`/uploads/${transaction.screenshot}`)}" data-user="${escapeAttr(displayName)}" data-email="${escapeAttr(displayEmail)}" data-amount="${escapeAttr(formatMoney(transaction.amount))}" data-status="${escapeAttr(formatStatus(status))}">
+                            <i class="fa-regular fa-image"></i>
+                            <span>View</span>
                         </button>
-                        <button class="inline-flex items-center gap-2 rounded-2xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-400" data-action="cancel-transaction" data-tx-id="${escapeAttr(transaction.id)}">
-                            <i class="fa-solid fa-xmark"></i>
-                            <span>Cancel Payment</span>
-                        </button>
-                    ` : ''}
-                </div>
-            </article>
+                        ${mode === 'pending' ? `
+                            <button class="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-400" data-action="approve-transaction" data-tx-id="${escapeAttr(transaction.id)}">
+                                <i class="fa-solid fa-check"></i>
+                                <span>Approve</span>
+                            </button>
+                            <button class="inline-flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-400" data-action="cancel-transaction" data-tx-id="${escapeAttr(transaction.id)}">
+                                <i class="fa-solid fa-xmark"></i>
+                                <span>Cancel</span>
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
+            </tr>
         `;
     }).join('');
+    return renderAdminTable(
+        ['Customer', 'User Email', 'Amount', 'Reference', 'Submitted', 'Status', 'Actions'],
+        rows,
+        'min-w-[980px]'
+    );
 }
 
 async function loadAdminData() {
