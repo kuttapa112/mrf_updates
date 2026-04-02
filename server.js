@@ -1,1177 +1,1104 @@
-const express = require('express');
-const session = require('express-session');
-const multer = require('multer');
-const axios = require('axios');
-const path = require('path');
-const fs = require('fs');
-const crypto = require('crypto');
-const bcrypt = require('bcryptjs');
-const { Pool } = require('pg');
-const pgSession = require('connect-pg-simple')(session);
+const state = {
+    currentUser: null,
+    activeOrder: null,
+    allCountries: [],
+    currentFilter: 'all',
+    currentService: 'whatsapp',
+    currentAdminTab: 'pending',
+    otpInterval: null,
+    timerInterval: null,
+    adminRefreshInterval: null,
+    adminAlertInterval: null,
+    lastPendingCount: 0
+};
 
-const app = express();
-
-const PORT = process.env.PORT || 3000;
-const NODE_ENV = process.env.NODE_ENV || 'development';
-const IS_PROD = NODE_ENV === 'production';
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR || '/app/uploads';
-if (!fs.existsSync(UPLOAD_DIR)) {
-    fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-}
-const upload = multer({ dest: UPLOAD_DIR });
-
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) {
-    console.error('DATABASE_URL is required');
-    process.exit(1);
-}
-
-const SESSION_SECRET = process.env.SESSION_SECRET;
-if (!SESSION_SECRET || SESSION_SECRET.length < 32) {
-    console.error('SESSION_SECRET is missing or too short.');
-    process.exit(1);
-}
-
-const SMSBOWER_API_KEY = process.env.SMSBOWER_API_KEY || 'CHANGE_THIS_API_KEY';
-const SMSBOWER_URL = 'https://smsbower.page/stubs/handler_api.php';
-
-const SMSBOWER_WA_SERVICE = 'wa';
-const SMSBOWER_FB_SERVICE = 'fb';
-const SMSBOWER_IG_SERVICE = 'ig';
-const SMSBOWER_SNAPCHAT_SERVICE = 'fu';
-const SMSBOWER_GOOGLE_SERVICE = 'go';
-
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL;
-
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
-const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin';
-
-const BCRYPT_ROUNDS = Number(process.env.BCRYPT_ROUNDS || 12);
-
-const pool = new Pool({
-    connectionString: DATABASE_URL,
-    ssl: IS_PROD ? { rejectUnauthorized: false } : false
-});
-
-app.set('trust proxy', 1);
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static('public'));
-
-app.use(session({
-    store: new pgSession({
-        pool,
-        tableName: 'user_sessions',
-        createTableIfMissing: true
-    }),
-    name: 'mrf.sid',
-    secret: SESSION_SECRET,
-    proxy: true,
-    resave: false,
-    saveUninitialized: false,
-    rolling: true,
-    unset: 'destroy',
-    cookie: {
-        secure: 'auto',
-        httpOnly: true,
-        sameSite: 'lax',
-        maxAge: 1000 * 60 * 60 * 24 * 7
-    }
-}));
-
-function normalizeUser(row) {
-    if (!row) return null;
-    return {
-        ...row,
-        balance: Number(row.balance || 0),
-        referralCode: row.referral_code,
-        is_active: row.is_active,
-        login_attempts: row.login_attempts
-    };
-}
-
-function normalizeOrder(row) {
-    if (!row) return null;
-    return {
-        ...row,
-        price: Number(row.price || 0),
-        otp_received: row.otp_received
-    };
-}
-
-async function queryOne(sql, params = []) {
-    const result = await pool.query(sql, params);
-    return result.rows[0] || null;
-}
-
-async function queryAll(sql, params = []) {
-    const result = await pool.query(sql, params);
-    return result.rows;
-}
-
-async function queryRun(sql, params = []) {
-    return pool.query(sql, params);
-}
-
-function isPasswordHashed(password) {
-    return typeof password === 'string' && /^\$2[aby]\$\d{2}\$/.test(password);
-}
-
-async function hashPassword(password) {
-    return bcrypt.hash(password, BCRYPT_ROUNDS);
-}
-
-async function verifyPassword(inputPassword, storedPassword) {
-    if (!storedPassword || typeof storedPassword !== 'string') {
-        return { valid: false, needsUpgrade: false };
-    }
-    if (isPasswordHashed(storedPassword)) {
-        const valid = await bcrypt.compare(inputPassword, storedPassword);
-        return { valid, needsUpgrade: false };
-    }
-    const valid = inputPassword === storedPassword;
-    return { valid, needsUpgrade: valid };
-}
-
-function sanitizeEmail(email) {
-    return String(email || '').trim().toLowerCase();
-}
-
-function validateEmail(email) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
-
-function validatePassword(password) {
-    return typeof password === 'string' && password.length >= 6;
-}
-
-function randomPassword() {
-    return crypto.randomBytes(24).toString('hex');
-}
-
-function ensureGoogleConfigured() {
-    return GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET && GOOGLE_CALLBACK_URL;
-}
-
-function waitMs(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-function pkrToUsd(pkr) {
-    return parseFloat((pkr / 280).toFixed(3));
-}
-
-function formatSafeError(err, fallback = 'Server error') {
-    if (!err) return fallback;
-    if (typeof err.message === 'string' && err.message.trim()) return err.message;
-    return fallback;
-}
-
-async function initDB() {
-    await queryRun(`
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            name TEXT,
-            balance NUMERIC(12,2) DEFAULT 0,
-            role TEXT DEFAULT 'user',
-            referral_code TEXT,
-            is_active BOOLEAN DEFAULT TRUE,
-            login_attempts INTEGER DEFAULT 0,
-            last_login TIMESTAMPTZ,
-            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
-
-    await queryRun(`
-        CREATE TABLE IF NOT EXISTS orders (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            user_email TEXT,
-            service_type TEXT,
-            service_name TEXT,
-            country TEXT,
-            country_code TEXT,
-            country_id INTEGER,
-            price NUMERIC(12,2),
-            payment_method TEXT,
-            payment_status TEXT DEFAULT 'pending',
-            order_status TEXT DEFAULT 'pending',
-            phone_number TEXT,
-            activation_id TEXT,
-            otp_received BOOLEAN DEFAULT FALSE,
-            otp_code TEXT,
-            expires_at TIMESTAMPTZ,
-            cancel_available_at TIMESTAMPTZ,
-            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-            completed_at TIMESTAMPTZ
-        )
-    `);
-
-    await queryRun(`
-        CREATE TABLE IF NOT EXISTS transactions (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-            user_email TEXT,
-            amount NUMERIC(12,2),
-            screenshot TEXT,
-            status TEXT DEFAULT 'pending',
-            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
-
-    if (ADMIN_EMAIL && ADMIN_PASSWORD) {
-        const adminEmail = sanitizeEmail(ADMIN_EMAIL);
-        const existingAdmin = normalizeUser(await queryOne('SELECT * FROM users WHERE email = $1', [adminEmail]));
-        if (!existingAdmin) {
-            const hashedAdminPassword = await hashPassword(ADMIN_PASSWORD);
-            await queryRun(
-                'INSERT INTO users (email, password, name, role, referral_code) VALUES ($1, $2, $3, $4, $5)',
-                [adminEmail, hashedAdminPassword, ADMIN_NAME, 'admin', 'ADMIN']
-            );
-            console.log('Admin user created from environment variables');
-        } else if (existingAdmin.role !== 'admin') {
-            await queryRun('UPDATE users SET role = $1 WHERE id = $2', ['admin', existingAdmin.id]);
-            console.log('Existing admin email promoted to admin role');
-        }
-    } else {
-        console.log('ADMIN_EMAIL / ADMIN_PASSWORD not set, skipping admin auto-create');
-    }
-}
-
-async function findUser(email) {
-    return normalizeUser(await queryOne('SELECT * FROM users WHERE email = $1', [sanitizeEmail(email)]));
-}
-
-async function findUserById(id) {
-    return normalizeUser(await queryOne('SELECT * FROM users WHERE id = $1', [id]));
-}
-
-async function createUser(name, email, password) {
-    const referralCode = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const hashedPassword = await hashPassword(password);
-    return queryRun(
-        'INSERT INTO users (email, password, name, referral_code) VALUES ($1, $2, $3, $4)',
-        [sanitizeEmail(email), hashedPassword, String(name || '').trim(), referralCode]
-    );
-}
-
-async function updateUserPassword(userId, newPlainPassword) {
-    const hashed = await hashPassword(newPlainPassword);
-    return queryRun('UPDATE users SET password = $1 WHERE id = $2', [hashed, userId]);
-}
-
-async function updateUserPasswordHash(userId, hashedPassword) {
-    return queryRun('UPDATE users SET password = $1 WHERE id = $2', [hashedPassword, userId]);
-}
-
-async function getPendingTransactions() {
-    const rows = await queryAll('SELECT * FROM transactions WHERE status = $1 ORDER BY id DESC', ['pending']);
-    return rows.map((row) => ({ ...row, amount: Number(row.amount || 0) }));
-}
-
-async function approveTransaction(txId) {
-    const client = await pool.connect();
-    try {
-        await client.query('BEGIN');
-        const txRes = await client.query('SELECT * FROM transactions WHERE id = $1 FOR UPDATE', [txId]);
-        const tx = txRes.rows[0];
-        if (!tx) throw new Error('Transaction not found');
-        const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [tx.user_id]);
-        const user = userRes.rows[0];
-        if (!user) throw new Error('User not found');
-        await client.query('UPDATE transactions SET status = $1 WHERE id = $2', ['approved', txId]);
-        await client.query(
-            'UPDATE users SET balance = $1 WHERE id = $2',
-            [Number(user.balance || 0) + Number(tx.amount || 0), tx.user_id]
-        );
-        await client.query('COMMIT');
-    } catch (err) {
-        await client.query('ROLLBACK');
-        throw err;
-    } finally {
-        client.release();
-    }
-}
-
-async function getOrdersByUser(userId) {
-    const rows = await queryAll('SELECT * FROM orders WHERE user_id = $1 ORDER BY id DESC', [userId]);
-    return rows.map(normalizeOrder);
-}
-
-async function getOrderById(orderId) {
-    return normalizeOrder(await queryOne('SELECT * FROM orders WHERE id = $1', [orderId]));
-}
-
-async function updateOrder(orderId, updates) {
-    const keys = Object.keys(updates);
-    if (!keys.length) return;
-    const fields = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
-    const values = keys.map((key) => updates[key]);
-    values.push(orderId);
-    await queryRun(`UPDATE orders SET ${fields} WHERE id = $${values.length}`, values);
-}
-
-async function getAllOrders() {
-    const rows = await queryAll('SELECT * FROM orders ORDER BY id DESC');
-    return rows.map(normalizeOrder);
-}
-
-async function updateUserLoginAttempts(userId, attempts) {
-    return queryRun('UPDATE users SET login_attempts = $1 WHERE id = $2', [attempts, userId]);
-}
-
-async function updateUserLastLogin(userId) {
-    return queryRun('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [userId]);
-}
-
-const whatsappCountries = [
-    { name: 'South Africa', code: '+27', price: 170, countryId: 31, flag: '🇿🇦' },
-    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
-    { name: 'Canada', code: '+1', price: 210, countryId: 36, flag: '🇨🇦' },
-    { name: 'Philippines', code: '+63', price: 210, countryId: 4, flag: '🇵🇭' },
-    { name: 'Thailand', code: '+66', price: 300, countryId: 52, flag: '🇹🇭' },
-    { name: 'Vietnam', code: '+84', price: 210, countryId: 10, flag: '🇻🇳' },
-    { name: 'Colombia', code: '+57', price: 270, countryId: 33, flag: '🇨🇴' },
-    { name: 'Saudi Arabia', code: '+966', price: 320, countryId: 53, flag: '🇸🇦' },
-    { name: 'Brazil', code: '+55', price: 370, countryId: 73, flag: '🇧🇷' },
-    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '🇺🇸' },
-    { name: 'United Kingdom', code: '+44', price: 450, countryId: 16, flag: '🇬🇧' }
-];
-
-const facebookCountries = [
-    { name: 'Canada', code: '+1', price: 150, countryId: 36, flag: '🇨🇦' },
-    { name: 'USA', code: '+1', price: 250, countryId: 187, flag: '🇺🇸' },
-    { name: 'USA Virtual', code: '+1', price: 80, countryId: 189, flag: '🇺🇸' }
-];
-
-const instagramCountries = [
-    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
-    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '🇺🇸' },
-    { name: 'United Kingdom', code: '+44', price: 450, countryId: 16, flag: '🇬🇧' }
-];
-
-const snapchatCountries = [
-    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '�🇩' },
-    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '�🇺🇸' }
-];
-
-const googleCountries = [];
-
-const serviceCatalog = {
+const serviceMeta = {
     whatsapp: {
-        serviceType: 'whatsapp',
-        serviceName: 'WhatsApp Number',
-        serviceCode: SMSBOWER_WA_SERVICE,
-        countries: whatsappCountries
+        label: 'WhatsApp',
+        shortLabel: 'WA',
+        description: 'Fast WhatsApp activations with auto OTP polling and clean order tracking.',
+        iconClass: 'fa-brands fa-whatsapp',
+        iconTone: 'text-[#25D366]',
+        wrapperTone: 'bg-emerald-500/10 ring-1 ring-emerald-400/20'
     },
     facebook: {
-        serviceType: 'facebook',
-        serviceName: 'Facebook Number',
-        serviceCode: SMSBOWER_FB_SERVICE,
-        countries: facebookCountries
+        label: 'Facebook',
+        shortLabel: 'FB',
+        description: 'Professional Facebook OTP ordering for low-latency delivery and clean status updates.',
+        iconClass: 'fa-brands fa-facebook',
+        iconTone: 'text-[#1877F2]',
+        wrapperTone: 'bg-blue-500/10 ring-1 ring-blue-400/20'
     },
     instagram: {
-        serviceType: 'instagram',
-        serviceName: 'Instagram Number',
-        serviceCode: SMSBOWER_IG_SERVICE,
-        countries: instagramCountries
+        label: 'Instagram',
+        shortLabel: 'IG',
+        description: 'Instagram-ready numbers with polished ordering, responsive cards, and live OTP refresh.',
+        iconClass: 'fa-brands fa-instagram',
+        iconTone: 'service-gradient-instagram',
+        wrapperTone: 'bg-pink-500/10 ring-1 ring-pink-400/20'
     },
     snapchat: {
-        serviceType: 'snapchat',
-        serviceName: 'Snapchat Number',
-        serviceCode: SMSBOWER_SNAPCHAT_SERVICE,
-        countries: snapchatCountries
+        label: 'Snapchat',
+        shortLabel: 'SC',
+        description: 'Snapchat activations with a simplified buying flow, quick order actions, and refund tools.',
+        iconClass: 'fa-brands fa-snapchat',
+        iconTone: 'text-[#FFFC00] drop-shadow-[0_0_10px_rgba(255,252,0,0.25)]',
+        wrapperTone: 'bg-yellow-300/10 ring-1 ring-yellow-300/20'
     },
     google: {
-        serviceType: 'google',
-        serviceName: 'Google / Gmail / YouTube Number',
-        serviceCode: SMSBOWER_GOOGLE_SERVICE,
-        countries: googleCountries
+        label: 'Google / Gmail / YouTube',
+        shortLabel: 'GO',
+        description: 'Google-family activation support with a dedicated catalog ready for your country-wise pricing.',
+        iconClass: 'fa-brands fa-google',
+        iconTone: 'service-gradient-google',
+        wrapperTone: 'bg-white/10 ring-1 ring-white/10'
     }
 };
 
-function getServiceConfig(serviceType) {
-    return serviceCatalog[String(serviceType || '').trim().toLowerCase()] || null;
+const notificationSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+
+const qs = (id) => document.getElementById(id);
+const qsa = (selector) => Array.from(document.querySelectorAll(selector));
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
 }
 
-function parseV1NumberResponse(text) {
-    const raw = String(text || '').trim();
-    if (raw.startsWith('ACCESS_NUMBER:')) {
-        const parts = raw.split(':');
-        if (parts.length >= 3) {
-            return {
-                success: true,
-                activationId: parts[1],
-                phoneNumber: parts[2].startsWith('+') ? parts[2] : `+${parts[2]}`
-            };
-        }
-    }
-    return { success: false, error: raw || 'No number available' };
+function escapeAttr(value) {
+    return escapeHtml(value);
 }
 
-function parseNumberResponse(data) {
-    if (typeof data === 'string') {
-        const trimmed = data.trim();
-        if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-            try {
-                return parseNumberResponse(JSON.parse(trimmed));
-            } catch {
-                return parseV1NumberResponse(trimmed);
-            }
-        }
-        return parseV1NumberResponse(trimmed);
-    }
-    if (data && typeof data === 'object') {
-        if (data.activationId && data.phoneNumber) {
-            return {
-                success: true,
-                activationId: String(data.activationId),
-                phoneNumber: String(data.phoneNumber).startsWith('+')
-                    ? String(data.phoneNumber)
-                    : `+${String(data.phoneNumber)}`
-            };
-        }
-    }
-    return { success: false, error: 'No number available' };
+function getServiceMeta(serviceType) {
+    return serviceMeta[serviceType] || serviceMeta.whatsapp;
 }
 
-function extractProvidersRecursive(node, bucket = [], seen = new Set()) {
-    if (!node || typeof node !== 'object') return bucket;
-    if (
-        Object.prototype.hasOwnProperty.call(node, 'provider_id') &&
-        Object.prototype.hasOwnProperty.call(node, 'price')
-    ) {
-        const providerId = Number(node.provider_id);
-        const providerPrice = Number(node.price);
-        if (!Number.isNaN(providerId) && !Number.isNaN(providerPrice)) {
-            const key = `${providerId}:${providerPrice}`;
-            if (!seen.has(key)) {
-                seen.add(key);
-                bucket.push({
-                    provider_id: providerId,
-                    price: providerPrice,
-                    count: node.count
-                });
-            }
-        }
-    }
-    for (const value of Object.values(node)) {
-        if (value && typeof value === 'object') {
-            extractProvidersRecursive(value, bucket, seen);
-        }
-    }
-    return bucket;
+function renderServiceLogo(serviceType, size = 'md') {
+    const meta = getServiceMeta(serviceType);
+    const sizeMap = {
+        sm: 'h-9 w-9 text-base rounded-xl',
+        md: 'h-11 w-11 text-lg rounded-2xl',
+        lg: 'h-12 w-12 text-xl rounded-2xl',
+        xl: 'h-14 w-14 text-2xl rounded-3xl'
+    };
+    return `<span class="inline-flex ${sizeMap[size] || sizeMap.md} items-center justify-center ${meta.wrapperTone}"><i class="${meta.iconClass} ${meta.iconTone}"></i></span>`;
 }
 
-async function fetchProviderTiers(countryId, serviceCode = 'wa') {
-    const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getPricesV3&service=${serviceCode}&country=${countryId}`;
-    const response = await axios.get(url, { timeout: 15000 });
-    const data = response.data;
-    let providers = [];
-    if (data && typeof data === 'object') {
-        const countryNode =
-            data[String(countryId)] ??
-            data[countryId] ??
-            (Object.keys(data).length === 1 ? Object.values(data)[0] : null);
-        const serviceNode =
-            countryNode?.[serviceCode] ??
-            (countryNode && Object.keys(countryNode).length === 1 ? Object.values(countryNode)[0] : null);
-        providers = extractProvidersRecursive(serviceNode || data);
-    }
-    providers = providers
-        .filter((p) => Number.isFinite(p.provider_id) && Number.isFinite(p.price))
-        .sort((a, b) => a.price - b.price);
-    return providers;
+function formatMoney(value) {
+    return `${Number(value || 0).toFixed(0)} PKR`;
 }
 
-async function buyNumberFromProvider(countryId, provider, serviceCode = 'wa') {
-    const url =
-        `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}` +
-        `&action=getNumberV2` +
-        `&service=${serviceCode}` +
-        `&country=${countryId}` +
-        `&maxPrice=${provider.price}` +
-        `&providerIds=${provider.provider_id}`;
-    try {
-        const response = await axios.get(url, { timeout: 15000 });
-        const parsed = parseNumberResponse(response.data);
-        if (parsed.success) {
-            return {
-                ...parsed,
-                provider_id: provider.provider_id,
-                provider_price: provider.price
-            };
-        }
-        return { success: false, error: parsed.error || 'No number from provider' };
-    } catch (err) {
-        return { success: false, error: err.message };
-    }
+function formatRelativeTime(value) {
+    if (!value) return '—';
+    return new Date(value).toLocaleString();
 }
 
-async function buyNumberByTierStrategy(countryId, clientMaxUsd, serviceCode = 'wa') {
-    try {
-        const providers = await fetchProviderTiers(countryId, serviceCode);
-        const affordableProviders = providers
-            .filter((p) => p.price <= clientMaxUsd + 0.000001)
-            .slice(0, 5);
-        if (!affordableProviders.length) {
-            return {
-                success: false,
-                strategy: 'provider_unavailable',
-                error: 'No provider tiers available in your price range'
-            };
-        }
-        for (const provider of affordableProviders) {
-            const startedAt = Date.now();
-            let lastError = 'No number from provider';
-            while (Date.now() - startedAt < 15000) {
-                const result = await buyNumberFromProvider(countryId, provider, serviceCode);
-                if (result.success) {
-                    return {
-                        success: true,
-                        activationId: result.activationId,
-                        phoneNumber: result.phoneNumber,
-                        strategy: 'provider',
-                        provider_id: result.provider_id,
-                        provider_price: result.provider_price
-                    };
-                }
-                lastError = result.error || lastError;
-                const elapsed = Date.now() - startedAt;
-                const remaining = 15000 - elapsed;
-                if (remaining <= 0) break;
-                await waitMs(Math.min(5000, remaining));
-            }
-        }
-        return {
-            success: false,
-            strategy: 'provider_exhausted',
-            error: 'No number found in lowest 5 price tiers'
-        };
-    } catch (err) {
-        return {
-            success: false,
-            strategy: 'provider_unavailable',
-            error: err.message
-        };
-    }
+function formatStatus(status) {
+    return String(status || 'pending')
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
-async function buyNumberWithRetry(countryId, baseUsdPrice, maxAttempts = 3, serviceCode = 'wa') {
-    const priceSteps = [];
-    for (let i = 0; i < maxAttempts; i++) {
-        priceSteps.push((baseUsdPrice * (1 + i * 0.05)).toFixed(3));
+function getStatusTone(status) {
+    const normalized = String(status || '').toLowerCase();
+    if (normalized === 'approved' || normalized === 'completed' || normalized === 'otp_received') {
+        return 'bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/20';
     }
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const maxPriceUSD = priceSteps[attempt - 1];
+    if (normalized === 'cancelled' || normalized === 'rejected') {
+        return 'bg-rose-500/10 text-rose-300 ring-1 ring-rose-400/20';
+    }
+    if (normalized === 'active') {
+        return 'bg-blue-500/10 text-blue-200 ring-1 ring-blue-400/20';
+    }
+    return 'bg-amber-500/10 text-amber-200 ring-1 ring-amber-400/20';
+}
+
+function renderEmptyState(title, description) {
+    return `
+        <div class="rounded-3xl border border-white/10 bg-slate-900/60 p-8 text-center shadow-2xl shadow-slate-950/25">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-slate-300">
+                <i class="fa-solid fa-inbox text-lg"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-white">${escapeHtml(title)}</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-400">${escapeHtml(description)}</p>
+        </div>
+    `;
+}
+
+function showToast(message, type = 'info', duration = 4000) {
+    const wrap = qs('toast-wrap');
+    if (!wrap) return;
+    const toneMap = {
+        success: 'border-emerald-400/30 bg-emerald-500 text-white',
+        error: 'border-rose-400/30 bg-rose-500 text-white',
+        info: 'border-blue-400/30 bg-blue-500 text-white'
+    };
+    const toast = document.createElement('div');
+    toast.className = `toast-card ${toneMap[type] || toneMap.info}`;
+    toast.innerHTML = `
+        <div class="flex items-start gap-3">
+            <div class="mt-0.5 text-sm"><i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info'}"></i></div>
+            <div class="text-sm font-medium leading-6">${escapeHtml(message)}</div>
+        </div>
+    `;
+    wrap.appendChild(toast);
+    window.setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        window.setTimeout(() => toast.remove(), 220);
+    }, duration);
+}
+
+function setLoading(button, text) {
+    if (!button) return;
+    button.dataset.original = button.innerHTML;
+    button.innerHTML = `<span class="inline-flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i><span>${escapeHtml(text)}</span></span>`;
+    button.disabled = true;
+}
+
+function resetLoading(button) {
+    if (!button) return;
+    if (button.dataset.original) {
+        button.innerHTML = button.dataset.original;
+    }
+    button.disabled = false;
+}
+
+async function fetchJSON(url, options = {}) {
+    const response = await fetch(url, {
+        ...options,
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        throw new Error(await response.text());
+    }
+    return response.json();
+}
+
+async function requestBrowserNotificationPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
         try {
-            const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getNumber&service=${serviceCode}&country=${countryId}&maxPrice=${maxPriceUSD}`;
-            const response = await axios.get(url, { timeout: 15000 });
-            const parsed = parseNumberResponse(response.data);
-            if (parsed.success) {
-                return {
-                    success: true,
-                    activationId: parsed.activationId,
-                    phoneNumber: parsed.phoneNumber,
-                    strategy: 'fallback'
-                };
+            await Notification.requestPermission();
+        } catch {
+        }
+    }
+}
+
+function browserNotify(title, body) {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'granted') {
+        try {
+            new Notification(title, { body });
+        } catch {
+        }
+    }
+}
+
+function openModal(id) {
+    const modal = qs(id);
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+}
+
+function closeModal(id) {
+    const modal = qs(id);
+    if (!modal) return;
+    modal.classList.add('hidden');
+    if (!document.querySelector('.app-modal:not(.hidden)')) {
+        document.body.classList.remove('overflow-hidden');
+    }
+}
+
+function updateSidebarVisibility(forceClose = false) {
+    const sidebar = qs('sidebar');
+    const overlay = qs('sidebar-overlay');
+    if (!sidebar || !overlay) return;
+    if (forceClose) {
+        sidebar.classList.remove('open');
+        overlay.classList.add('hidden');
+        return;
+    }
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('hidden');
+}
+
+function syncServiceButtons() {
+    qsa('[data-service]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.service === state.currentService);
+    });
+}
+
+function hydrateStaticServiceIcons() {
+    qsa('[data-service-icon]').forEach((slot) => {
+        const serviceType = slot.dataset.serviceIcon;
+        slot.innerHTML = renderServiceLogo(serviceType, slot.dataset.logoSize || 'md');
+    });
+}
+
+function setAdminTab(tab) {
+    state.currentAdminTab = tab;
+    qsa('[data-admin-tab]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.adminTab === tab);
+    });
+    qsa('[data-admin-panel]').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.dataset.adminPanel !== tab);
+    });
+}
+
+function updateHero() {
+    const meta = getServiceMeta(state.currentService);
+    const minPrice = state.allCountries.length
+        ? Math.min(...state.allCountries.map((country) => Number(country.price || 0)))
+        : null;
+    qs('hero-title').textContent = `Available ${meta.label} Numbers`;
+    qs('hero-service-value').textContent = meta.label;
+    qs('hero-description').textContent = meta.description;
+    qs('hero-service-icon').innerHTML = renderServiceLogo(state.currentService, 'xl');
+    qs('hero-country-count').textContent = String(state.allCountries.length);
+    qs('hero-min-price').textContent = minPrice ? formatMoney(minPrice) : 'Setup pending';
+}
+
+function renderCountries() {
+    const container = qs('country-list');
+    const search = qs('country-search').value.trim().toLowerCase();
+    let filtered = [...state.allCountries];
+    if (search) {
+        filtered = filtered.filter((country) => country.name.toLowerCase().includes(search));
+    }
+    if (state.currentFilter === 'cheap') {
+        filtered = filtered.filter((country) => Number(country.price) <= 250);
+    } else if (state.currentFilter === 'premium') {
+        filtered = filtered.filter((country) => Number(country.price) >= 300);
+    }
+    if (!filtered.length) {
+        const message = state.allCountries.length
+            ? 'Try a different search term or pricing filter.'
+            : 'No countries are configured for this service yet.';
+        container.innerHTML = renderEmptyState('No countries found', message);
+        updateHero();
+        return;
+    }
+    container.innerHTML = filtered.map((country) => `
+        <article class="group rounded-[28px] border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/20 transition duration-300 hover:-translate-y-1 hover:border-blue-400/30 hover:bg-slate-900/90">
+            <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    ${renderServiceLogo(state.currentService, 'lg')}
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">${escapeHtml(getServiceMeta(state.currentService).label)}</p>
+                        <h3 class="mt-1 text-xl font-semibold text-white">${escapeHtml(country.name)}</h3>
+                    </div>
+                </div>
+                <span class="inline-flex items-center rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300 ring-1 ring-emerald-400/20">Available</span>
+            </div>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="text-xs uppercase tracking-[0.22em] text-slate-400">Dial code</div>
+                    <div class="mt-2 text-lg font-semibold text-slate-100">${escapeHtml(country.code)}</div>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div class="text-xs uppercase tracking-[0.22em] text-slate-400">Current price</div>
+                    <div class="mt-2 text-lg font-semibold text-emerald-300">${formatMoney(country.price)}</div>
+                </div>
+            </div>
+            <div class="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+                <div>
+                    <div class="text-xs uppercase tracking-[0.22em] text-slate-500">Order flow</div>
+                    <div class="mt-1 text-sm text-slate-300">Automatic OTP tracking and instant status refresh</div>
+                </div>
+                <button class="inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400" data-action="buy-country" data-country-name="${escapeAttr(country.name)}" data-country-id="${escapeAttr(country.countryId)}">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Buy Number</span>
+                </button>
+            </div>
+        </article>
+    `).join('');
+    updateHero();
+}
+
+async function loadCountries() {
+    try {
+        const endpoint = state.currentService === 'whatsapp'
+            ? '/api/countries'
+            : `/api/services/${encodeURIComponent(state.currentService)}/countries`;
+        state.allCountries = await fetchJSON(endpoint);
+        renderCountries();
+    } catch (err) {
+        state.allCountries = [];
+        renderCountries();
+        showToast(err.message || 'Failed to load countries', 'error');
+    }
+}
+
+function renderOrderButtons(order) {
+    const container = qs('order-buttons');
+    if (!container) return;
+    if (order.otp_code) {
+        container.innerHTML = `
+            <button class="rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" data-action="complete-order">Complete Order</button>
+            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="copy-otp">Copy OTP</button>
+            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+        `;
+        return;
+    }
+    if (order.order_status !== 'active' && order.order_status !== 'otp_received') {
+        container.innerHTML = `
+            <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+        `;
+        return;
+    }
+    const cancelEnabled = new Date() >= new Date(order.cancel_available_at);
+    container.innerHTML = `
+        <button class="rounded-2xl bg-amber-500 px-4 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400" data-action="replace-order">Replace Number</button>
+        <button class="rounded-2xl ${cancelEnabled ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20 hover:bg-rose-400' : 'border border-white/10 bg-white/5 text-slate-500'} px-4 py-3 text-sm font-semibold transition" data-action="cancel-order" ${cancelEnabled ? '' : 'disabled'}>${cancelEnabled ? 'Cancel & Refund' : 'Cancel Locked'}</button>
+        <button class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="close-order-inline">Close</button>
+    `;
+}
+
+function updateTimerDisplay(order) {
+    const now = new Date();
+    const expiry = new Date(order.expires_at || new Date(new Date(order.created_at).getTime() + 25 * 60 * 1000));
+    const cancelAt = new Date(order.cancel_available_at || new Date(new Date(order.created_at).getTime() + 60 * 1000));
+    const expiryDiff = Math.max(0, expiry - now);
+    const cancelDiff = Math.max(0, cancelAt - now);
+    const expiryMins = Math.floor(expiryDiff / 60000);
+    const expirySecs = Math.floor((expiryDiff % 60000) / 1000);
+    const cancelMins = Math.floor(cancelDiff / 60000);
+    const cancelSecs = Math.floor((cancelDiff % 60000) / 1000);
+    qs('order-timer').textContent = expiryDiff <= 0 ? 'Expired' : `${expiryMins}:${String(expirySecs).padStart(2, '0')}`;
+    qs('order-cancel-timer').textContent = cancelDiff <= 0 ? 'Unlocked' : `${cancelMins}:${String(cancelSecs).padStart(2, '0')}`;
+}
+
+function updateOrderVisual(order) {
+    const meta = getServiceMeta(order.service_type);
+    qs('order-country-title').textContent = `${order.country} • ${meta.label}`;
+    qs('order-service-logo').innerHTML = renderServiceLogo(order.service_type, 'lg');
+    qs('order-status-pill').className = `inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${getStatusTone(order.order_status)}`;
+    qs('order-status-pill').textContent = formatStatus(order.order_status || 'active');
+    qs('order-price-pill').textContent = formatMoney(order.price);
+    qs('order-created-pill').textContent = formatRelativeTime(order.created_at);
+    qs('order-number').textContent = order.phone_number || 'Processing...';
+    if (order.otp_code) {
+        qs('order-otp').classList.remove('hidden');
+        qs('order-waiting').classList.add('hidden');
+        qs('otp-value').textContent = order.otp_code;
+    } else {
+        qs('order-otp').classList.add('hidden');
+        qs('order-waiting').classList.remove('hidden');
+        qs('otp-value').textContent = '------';
+    }
+    renderOrderButtons(order);
+    updateTimerDisplay(order);
+}
+
+function stopOrderIntervals() {
+    if (state.otpInterval) window.clearInterval(state.otpInterval);
+    if (state.timerInterval) window.clearInterval(state.timerInterval);
+    state.otpInterval = null;
+    state.timerInterval = null;
+}
+
+async function pollOtp(orderId, silent = false) {
+    try {
+        const result = await fetchJSON(`/api/orders/${orderId}/otp`);
+        if (result.received) {
+            const refreshed = await fetchJSON(`/api/orders/${orderId}`);
+            state.activeOrder = refreshed;
+            updateOrderVisual(refreshed);
+            stopOrderIntervals();
+            notificationSound.play().catch(() => {});
+            showToast('OTP received successfully', 'success');
+            await refreshUserInfo();
+            return true;
+        }
+        if (result.expired) {
+            const refreshed = await fetchJSON(`/api/orders/${orderId}`);
+            state.activeOrder = refreshed;
+            updateOrderVisual(refreshed);
+            stopOrderIntervals();
+            showToast('Order expired', 'error');
+            await refreshUserInfo();
+            return true;
+        }
+        if (!silent) {
+            showToast('No OTP yet. Still waiting...', 'info');
+        }
+        return false;
+    } catch (err) {
+        if (!silent) {
+            showToast(err.message || 'OTP check failed', 'error');
+        }
+        return false;
+    }
+}
+
+async function openOrderModal(orderId) {
+    try {
+        const order = await fetchJSON(`/api/orders/${orderId}`);
+        state.activeOrder = order;
+        updateOrderVisual(order);
+        openModal('order-modal');
+        stopOrderIntervals();
+        state.otpInterval = window.setInterval(async () => {
+            if (!state.activeOrder) return;
+            await pollOtp(state.activeOrder.id, true);
+        }, 5000);
+        state.timerInterval = window.setInterval(async () => {
+            if (!state.activeOrder) return;
+            try {
+                const updated = await fetchJSON(`/api/orders/${state.activeOrder.id}`);
+                state.activeOrder = updated;
+                updateOrderVisual(updated);
+                const expired = new Date() >= new Date(updated.expires_at);
+                if (updated.otp_code || expired || updated.order_status === 'cancelled' || updated.order_status === 'completed') {
+                    if (expired && !updated.otp_code && updated.order_status === 'active') {
+                        await fetch(`/api/orders/${updated.id}/expire`, { method: 'POST', credentials: 'include' });
+                        const refreshed = await fetchJSON(`/api/orders/${updated.id}`);
+                        state.activeOrder = refreshed;
+                        updateOrderVisual(refreshed);
+                        await refreshUserInfo();
+                    }
+                    stopOrderIntervals();
+                }
+            } catch {
             }
-            if (attempt < maxAttempts) {
-                await waitMs(8000);
+        }, 1000);
+    } catch (err) {
+        showToast(err.message || 'Could not load order details', 'error');
+    }
+}
+
+function closeOrderModal() {
+    closeModal('order-modal');
+    stopOrderIntervals();
+    state.activeOrder = null;
+}
+
+function startAdminAlertLoop() {
+    stopAdminAlertLoop();
+    state.adminAlertInterval = window.setInterval(() => {
+        notificationSound.play().catch(() => {});
+    }, 6000);
+}
+
+function stopAdminAlertLoop() {
+    if (state.adminAlertInterval) window.clearInterval(state.adminAlertInterval);
+    state.adminAlertInterval = null;
+}
+
+function renderActiveOrders(orders) {
+    const container = qs('active-orders-list');
+    const activeOrders = orders.filter((order) => order.order_status === 'active' || order.order_status === 'otp_received');
+    if (!activeOrders.length) {
+        container.innerHTML = renderEmptyState('No active orders', 'Your active numbers will appear here with live OTP tracking and action buttons.');
+        return;
+    }
+    container.innerHTML = activeOrders.map((order) => {
+        const meta = getServiceMeta(order.service_type);
+        return `
+            <article class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/20">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3">
+                        ${renderServiceLogo(order.service_type, 'sm')}
+                        <div>
+                            <div class="text-sm font-semibold text-white">${escapeHtml(order.country)}</div>
+                            <div class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">${escapeHtml(meta.label)}</div>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusTone(order.otp_code ? 'otp_received' : order.order_status)}">${order.otp_code ? 'OTP Ready' : formatStatus(order.order_status)}</span>
+                </div>
+                <div class="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-300">${escapeHtml(order.phone_number || 'Processing...')}</div>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button class="inline-flex items-center gap-2 rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400" data-action="view-order" data-order-id="${escapeAttr(order.id)}">
+                        <i class="fa-solid fa-eye"></i>
+                        <span>View Details</span>
+                    </button>
+                    ${order.phone_number ? `<button class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="copy-number" data-value="${escapeAttr(order.phone_number)}"><i class="fa-regular fa-copy"></i><span>Copy Number</span></button>` : ''}
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderAdminOrders(orders) {
+    const container = qs('admin-orders-list');
+    if (!orders.length) {
+        container.innerHTML = renderEmptyState('No orders yet', 'Recent orders will appear here for quick admin review.');
+        return;
+    }
+    container.innerHTML = orders.map((order) => {
+        const meta = getServiceMeta(order.service_type);
+        return `
+            <article class="rounded-3xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/20">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3">
+                        ${renderServiceLogo(order.service_type, 'sm')}
+                        <div>
+                            <h4 class="text-sm font-semibold text-white">${escapeHtml(order.user_email)}</h4>
+                            <p class="mt-1 text-sm text-slate-400">${escapeHtml(meta.label)} • ${escapeHtml(order.country)}</p>
+                        </div>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusTone(order.order_status)}">${formatStatus(order.order_status)}</span>
+                </div>
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Price</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">${formatMoney(order.price)}</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Phone</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(order.phone_number || 'Pending')}</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Created</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(formatRelativeTime(order.created_at))}</div>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+function renderTransactionCards(transactions, mode) {
+    if (!transactions.length) {
+        return renderEmptyState(
+            mode === 'pending' ? 'No pending requests' : 'No transaction history',
+            mode === 'pending'
+                ? 'New payment proofs will appear here for screenshot review and approval.'
+                : 'Approved and cancelled payment requests will appear here once processed.'
+        );
+    }
+    return transactions.map((transaction) => {
+        const displayName = transaction.user_name || 'Customer';
+        const displayEmail = transaction.user_email || 'Unknown email';
+        const status = transaction.status || (mode === 'pending' ? 'pending' : 'processed');
+        return `
+            <article class="rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl shadow-slate-950/20">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <div class="text-base font-semibold text-white">${escapeHtml(displayName)}</div>
+                        <div class="mt-1 text-sm text-slate-400">${escapeHtml(displayEmail)}</div>
+                    </div>
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold ${getStatusTone(status)}">${formatStatus(status)}</span>
+                </div>
+                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Amount</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">${formatMoney(transaction.amount)}</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Submitted</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">${escapeHtml(formatRelativeTime(transaction.created_at))}</div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        <div class="text-[11px] uppercase tracking-[0.2em] text-slate-500">Reference</div>
+                        <div class="mt-1 text-sm font-semibold text-slate-100">#${escapeHtml(transaction.id)}</div>
+                    </div>
+                </div>
+                <div class="mt-5 flex flex-wrap gap-2">
+                    <button class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10" data-action="view-screenshot" data-image="${escapeAttr(`/uploads/${transaction.screenshot}`)}" data-user="${escapeAttr(displayName)}" data-email="${escapeAttr(displayEmail)}" data-amount="${escapeAttr(formatMoney(transaction.amount))}" data-status="${escapeAttr(formatStatus(status))}">
+                        <i class="fa-regular fa-image"></i>
+                        <span>View Screenshot</span>
+                    </button>
+                    ${mode === 'pending' ? `
+                        <button class="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400" data-action="approve-transaction" data-tx-id="${escapeAttr(transaction.id)}">
+                            <i class="fa-solid fa-check"></i>
+                            <span>Approve Payment</span>
+                        </button>
+                        <button class="inline-flex items-center gap-2 rounded-2xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-rose-500/20 transition hover:bg-rose-400" data-action="cancel-transaction" data-tx-id="${escapeAttr(transaction.id)}">
+                            <i class="fa-solid fa-xmark"></i>
+                            <span>Cancel Payment</span>
+                        </button>
+                    ` : ''}
+                </div>
+            </article>
+        `;
+    }).join('');
+}
+
+async function loadAdminData() {
+    if (!state.currentUser || state.currentUser.role !== 'admin') return;
+    try {
+        const [orders, pendingTransactions, historyTransactions] = await Promise.all([
+            fetchJSON('/api/admin/orders'),
+            fetchJSON('/api/admin/transactions'),
+            fetchJSON('/api/admin/transactions/history')
+        ]);
+        renderAdminOrders(orders);
+        qs('pending-transactions-list').innerHTML = renderTransactionCards(pendingTransactions, 'pending');
+        qs('transaction-history-list').innerHTML = renderTransactionCards(historyTransactions, 'history');
+        qs('admin-order-count').textContent = String(orders.length);
+        qs('admin-pending-count').textContent = String(pendingTransactions.length);
+        qs('admin-history-count').textContent = String(historyTransactions.length);
+        qs('payment-badge').textContent = String(pendingTransactions.length);
+        qs('payment-badge').classList.toggle('hidden', pendingTransactions.length === 0);
+        if (pendingTransactions.length > 0) {
+            if (pendingTransactions.length > state.lastPendingCount) {
+                notificationSound.play().catch(() => {});
+                showToast(`New payment received. Pending approvals: ${pendingTransactions.length}`, 'success', 6000);
+                browserNotify('MRF SMS Admin Alert', `New payment received. Pending approvals: ${pendingTransactions.length}`);
+            }
+            startAdminAlertLoop();
+        } else {
+            stopAdminAlertLoop();
+        }
+        state.lastPendingCount = pendingTransactions.length;
+        setAdminTab(state.currentAdminTab);
+    } catch (err) {
+        showToast(err.message || 'Failed to load admin dashboard', 'error');
+    }
+}
+
+async function refreshUserInfo() {
+    if (!state.currentUser) return;
+    try {
+        const user = await fetchJSON('/api/me');
+        state.currentUser = user;
+        qs('login-prompt').classList.add('hidden');
+        qs('user-info').classList.remove('hidden');
+        qs('user-balance').textContent = formatMoney(user.balance);
+        qs('account-name').textContent = user.name || '—';
+        qs('account-email').textContent = user.email || '—';
+        qs('account-password').textContent = user.maskedPassword || '********';
+        qs('account-referral').textContent = user.referralCode || '—';
+        qs('account-role').textContent = formatStatus(user.role || 'user');
+        const orders = await fetchJSON('/api/orders');
+        renderActiveOrders(orders);
+        if (user.role === 'admin') {
+            qs('admin-panel').classList.remove('hidden');
+            await loadAdminData();
+            await requestBrowserNotificationPermission();
+            if (!state.adminRefreshInterval) {
+                state.adminRefreshInterval = window.setInterval(() => {
+                    if (state.currentUser && state.currentUser.role === 'admin') {
+                        loadAdminData();
+                    }
+                }, 10000);
+            }
+        } else {
+            qs('admin-panel').classList.add('hidden');
+            if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
+            state.adminRefreshInterval = null;
+            state.lastPendingCount = 0;
+            stopAdminAlertLoop();
+        }
+    } catch (err) {
+        showToast(err.message || 'Failed to refresh account info', 'error');
+    }
+}
+
+async function checkAuth() {
+    try {
+        const user = await fetchJSON('/api/me');
+        state.currentUser = user;
+        await refreshUserInfo();
+    } catch {
+        state.currentUser = null;
+        qs('login-prompt').classList.remove('hidden');
+        qs('user-info').classList.add('hidden');
+        qs('admin-panel').classList.add('hidden');
+        if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
+        state.adminRefreshInterval = null;
+        stopAdminAlertLoop();
+    }
+}
+
+function setAuthMode(mode) {
+    const loginTab = qs('show-login-tab');
+    const registerTab = qs('show-register-tab');
+    const loginPanel = qs('login-form-wrap');
+    const registerPanel = qs('register-form-wrap');
+    const isLogin = mode === 'login';
+    loginTab.classList.toggle('active', isLogin);
+    registerTab.classList.toggle('active', !isLogin);
+    loginPanel.classList.toggle('hidden', !isLogin);
+    registerPanel.classList.toggle('hidden', isLogin);
+}
+
+async function login(email, password) {
+    const button = qs('login-btn');
+    setLoading(button, 'Signing in...');
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error(await response.text());
+        showToast('Logged in successfully', 'success');
+        await checkAuth();
+    } catch (err) {
+        showToast(err.message || 'Login failed', 'error');
+    } finally {
+        resetLoading(button);
+    }
+}
+
+async function register(name, email, password) {
+    const button = qs('register-btn');
+    setLoading(button, 'Creating account...');
+    try {
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password }),
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error(await response.text());
+        showToast('Account created successfully. Please login.', 'success');
+        qs('register-form').reset();
+        setAuthMode('login');
+    } catch (err) {
+        showToast(err.message || 'Registration failed', 'error');
+    } finally {
+        resetLoading(button);
+    }
+}
+
+async function savePassword() {
+    const button = qs('save-password-btn');
+    const currentPassword = qs('current-password').value;
+    const newPassword = qs('new-password').value;
+    setLoading(button, 'Saving...');
+    try {
+        const response = await fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ currentPassword, newPassword }),
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error(await response.text());
+        qs('password-form').reset();
+        closeModal('password-modal');
+        showToast('Password updated successfully', 'success');
+    } catch (err) {
+        showToast(err.message || 'Could not change password', 'error');
+    } finally {
+        resetLoading(button);
+    }
+}
+
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', { credentials: 'include' });
+        if (!response.ok) throw new Error('Logout failed');
+        state.currentUser = null;
+        state.activeOrder = null;
+        stopOrderIntervals();
+        if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
+        state.adminRefreshInterval = null;
+        stopAdminAlertLoop();
+        qs('user-info').classList.add('hidden');
+        qs('login-prompt').classList.remove('hidden');
+        qs('admin-panel').classList.add('hidden');
+        showToast('Logged out', 'success');
+    } catch (err) {
+        showToast(err.message || 'Logout failed', 'error');
+    }
+}
+
+async function orderCountry(name, id) {
+    if (!state.currentUser) {
+        showToast('Please login first', 'error');
+        return;
+    }
+    openModal('processing-modal');
+    try {
+        const response = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ countryName: name, countryId: Number(id), service: state.currentService }),
+            credentials: 'include'
+        });
+        closeModal('processing-modal');
+        if (!response.ok) throw new Error(await response.text());
+        const order = await response.json();
+        showToast('Number purchased successfully', 'success');
+        await refreshUserInfo();
+        await openOrderModal(order.id);
+    } catch (err) {
+        closeModal('processing-modal');
+        showToast(err.message || 'Order failed', 'error');
+    }
+}
+
+async function completeActiveOrder() {
+    if (!state.activeOrder) return;
+    try {
+        const response = await fetch(`/api/orders/${state.activeOrder.id}/complete`, { method: 'POST', credentials: 'include' });
+        if (!response.ok) throw new Error(await response.text());
+        showToast('Order completed', 'success');
+        closeOrderModal();
+        await refreshUserInfo();
+    } catch (err) {
+        showToast(err.message || 'Could not complete order', 'error');
+    }
+}
+
+async function replaceActiveOrder() {
+    if (!state.activeOrder) return;
+    if (!window.confirm('Replace the current number?')) return;
+    try {
+        const response = await fetch(`/api/orders/${state.activeOrder.id}/replace`, { method: 'POST', credentials: 'include' });
+        if (!response.ok) throw new Error(await response.text());
+        showToast('Number replaced successfully', 'success');
+        await openOrderModal(state.activeOrder.id);
+        await refreshUserInfo();
+    } catch (err) {
+        showToast(err.message || 'Replace failed', 'error');
+    }
+}
+
+async function cancelActiveOrder() {
+    if (!state.activeOrder) return;
+    if (!window.confirm('Cancel this order and refund the amount?')) return;
+    try {
+        const response = await fetch(`/api/orders/${state.activeOrder.id}/cancel`, { method: 'POST', credentials: 'include' });
+        if (!response.ok) throw new Error(await response.text());
+        showToast('Order cancelled and refunded', 'success');
+        closeOrderModal();
+        await refreshUserInfo();
+    } catch (err) {
+        showToast(err.message || 'Cancel failed', 'error');
+    }
+}
+
+async function handleTransactionAction(txId, action) {
+    const actionLabel = action === 'approve' ? 'approve' : 'cancel';
+    const confirmMessage = action === 'approve'
+        ? 'Approve this payment proof and add balance to the user?'
+        : 'Cancel this payment proof without adding funds?';
+    if (!window.confirm(confirmMessage)) return;
+    try {
+        const response = await fetch(`/api/admin/transactions/${txId}/${actionLabel}`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error(await response.text());
+        showToast(action === 'approve' ? 'Payment approved successfully' : 'Payment cancelled successfully', 'success');
+        await loadAdminData();
+        if (state.currentUser) {
+            await refreshUserInfo();
+        }
+    } catch (err) {
+        showToast(err.message || 'Transaction update failed', 'error');
+    }
+}
+
+function openScreenshotModal({ image, user, email, amount, status }) {
+    qs('screenshot-preview').src = image;
+    qs('screenshot-preview').alt = `${user} payment proof`;
+    qs('screenshot-user').textContent = user;
+    qs('screenshot-email').textContent = email;
+    qs('screenshot-amount').textContent = amount;
+    qs('screenshot-status').textContent = status;
+    openModal('screenshot-modal');
+}
+
+function copyText(text) {
+    navigator.clipboard.writeText(text)
+        .then(() => showToast('Copied successfully', 'success'))
+        .catch(() => showToast('Copy failed', 'error'));
+}
+
+function openSupport() {
+    if (window.Tawk_API) {
+        window.Tawk_API.toggle();
+        return;
+    }
+    showToast('Support chat is loading...', 'info');
+}
+
+function showStartupMessages() {
+    const params = new URLSearchParams(window.location.search);
+    const googleError = params.get('google_error');
+    if (googleError) {
+        showToast(`Google sign-in error: ${googleError.replace(/_/g, ' ')}`, 'error', 6000);
+        params.delete('google_error');
+        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.history.replaceState({}, document.title, newUrl);
+    }
+}
+
+function bindStaticEvents() {
+    qs('mobile-menu-btn').addEventListener('click', () => updateSidebarVisibility(false));
+    qs('sidebar-overlay').addEventListener('click', () => updateSidebarVisibility(true));
+    qsa('[data-support-trigger]').forEach((button) => {
+        button.addEventListener('click', openSupport);
+    });
+    qs('show-login-tab').addEventListener('click', () => setAuthMode('login'));
+    qs('show-register-tab').addEventListener('click', () => setAuthMode('register'));
+    qs('login-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await login(qs('login-email').value.trim(), qs('login-password').value);
+    });
+    qs('register-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await register(qs('reg-name').value.trim(), qs('reg-email').value.trim(), qs('reg-password').value);
+    });
+    qs('google-login-btn').addEventListener('click', () => {
+        window.location.href = '/api/auth/google';
+    });
+    qs('password-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        await savePassword();
+    });
+    qs('addFundsForm').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const button = qs('submit-payment-btn');
+        setLoading(button, 'Submitting payment...');
+        try {
+            const formData = new FormData(event.target);
+            const response = await fetch('/api/add-funds', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
+            if (!response.ok) throw new Error(await response.text());
+            event.target.reset();
+            closeModal('payment-modal');
+            showToast('Payment request submitted successfully', 'success', 6000);
+            if (state.currentUser && state.currentUser.role === 'admin') {
+                await loadAdminData();
             }
         } catch (err) {
-            if (attempt === maxAttempts) {
-                return { success: false, error: err.message };
-            }
-            await waitMs(8000);
+            showToast(err.message || 'Could not submit payment request', 'error');
+        } finally {
+            resetLoading(button);
         }
-    }
-    return { success: false, error: 'No number available after all attempts' };
-}
-
-async function getBestAvailableNumber(countryId, clientMaxUsd, serviceCode = 'wa') {
-    let result = await buyNumberByTierStrategy(countryId, clientMaxUsd, serviceCode);
-    if (!result.success && result.strategy === 'provider_unavailable') {
-        result = await buyNumberWithRetry(countryId, clientMaxUsd, 3, serviceCode);
-    }
-    return result;
-}
-
-async function checkSmsStatus(activationId) {
-    try {
-        const url = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=getStatus&id=${activationId}`;
-        const response = await axios.get(url, { timeout: 15000 });
-        const resText = String(response.data || '').trim();
-        if (resText.startsWith('STATUS_OK:')) {
-            return { success: true, code: resText.split(':')[1] };
-        }
-        if (resText === 'STATUS_WAIT_CODE') {
-            return { success: true, waiting: true };
-        }
-        return { success: false, raw: resText };
-    } catch (err) {
-        return { success: false, error: err.message };
-    }
-}
-
-function ensureAuth(req, res, next) {
-    if (!req.session.userId) return res.status(401).send('Login required');
-    next();
-}
-
-async function ensureAdmin(req, res, next) {
-    try {
-        if (!req.session.userId) return res.status(401).send('Login required');
-        const user = await findUserById(req.session.userId);
-        if (!user || user.role !== 'admin') return res.status(403).send('Admin only');
-        req.user = user;
-        next();
-    } catch {
-        res.status(500).send('Server error');
-    }
-}
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/api/countries', (req, res) => {
-    res.json(whatsappCountries);
-});
-
-app.get('/api/facebook/countries', (req, res) => {
-    res.json(serviceCatalog.facebook.countries);
-});
-
-app.get('/api/services/:service/countries', (req, res) => {
-    const serviceConfig = getServiceConfig(req.params.service);
-    if (!serviceConfig) return res.status(404).send('Service not found');
-    res.json(serviceConfig.countries);
-});
-
-app.get('/api/auth/google', (req, res) => {
-    return res.redirect('/auth/google');
-});
-
-app.get('/auth/google', (req, res) => {
-    if (!ensureGoogleConfigured()) {
-        return res.status(500).send('Google login not configured');
-    }
-    const state = crypto.randomBytes(16).toString('hex');
-    req.session.google_oauth_state = state;
-    const params = new URLSearchParams({
-        client_id: GOOGLE_CLIENT_ID,
-        redirect_uri: GOOGLE_CALLBACK_URL,
-        response_type: 'code',
-        scope: 'openid email profile',
-        state,
-        access_type: 'online',
-        prompt: 'select_account'
     });
-    res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
-});
-
-app.get('/auth/google/callback', async (req, res) => {
-    try {
-        if (!ensureGoogleConfigured()) {
-            return res.status(500).send('Google login not configured');
-        }
-        const { code, state, error } = req.query;
-        if (error) return res.redirect('/?google_error=access_denied');
-        if (!code || !state || state !== req.session.google_oauth_state) {
-            return res.redirect('/?google_error=invalid_state');
-        }
-        delete req.session.google_oauth_state;
-        const tokenResponse = await axios.post(
-            'https://oauth2.googleapis.com/token',
-            new URLSearchParams({
-                client_id: GOOGLE_CLIENT_ID,
-                client_secret: GOOGLE_CLIENT_SECRET,
-                code,
-                grant_type: 'authorization_code',
-                redirect_uri: GOOGLE_CALLBACK_URL
-            }).toString(),
-            {
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                timeout: 15000
-            }
-        );
-        const accessToken = tokenResponse.data.access_token;
-        if (!accessToken) {
-            return res.redirect('/?google_error=no_access_token');
-        }
-        const profileResponse = await axios.get('https://www.googleapis.com/oauth2/v2/userinfo', {
-            headers: { Authorization: `Bearer ${accessToken}` },
-            timeout: 15000
+    qs('country-search').addEventListener('input', renderCountries);
+    qsa('[data-filter]').forEach((button) => {
+        button.addEventListener('click', () => {
+            state.currentFilter = button.dataset.filter;
+            qsa('[data-filter]').forEach((chip) => chip.classList.toggle('active', chip.dataset.filter === state.currentFilter));
+            renderCountries();
         });
-        const profile = profileResponse.data;
-        if (!profile || !profile.email) {
-            return res.redirect('/?google_error=no_email');
+    });
+    qsa('[data-admin-tab]').forEach((button) => {
+        button.addEventListener('click', () => setAdminTab(button.dataset.adminTab));
+    });
+    qsa('[data-service]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            state.currentService = button.dataset.service;
+            syncServiceButtons();
+            qs('country-search').value = '';
+            state.currentFilter = 'all';
+            qsa('[data-filter]').forEach((chip) => chip.classList.toggle('active', chip.dataset.filter === 'all'));
+            updateSidebarVisibility(true);
+            await loadCountries();
+        });
+    });
+    document.addEventListener('click', async (event) => {
+        const actionTarget = event.target.closest('[data-action]');
+        if (!actionTarget) return;
+        const { action } = actionTarget.dataset;
+        if (action === 'buy-country') {
+            await orderCountry(actionTarget.dataset.countryName, actionTarget.dataset.countryId);
+            return;
         }
-        let user = await findUser(profile.email);
-        if (!user) {
-            await createUser(
-                profile.name || profile.email.split('@')[0],
-                profile.email,
-                randomPassword()
-            );
-            user = await findUser(profile.email);
+        if (action === 'view-order') {
+            await openOrderModal(actionTarget.dataset.orderId);
+            return;
         }
-        if (!user) return res.redirect('/?google_error=user_create_failed');
-        if (!user.is_active) return res.redirect('/?google_error=account_blocked');
-        await updateUserLastLogin(user.id);
-        await updateUserLoginAttempts(user.id, 0);
-        req.session.regenerate((regenErr) => {
-            if (regenErr) return res.redirect('/?google_error=session_failed');
-            req.session.userId = user.id;
-            req.session.save((saveErr) => {
-                if (saveErr) return res.redirect('/?google_error=session_save_failed');
-                return res.redirect('/');
+        if (action === 'copy-number') {
+            copyText(actionTarget.dataset.value || '');
+            return;
+        }
+        if (action === 'view-screenshot') {
+            openScreenshotModal({
+                image: actionTarget.dataset.image,
+                user: actionTarget.dataset.user,
+                email: actionTarget.dataset.email,
+                amount: actionTarget.dataset.amount,
+                status: actionTarget.dataset.status
             });
+            return;
+        }
+        if (action === 'approve-transaction') {
+            await handleTransactionAction(actionTarget.dataset.txId, 'approve');
+            return;
+        }
+        if (action === 'cancel-transaction') {
+            await handleTransactionAction(actionTarget.dataset.txId, 'cancel');
+            return;
+        }
+        if (action === 'complete-order') {
+            await completeActiveOrder();
+            return;
+        }
+        if (action === 'replace-order') {
+            await replaceActiveOrder();
+            return;
+        }
+        if (action === 'cancel-order') {
+            await cancelActiveOrder();
+            return;
+        }
+        if (action === 'close-order-inline') {
+            closeOrderModal();
+            return;
+        }
+        if (action === 'copy-otp') {
+            if (state.activeOrder?.otp_code) copyText(state.activeOrder.otp_code);
+            return;
+        }
+        if (action === 'open-password-modal') {
+            openModal('password-modal');
+            return;
+        }
+        if (action === 'open-payment-modal') {
+            openModal('payment-modal');
+            return;
+        }
+        if (action === 'logout') {
+            await logout();
+            return;
+        }
+        if (action === 'check-otp-now') {
+            if (state.activeOrder) await pollOtp(state.activeOrder.id, false);
+            return;
+        }
+        if (action === 'copy-order-number') {
+            if (state.activeOrder?.phone_number) copyText(state.activeOrder.phone_number);
+            return;
+        }
+    });
+    qsa('[data-close-modal]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (button.dataset.closeModal === 'order-modal') {
+                closeOrderModal();
+                return;
+            }
+            closeModal(button.dataset.closeModal);
         });
-    } catch {
-        return res.redirect('/?google_error=oauth_failed');
-    }
-});
-
-app.post('/api/register', async (req, res) => {
-    try {
-        const name = String(req.body.name || '').trim();
-        const email = sanitizeEmail(req.body.email);
-        const password = req.body.password;
-        if (!name) return res.status(400).send('Name is required');
-        if (!validateEmail(email)) return res.status(400).send('Valid email is required');
-        if (!validatePassword(password)) return res.status(400).send('Password must be at least 6 characters');
-        const existing = await findUser(email);
-        if (existing) return res.status(400).send('Email already exists');
-        await createUser(name, email, password);
-        res.json({ success: true });
-    } catch (err) {
-        res.status(500).send(formatSafeError(err));
-    }
-});
-
-app.post('/api/login', async (req, res) => {
-    try {
-        const email = sanitizeEmail(req.body.email);
-        const password = req.body.password;
-        if (!validateEmail(email)) return res.status(400).send('Valid email is required');
-        if (typeof password !== 'string' || !password) return res.status(400).send('Password is required');
-        const user = await findUser(email);
-        if (!user) {
-            return res.status(401).send('Invalid credentials');
-        }
-        if (!user.is_active) {
-            return res.status(401).send('Account blocked');
-        }
-        const passwordCheck = await verifyPassword(password, user.password);
-        if (!passwordCheck.valid) {
-            const newAttempts = Number(user.login_attempts || 0) + 1;
-            await updateUserLoginAttempts(user.id, newAttempts);
-            if (newAttempts >= 5) {
-                await queryRun('UPDATE users SET is_active = FALSE WHERE id = $1', [user.id]);
-            }
-            return res.status(401).send('Invalid credentials');
-        }
-        if (passwordCheck.needsUpgrade) {
-            const upgradedHash = await hashPassword(password);
-            await updateUserPasswordHash(user.id, upgradedHash);
-        }
-        await updateUserLoginAttempts(user.id, 0);
-        await updateUserLastLogin(user.id);
-        req.session.regenerate((regenErr) => {
-            if (regenErr) {
-                console.error('Session regenerate error:', regenErr);
-                return res.status(500).send('Login failed');
-            }
-            req.session.userId = user.id;
-            req.session.save((saveErr) => {
-                if (saveErr) {
-                    console.error('Session save error:', saveErr);
-                    return res.status(500).send('Login failed');
+    });
+    qsa('.app-modal').forEach((modal) => {
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal(modal.id);
+                if (modal.id === 'order-modal') {
+                    closeOrderModal();
                 }
-                return res.json({ success: true });
-            });
+            }
         });
-    } catch (err) {
-        console.error('Login route error:', err);
-        res.status(500).send(formatSafeError(err));
-    }
-});
-
-app.post('/api/change-password', ensureAuth, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        if (typeof currentPassword !== 'string' || !currentPassword) {
-            return res.status(400).send('Current password is required');
-        }
-        if (!validatePassword(newPassword)) {
-            return res.status(400).send('New password must be at least 6 characters');
-        }
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(404).send('User not found');
-        const passwordCheck = await verifyPassword(currentPassword, user.password);
-        if (!passwordCheck.valid) {
-            return res.status(400).send('Current password is incorrect');
-        }
-        await updateUserPassword(user.id, newPassword);
-        res.send('OK');
-    } catch (err) {
-        res.status(500).send(formatSafeError(err));
-    }
-});
-
-app.get('/api/me', ensureAuth, async (req, res) => {
-    try {
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(401).send('User not found');
-        res.json({
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            balance: user.balance,
-            role: user.role,
-            referralCode: user.referralCode,
-            maskedPassword: '********'
-        });
-    } catch {
-        res.status(500).send('Server error');
-    }
-});
-
-app.get('/api/logout', (req, res) => {
-    req.session.destroy(() => {
-        res.clearCookie('mrf.sid');
-        res.send('OK');
     });
-});
+}
 
-app.post('/api/order', ensureAuth, async (req, res) => {
-    const client = await pool.connect();
-    try {
-        const { countryName, countryId, service } = req.body;
-        const serviceConfig = getServiceConfig(service || 'whatsapp');
-        if (!serviceConfig) return res.status(400).send('Invalid service selected');
-        const countryObj = serviceConfig.countries.find((c) => c.name === countryName && Number(c.countryId) === Number(countryId));
-        if (!countryObj) return res.status(400).send('Invalid country selected');
-        await client.query('BEGIN');
-        const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [req.session.userId]);
-        const user = userRes.rows[0];
-        if (!user) {
-            await client.query('ROLLBACK');
-            return res.status(401).send('User not found');
-        }
-        const orderPrice = Number(countryObj.price || 0);
-        if (orderPrice <= 0) {
-            await client.query('ROLLBACK');
-            return res.status(400).send('Price not configured for selected service');
-        }
-        if (Number(user.balance) < orderPrice) {
-            await client.query('ROLLBACK');
-            return res.status(400).send('Insufficient balance. Please add funds.');
-        }
-        const clientMaxUsd = pkrToUsd(orderPrice);
-        const result = await getBestAvailableNumber(countryObj.countryId, clientMaxUsd, serviceConfig.serviceCode);
-        if (!result.success) {
-            await client.query('ROLLBACK');
-            return res.status(500).send('No number available in current low-price tiers. Please try again.');
-        }
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
-        const cancelAvailableAt = new Date(now.getTime() + 1 * 60 * 1000).toISOString();
-        await client.query('UPDATE users SET balance = $1 WHERE id = $2', [
-            Number(user.balance) - orderPrice,
-            user.id
-        ]);
-        const inserted = await client.query(`
-            INSERT INTO orders (
-                user_id, user_email, service_type, service_name, country, country_code, country_id, price,
-                payment_method, order_status, phone_number, activation_id,
-                expires_at, cancel_available_at, created_at
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-            RETURNING id
-        `, [
-            user.id,
-            user.email,
-            serviceConfig.serviceType,
-            serviceConfig.serviceName,
-            countryName,
-            countryObj.code,
-            countryObj.countryId,
-            orderPrice,
-            'balance',
-            'active',
-            result.phoneNumber,
-            result.activationId,
-            expiresAt,
-            cancelAvailableAt,
-            now.toISOString()
-        ]);
-        await client.query('COMMIT');
-        res.json({ id: inserted.rows[0].id, number: result.phoneNumber });
-    } catch (err) {
-        await client.query('ROLLBACK');
-        res.status(500).send(formatSafeError(err, 'Order failed. Please try again.'));
-    } finally {
-        client.release();
-    }
-});
+async function init() {
+    hydrateStaticServiceIcons();
+    syncServiceButtons();
+    setAdminTab('pending');
+    setAuthMode('login');
+    bindStaticEvents();
+    showStartupMessages();
+    await loadCountries();
+    await checkAuth();
+}
 
-app.get('/api/orders/:orderId', ensureAuth, async (req, res) => {
-    try {
-        const order = await getOrderById(Number(req.params.orderId));
-        if (!order) return res.status(404).send('Order not found');
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(401).send('User not found');
-        if (order.user_id !== user.id && user.role !== 'admin') {
-            return res.status(403).send('Unauthorized');
-        }
-        res.json(order);
-    } catch {
-        res.status(500).send('Server error');
-    }
-});
-
-app.get('/api/orders', ensureAuth, async (req, res) => {
-    try {
-        const userOrders = await getOrdersByUser(req.session.userId);
-        res.json(userOrders);
-    } catch {
-        res.status(500).send('Server error');
-    }
-});
-
-app.post('/api/orders/:orderId/replace', ensureAuth, async (req, res) => {
-    try {
-        const order = await getOrderById(Number(req.params.orderId));
-        if (!order) return res.status(404).send('Order not found');
-        const user = await findUserById(req.session.userId);
-        if (!user || order.user_id !== user.id) return res.status(403).send('Unauthorized');
-        if (order.order_status !== 'active') return res.status(400).send('Cannot replace number now');
-        if (order.otp_received) return res.status(400).send('OTP already received, cannot replace');
-        try {
-            const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
-            await axios.get(cancelUrl, { timeout: 15000 });
-        } catch {}
-        const clientMaxUsd = pkrToUsd(order.price);
-        const serviceConfig = getServiceConfig(order.service_type) || serviceCatalog.whatsapp;
-        const result = await getBestAvailableNumber(order.country_id, clientMaxUsd, serviceConfig.serviceCode);
-        if (!result.success) return res.status(500).send('No replacement number available right now');
-        const now = new Date();
-        const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
-        const cancelAvailableAt = new Date(now.getTime() + 1 * 60 * 1000).toISOString();
-        await updateOrder(order.id, {
-            phone_number: result.phoneNumber,
-            activation_id: result.activationId,
-            otp_received: false,
-            otp_code: null,
-            order_status: 'active',
-            created_at: now.toISOString(),
-            expires_at: expiresAt,
-            cancel_available_at: cancelAvailableAt
-        });
-        res.send('OK');
-    } catch (err) {
-        res.status(500).send(formatSafeError(err, 'Replace failed'));
-    }
-});
-
-app.post('/api/orders/:orderId/cancel', ensureAuth, async (req, res) => {
-    const client = await pool.connect();
-    try {
-        const orderId = Number(req.params.orderId);
-        await client.query('BEGIN');
-        const orderRes = await client.query('SELECT * FROM orders WHERE id = $1 FOR UPDATE', [orderId]);
-        const order = orderRes.rows[0];
-        if (!order) {
-            await client.query('ROLLBACK');
-            return res.status(404).send('Order not found');
-        }
-        const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [req.session.userId]);
-        const user = userRes.rows[0];
-        if (!user || order.user_id !== user.id) {
-            await client.query('ROLLBACK');
-            return res.status(403).send('Unauthorized');
-        }
-        if (order.order_status !== 'active') {
-            await client.query('ROLLBACK');
-            return res.status(400).send('Cannot cancel now');
-        }
-        if (order.otp_received) {
-            await client.query('ROLLBACK');
-            return res.status(400).send('OTP already received, cannot cancel');
-        }
-        const now = new Date();
-        const cancelAvailable = new Date(order.cancel_available_at);
-        if (now < cancelAvailable) {
-            await client.query('ROLLBACK');
-            return res.status(400).send(`Please wait ${Math.ceil((cancelAvailable - now) / 1000)} seconds before cancelling.`);
-        }
-        try {
-            const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
-            await axios.get(cancelUrl, { timeout: 15000 });
-        } catch {}
-        await client.query('UPDATE users SET balance = $1 WHERE id = $2', [
-            Number(user.balance || 0) + Number(order.price || 0),
-            user.id
-        ]);
-        await client.query('UPDATE orders SET order_status = $1 WHERE id = $2', ['cancelled', order.id]);
-        await client.query('COMMIT');
-        res.send('OK');
-    } catch (err) {
-        await client.query('ROLLBACK');
-        res.status(500).send(formatSafeError(err, 'Cancel failed'));
-    } finally {
-        client.release();
-    }
-});
-
-app.post('/api/orders/:orderId/complete', ensureAuth, async (req, res) => {
-    try {
-        const order = await getOrderById(Number(req.params.orderId));
-        if (!order) return res.status(404).send('Order not found');
-        const user = await findUserById(req.session.userId);
-        if (!user || order.user_id !== user.id) return res.status(403).send('Unauthorized');
-        if (!order.otp_received) return res.status(400).send('Cannot complete without OTP');
-        try {
-            const completeUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=6`;
-            await axios.get(completeUrl, { timeout: 15000 });
-        } catch {}
-        await updateOrder(order.id, {
-            order_status: 'completed',
-            completed_at: new Date().toISOString()
-        });
-        res.send('OK');
-    } catch (err) {
-        res.status(500).send(formatSafeError(err, 'Complete failed'));
-    }
-});
-
-app.post('/api/orders/:orderId/expire', ensureAuth, async (req, res) => {
-    try {
-        const order = await getOrderById(Number(req.params.orderId));
-        if (!order) return res.status(404).send('Order not found');
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(401).send('User not found');
-        if (order.user_id !== user.id && user.role !== 'admin') {
-            return res.status(403).send('Unauthorized');
-        }
-        if (order.order_status === 'active' && !order.otp_received) {
-            try {
-                const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
-                await axios.get(cancelUrl, { timeout: 15000 });
-            } catch {}
-            await updateOrder(order.id, { order_status: 'cancelled' });
-        }
-        res.send('OK');
-    } catch (err) {
-        res.status(500).send(formatSafeError(err, 'Expire failed'));
-    }
-});
-
-app.get('/api/orders/:orderId/otp', ensureAuth, async (req, res) => {
-    try {
-        const order = await getOrderById(Number(req.params.orderId));
-        if (!order) return res.status(404).send('Order not found');
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(401).send('User not found');
-        if (order.user_id !== user.id && user.role !== 'admin') {
-            return res.status(403).send('Unauthorized');
-        }
-        if (order.otp_received) {
-            return res.json({ received: true, code: order.otp_code });
-        }
-        if (!order.activation_id) {
-            return res.json({ received: false, error: 'No activation ID' });
-        }
-        const now = new Date();
-        const expiry = new Date(order.expires_at);
-        if (now >= expiry && !order.otp_received && order.order_status === 'active') {
-            try {
-                const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
-                await axios.get(cancelUrl, { timeout: 15000 });
-            } catch {}
-            await updateOrder(order.id, { order_status: 'cancelled' });
-            return res.json({ received: false, expired: true });
-        }
-        const smsResult = await checkSmsStatus(order.activation_id);
-        if (smsResult.success && smsResult.code) {
-            await updateOrder(order.id, {
-                otp_received: true,
-                otp_code: smsResult.code,
-                order_status: 'otp_received'
-            });
-            return res.json({ received: true, code: smsResult.code });
-        }
-        if (smsResult.success && smsResult.waiting) {
-            return res.json({ received: false, waiting: true });
-        }
-        return res.json({ received: false, error: true });
-    } catch {
-        res.status(500).json({ received: false, error: true });
-    }
-});
-
-app.get('/api/admin/orders', ensureAdmin, async (req, res) => {
-    try {
-        const allOrders = await getAllOrders();
-        res.json(allOrders);
-    } catch {
-        res.status(500).send('Server error');
-    }
-});
-
-app.get('/api/admin/transactions', ensureAdmin, async (req, res) => {
-    try {
-        const pending = await getPendingTransactions();
-        res.json(pending);
-    } catch {
-        res.status(500).send('Server error');
-    }
-});
-
-app.post('/api/admin/transactions/:txId/approve', ensureAdmin, async (req, res) => {
-    try {
-        await approveTransaction(Number(req.params.txId));
-        res.send('OK');
-    } catch (err) {
-        res.status(404).send(formatSafeError(err, 'Transaction not found'));
-    }
-});
-
-app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, res) => {
-    try {
-        const amount = parseFloat(req.body.amount);
-        if (!amount || amount < 150) return res.status(400).send('Minimum amount 150 PKR');
-        const screenshot = req.file ? req.file.filename : null;
-        if (!screenshot) return res.status(400).send('Screenshot required');
-        const user = await findUserById(req.session.userId);
-        if (!user) return res.status(401).send('User not found');
-        await queryRun(
-            'INSERT INTO transactions (user_id, user_email, amount, screenshot) VALUES ($1, $2, $3, $4)',
-            [req.session.userId, user.email, amount, screenshot]
-        );
-        res.send('OK');
-    } catch (err) {
-        res.status(500).send(formatSafeError(err));
-    }
-});
-
-app.use('/uploads', express.static(UPLOAD_DIR));
-
-initDB()
-    .then(() => {
-        app.listen(PORT, '0.0.0.0', () => {
-            console.log(`Server running on http://0.0.0.0:${PORT}`);
-        });
-    })
-    .catch((err) => {
-        console.error('Database initialization failed:', err);
-        process.exit(1);
-    });
+document.addEventListener('DOMContentLoaded', init);
