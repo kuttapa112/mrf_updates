@@ -45,22 +45,109 @@
     </style>
 </head>
 <body class="app-surface min-h-screen text-slate-100">
-    <div id="sidebar-overlay" class="hidden fixed inset-0 z-30 bg-slate-950/70 backdrop-blur-sm lg:hidden"></div>
+    <div id="sidebar-overlay" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm lg:hidden"></div>
     <div class="mx-auto max-w-[1800px] px-4 py-4 sm:px-6 lg:px-8">
-        <div class="mb-4 flex items-center justify-between rounded-3xl border border-white/10 bg-slate-950/50 px-4 py-3 shadow-glow lg:hidden">
-            <button id="mobile-menu-btn" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-100"><i class="fa-solid fa-bars"></i></button>
-            <div class="text-base font-semibold tracking-wide">MRF SMS</div>
-            <button data-support-trigger class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-100"><i class="fa-regular fa-comments"></i></button>
-        </div>
-        <div class="grid gap-4 lg:grid-cols-[290px_minmax(0,1fr)_380px] xl:gap-6">
-            <aside id="sidebar" class="glass fixed inset-y-4 left-4 z-40 flex w-[calc(100vw-2rem)] max-w-[290px] -translate-x-[120%] flex-col gap-5 rounded-[28px] border border-white/10 p-5 shadow-glow lg:sticky lg:top-4 lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0">
-                <div class="rounded-[24px] border border-blue-400/15 bg-gradient-to-br from-blue-500/15 via-slate-900/90 to-cyan-400/10 p-5">
-                    <div class="flex items-center gap-4">
-                        <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-500 text-xl font-bold text-white shadow-lg shadow-blue-500/25">M</div>
+        <header class="mb-4 rounded-[28px] border border-white/10 bg-slate-950 px-4 py-4 shadow-glow sm:px-5">
+            <div class="grid grid-cols-[48px_minmax(0,1fr)_48px] items-center gap-3 sm:grid-cols-[56px_minmax(0,1fr)_56px]">
+                <div class="flex items-center justify-start">
+                    <button id="mobile-menu-btn" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-100 lg:hidden"><i class="fa-solid fa-bars"></i></button>
+                </div>
+                <div class="flex min-h-[56px] items-center justify-center rounded-2xl bg-slate-950">
+                    <img src="/images/logo.jpg" alt="MRF SMS" class="block max-h-[50px] w-auto object-contain lg:max-h-[60px]" onerror="this.classList.add('hidden');document.getElementById('header-logo-fallback').classList.remove('hidden');">
+                    <div id="header-logo-fallback" class="hidden text-sm font-semibold uppercase tracking-[0.26em] text-slate-200 sm:text-base">MRF SMS</div>
+                </div>
+                <div class="flex items-center justify-end">
+                    <button data-support-trigger class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-100"><i class="fa-regular fa-comments"></i></button>
+                </div>
+            </div>
+        </header>
+
+        <section id="login-prompt" class="mb-4 glass rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
+            <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,420px)] xl:items-start">
+                <div class="rounded-[24px] border border-blue-400/15 bg-gradient-to-br from-blue-500/15 via-slate-900/85 to-cyan-400/10 p-5">
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-200">Welcome</p>
+                    <h3 class="mt-3 text-2xl font-semibold text-white">Login or create your account</h3>
+                    <p class="mt-3 max-w-2xl text-sm leading-7 text-slate-300">Manage your balance, order OTP numbers quickly, and submit deposits from a cleaner mobile-first dashboard.</p>
+                </div>
+                <div>
+                    <div class="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-slate-950/55 p-2">
+                        <button id="show-login-tab" class="active rounded-2xl px-4 py-3 text-sm font-semibold text-white">Login</button>
+                        <button id="show-register-tab" class="rounded-2xl px-4 py-3 text-sm font-semibold text-white">Sign Up</button>
+                    </div>
+                    <div id="login-form-wrap" class="mt-5">
+                        <form id="login-form" class="space-y-4">
+                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="login-email" type="email" placeholder="Email address" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
+                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="login-password" type="password" placeholder="Password" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
+                            <button id="login-btn" type="submit" class="w-full rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400">Login to Dashboard</button>
+                            <button id="google-login-btn" type="button" class="w-full rounded-2xl border border-white/10 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"><span class="inline-flex items-center gap-2"><i class="fa-brands fa-google service-gradient-google"></i><span>Continue with Google</span></span></button>
+                            <div class="flex items-center justify-end"><a href="/forgot-password.html" class="text-sm font-medium text-blue-300 transition hover:text-blue-200">Forgot Password?</a></div>
+                        </form>
+                    </div>
+                    <div id="register-form-wrap" class="mt-5 hidden">
+                        <form id="register-form" class="space-y-4">
+                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-name" type="text" placeholder="Full name" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
+                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-email" type="email" placeholder="Email address" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
+                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-password" type="password" placeholder="Password" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
+                            <button id="register-btn" type="submit" class="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">Create Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="user-info" class="hidden mb-4 space-y-4">
+            <div class="sticky top-0 z-40 rounded-[28px] border border-slate-800 bg-slate-950 px-4 py-4 shadow-glow sm:px-5">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="flex flex-wrap items-center gap-4">
                         <div>
-                            <h1 class="text-lg font-bold text-white">MRF SMS</h1>
-                            <p class="mt-1 text-sm text-slate-400">Professional OTP operations</p>
+                            <div class="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">Wallet Balance</div>
+                            <div id="user-balance" class="mt-2 text-2xl font-bold text-emerald-300 sm:text-3xl">0 PKR</div>
                         </div>
+                        <div class="hidden h-10 w-px bg-white/10 lg:block"></div>
+                        <div class="text-sm text-slate-400">Your balance and primary actions stay visible while you browse country prices.</div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button data-action="open-payment-modal" class="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500">Add Money</button>
+                        <a href="#account-details-card" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Account Details</a>
+                        <button data-action="logout" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Logout</button>
+                    </div>
+                </div>
+            </div>
+            <div class="grid gap-4 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+                <div id="account-details-card" class="glass rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Account Details</h3>
+                            <p class="mt-1 text-sm text-slate-400">Quick access to your saved profile and password tools.</p>
+                        </div>
+                        <button data-action="open-password-modal" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Change Password</button>
+                    </div>
+                    <div class="mt-5 space-y-3">
+                        <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Full Name</span><span id="account-name" class="text-sm font-semibold text-white">—</span></div>
+                        <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Email</span><span id="account-email" class="text-sm font-semibold text-white">—</span></div>
+                        <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Password</span><span id="account-password" class="text-sm font-semibold text-white">********</span></div>
+                        <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Referral Code</span><span id="account-referral" class="text-sm font-semibold text-white">—</span></div>
+                        <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Role</span><span id="account-role" class="text-sm font-semibold text-white">User</span></div>
+                    </div>
+                </div>
+                <div class="glass rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
+                    <div class="mb-4 flex items-end justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">Active Orders</h3>
+                            <p class="mt-1 text-sm text-slate-400">Assigned numbers and OTP status stay grouped here.</p>
+                        </div>
+                    </div>
+                    <div id="active-orders-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid gap-4 lg:grid-cols-[290px_minmax(0,1fr)] xl:gap-6">
+            <aside id="sidebar" class="glass fixed inset-y-4 left-4 z-[60] flex w-[calc(100vw-2rem)] max-w-[290px] -translate-x-[120%] flex-col gap-5 rounded-[28px] border border-white/10 p-5 shadow-glow lg:sticky lg:top-4 lg:z-auto lg:w-auto lg:max-w-none lg:translate-x-0">
+                <div class="rounded-[24px] border border-white/10 bg-slate-950/60 p-4">
+                    <div class="flex min-h-[56px] items-center justify-center rounded-2xl bg-slate-950/80">
+                        <img src="/images/logo.jpg" alt="MRF SMS" class="block max-h-[50px] w-auto object-contain" onerror="this.classList.add('hidden');document.getElementById('sidebar-logo-fallback').classList.remove('hidden');">
+                        <div id="sidebar-logo-fallback" class="hidden text-xs font-semibold uppercase tracking-[0.26em] text-slate-300">MRF SMS</div>
                     </div>
                 </div>
                 <div class="rounded-[24px] border border-white/10 bg-slate-950/50 p-3">
@@ -95,42 +182,42 @@
             </aside>
 
             <main class="min-w-0 space-y-5">
-                <section class="glass overflow-hidden rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
-                    <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_260px]">
+                <section class="glass overflow-hidden rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
+                    <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_240px] xl:items-start">
                         <div>
                             <div class="flex items-center gap-4">
                                 <div id="hero-service-icon"></div>
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-[0.3em] text-blue-200">Live catalog</p>
-                                    <h2 id="hero-title" class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">Available WhatsApp Numbers</h2>
+                                    <h2 id="hero-title" class="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">Available WhatsApp Numbers</h2>
                                 </div>
                             </div>
-                            <p id="hero-description" class="mt-5 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">Fast provider selection, polished order tracking, and a responsive dashboard built for production.</p>
-                            <div class="mt-5 flex flex-wrap gap-3 text-xs font-semibold text-slate-200">
-                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Auto OTP polling every 5 seconds</span>
-                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Secure balance-based ordering</span>
-                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Admin approvals and history tracking</span>
+                            <p id="hero-description" class="mt-4 max-w-3xl text-sm leading-7 text-slate-300">Fast provider selection, polished order tracking, and a responsive dashboard built for production.</p>
+                            <div class="mt-4 flex flex-wrap gap-2 text-xs font-semibold text-slate-200">
+                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Auto OTP polling</span>
+                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Secure balance checkout</span>
+                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-2">Admin-reviewed payments</span>
                             </div>
                         </div>
                         <div class="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-                            <div class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+                            <div class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
                                 <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Service</div>
-                                <div id="hero-service-value" class="mt-2 text-xl font-semibold text-white">WhatsApp</div>
+                                <div id="hero-service-value" class="mt-2 text-lg font-semibold text-white">WhatsApp</div>
                             </div>
-                            <div class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+                            <div class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
                                 <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Countries</div>
-                                <div id="hero-country-count" class="mt-2 text-xl font-semibold text-white">0</div>
+                                <div id="hero-country-count" class="mt-2 text-lg font-semibold text-white">0</div>
                             </div>
-                            <div class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4">
+                            <div class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
                                 <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Starting from</div>
-                                <div id="hero-min-price" class="mt-2 text-xl font-semibold text-emerald-300">Setup pending</div>
+                                <div id="hero-min-price" class="mt-2 text-lg font-semibold text-emerald-300">Setup pending</div>
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section class="glass rounded-[28px] border border-white/10 p-4 shadow-glow sm:p-5">
-                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <section class="glass rounded-[24px] border border-white/10 p-4 shadow-glow">
+                    <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                         <div class="flex min-w-0 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3">
                             <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
                             <input id="country-search" type="text" placeholder="Search country name..." class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500">
@@ -144,21 +231,21 @@
                 </section>
 
                 <section>
-                    <div class="mb-4 flex items-end justify-between gap-3">
+                    <div class="mb-3 flex items-end justify-between gap-3">
                         <div>
                             <h3 class="text-xl font-semibold text-white">Number Catalog</h3>
-                            <p class="mt-1 text-sm text-slate-400">Professional layout with instant filtering and service-aware pricing.</p>
+                            <p class="mt-1 text-sm text-slate-400">Compact country rows with quick pricing and one-click ordering.</p>
                         </div>
                     </div>
-                    <div id="country-list" class="grid gap-4 xl:grid-cols-2 2xl:grid-cols-3"></div>
+                    <div id="country-list"></div>
                 </section>
 
-                <section id="admin-panel" class="glass hidden rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
+                <section id="admin-panel" class="glass hidden rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
                     <div class="mb-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                         <div>
                             <p class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-200">Admin dashboard</p>
                             <h3 class="mt-2 text-2xl font-bold text-white">Payments and order operations</h3>
-                            <p class="mt-2 text-sm leading-6 text-slate-400">Review all orders, inspect payment proofs full-size, approve balances, and keep a clear transaction history.</p>
+                            <p class="mt-2 text-sm leading-6 text-slate-400">Review all orders, inspect payment proofs full-size, and keep a clear transaction history.</p>
                         </div>
                         <div class="grid gap-3 sm:grid-cols-3">
                             <div class="rounded-[22px] border border-white/10 bg-slate-950/55 p-4">
@@ -176,16 +263,16 @@
                         </div>
                     </div>
                     <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-                        <div class="rounded-[28px] border border-white/10 bg-slate-950/55 p-5">
+                        <div class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4 sm:p-5">
                             <div class="mb-4 flex items-center justify-between">
                                 <div>
                                     <h4 class="text-lg font-semibold text-white">All Orders</h4>
-                                    <p class="mt-1 text-sm text-slate-400">Live order stream across all services.</p>
+                                    <p class="mt-1 text-sm text-slate-400">Service, number, price, and status aligned in a proper table.</p>
                                 </div>
                             </div>
-                            <div id="admin-orders-list" class="scroll-area max-h-[720px] space-y-3 overflow-y-auto"></div>
+                            <div id="admin-orders-list" class="scroll-area overflow-x-auto"></div>
                         </div>
-                        <div class="rounded-[28px] border border-white/10 bg-slate-950/55 p-5">
+                        <div class="rounded-[24px] border border-white/10 bg-slate-950/55 p-4 sm:p-5">
                             <div class="mb-4 flex flex-wrap gap-2">
                                 <button data-admin-tab="pending" class="active inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
                                     <span>Pending Requests</span>
@@ -193,83 +280,12 @@
                                 </button>
                                 <button data-admin-tab="history" class="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Transaction History</button>
                             </div>
-                            <div data-admin-panel="pending" class="space-y-3" id="pending-transactions-list"></div>
-                            <div data-admin-panel="history" class="hidden space-y-3" id="transaction-history-list"></div>
+                            <div data-admin-panel="pending" class="overflow-x-auto" id="pending-transactions-list"></div>
+                            <div data-admin-panel="history" class="hidden overflow-x-auto" id="transaction-history-list"></div>
                         </div>
                     </div>
                 </section>
             </main>
-
-            <aside class="space-y-5">
-                <div id="login-prompt" class="glass rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
-                    <div class="rounded-[28px] border border-blue-400/15 bg-gradient-to-br from-blue-500/15 via-slate-900/85 to-cyan-400/10 p-5">
-                        <h3 class="text-xl font-semibold text-white">Login or create your account</h3>
-                        <p class="mt-2 text-sm leading-6 text-slate-300">Professional customer dashboard with wallet balance, live orders, secure checkout, and admin-reviewed deposits.</p>
-                    </div>
-                    <div class="mt-5 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-slate-950/55 p-2">
-                        <button id="show-login-tab" class="active rounded-2xl px-4 py-3 text-sm font-semibold text-white">Login</button>
-                        <button id="show-register-tab" class="rounded-2xl px-4 py-3 text-sm font-semibold text-white">Sign Up</button>
-                    </div>
-                    <div id="login-form-wrap" class="mt-5">
-                        <form id="login-form" class="space-y-4">
-                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="login-email" type="email" placeholder="Email address" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
-                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="login-password" type="password" placeholder="Password" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
-                            <button id="login-btn" type="submit" class="w-full rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400">Login to Dashboard</button>
-                            <button id="google-login-btn" type="button" class="w-full rounded-2xl border border-white/10 bg-white px-4 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"><span class="inline-flex items-center gap-2"><i class="fa-brands fa-google service-gradient-google"></i><span>Continue with Google</span></span></button>
-                            <div class="flex items-center justify-end"><a href="/forgot-password.html" class="text-sm font-medium text-blue-300 transition hover:text-blue-200">Forgot Password?</a></div>
-                        </form>
-                    </div>
-                    <div id="register-form-wrap" class="mt-5 hidden">
-                        <form id="register-form" class="space-y-4">
-                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-name" type="text" placeholder="Full name" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
-                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-email" type="email" placeholder="Email address" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
-                            <div class="rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><input id="reg-password" type="password" placeholder="Password" class="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-500" required></div>
-                            <button id="register-btn" type="submit" class="w-full rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">Create Account</button>
-                        </form>
-                    </div>
-                </div>
-
-                <div id="user-info" class="hidden space-y-5">
-                    <div class="glass rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <div class="text-xs uppercase tracking-[0.2em] text-slate-500">Wallet balance</div>
-                                <div id="user-balance" class="mt-2 text-3xl font-bold text-emerald-300">0 PKR</div>
-                            </div>
-                            <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">PKR</div>
-                        </div>
-                        <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                            <button data-action="open-payment-modal" class="rounded-2xl bg-blue-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-400">Add Money</button>
-                            <button data-action="logout" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Logout</button>
-                        </div>
-                    </div>
-                    <div class="glass rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
-                        <div class="flex items-center justify-between gap-3">
-                            <div>
-                                <h3 class="text-lg font-semibold text-white">Account Details</h3>
-                                <p class="mt-1 text-sm text-slate-400">Professional account summary and password controls.</p>
-                            </div>
-                            <button data-action="open-password-modal" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Change Password</button>
-                        </div>
-                        <div class="mt-5 space-y-3">
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Full Name</span><span id="account-name" class="text-sm font-semibold text-white">—</span></div>
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Email</span><span id="account-email" class="text-sm font-semibold text-white">—</span></div>
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Password</span><span id="account-password" class="text-sm font-semibold text-white">********</span></div>
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Referral Code</span><span id="account-referral" class="text-sm font-semibold text-white">—</span></div>
-                            <div class="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3"><span class="text-sm text-slate-400">Role</span><span id="account-role" class="text-sm font-semibold text-white">User</span></div>
-                        </div>
-                    </div>
-                    <div class="glass rounded-[32px] border border-white/10 p-5 shadow-glow sm:p-6">
-                        <div class="mb-4 flex items-end justify-between gap-3">
-                            <div>
-                                <h3 class="text-lg font-semibold text-white">Active Orders</h3>
-                                <p class="mt-1 text-sm text-slate-400">Live auto-refresh with branded service status cards.</p>
-                            </div>
-                        </div>
-                        <div id="active-orders-list" class="space-y-3"></div>
-                    </div>
-                </div>
-            </aside>
         </div>
     </div>
 
@@ -281,8 +297,8 @@
         </div>
     </div>
 
-    <div id="password-modal" class="app-modal hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 backdrop-blur-sm">
-        <div class="glass w-full max-w-xl rounded-[32px] border border-white/10 p-6 shadow-glow sm:p-8">
+    <div id="password-modal" class="app-modal hidden fixed inset-0 z-50 flex items-start justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm">
+        <div class="glass max-h-[80vh] w-full max-w-xl overflow-y-auto rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
             <div class="mb-5 flex items-start justify-between gap-3">
                 <div>
                     <h3 class="text-2xl font-semibold text-white">Change Password</h3>
@@ -298,8 +314,8 @@
         </div>
     </div>
 
-    <div id="payment-modal" class="app-modal hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 backdrop-blur-sm">
-        <div class="glass w-full max-w-2xl rounded-[32px] border border-white/10 p-6 shadow-glow sm:p-8">
+    <div id="payment-modal" class="app-modal hidden fixed inset-0 z-50 flex items-start justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm">
+        <div class="glass max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-[28px] border border-white/10 p-5 shadow-glow sm:p-6">
             <div class="mb-5 flex items-start justify-between gap-3">
                 <div>
                     <h3 class="text-2xl font-semibold text-white">Add Funds</h3>
@@ -324,12 +340,12 @@
         </div>
     </div>
 
-    <div id="order-modal" class="app-modal hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-950/75 px-4 backdrop-blur-sm">
-        <div class="glass w-full max-w-3xl rounded-[32px] border border-white/10 p-6 shadow-glow sm:p-8">
+    <div id="order-modal" class="app-modal hidden fixed inset-0 z-50 flex items-start justify-center bg-slate-950/75 px-4 py-6 backdrop-blur-sm">
+        <div class="glass max-h-[80vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-white/10 p-4 shadow-glow sm:p-5">
             <div class="mb-5 flex items-start justify-between gap-3">
                 <div>
                     <div class="mb-3 inline-flex items-center gap-3"><span id="order-service-logo"></span><span class="text-xs font-semibold uppercase tracking-[0.28em] text-blue-200">Current Order</span></div>
-                    <h3 id="order-country-title" class="text-2xl font-semibold text-white">Waiting...</h3>
+                    <h3 id="order-country-title" class="text-xl font-semibold text-white sm:text-2xl">Waiting...</h3>
                     <div class="mt-3 flex flex-wrap gap-2">
                         <span id="order-status-pill" class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold"></span>
                         <span id="order-price-pill" class="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-slate-100">0 PKR</span>
@@ -340,28 +356,28 @@
                     <button data-close-modal="order-modal" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-slate-100"><i class="fa-solid fa-xmark"></i></button>
                 </div>
             </div>
-            <div class="rounded-[28px] border border-blue-400/15 bg-gradient-to-br from-blue-500/10 via-slate-950/70 to-cyan-400/10 p-5">
+            <div class="rounded-[24px] border border-blue-400/15 bg-gradient-to-br from-blue-500/10 via-slate-950/70 to-cyan-400/10 p-4">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <div class="text-xs uppercase tracking-[0.24em] text-slate-400">Assigned Number</div>
-                        <div id="order-number" class="mt-2 text-2xl font-bold text-white">Processing...</div>
+                        <div id="order-number" class="mt-2 break-all text-xl font-bold text-white sm:text-2xl">Processing...</div>
                     </div>
-                    <button data-action="copy-order-number" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Copy Number</button>
+                    <button data-action="copy-order-number" class="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Copy Number</button>
                 </div>
             </div>
             <div class="mt-5 grid gap-3 sm:grid-cols-2">
-                <div class="rounded-2xl border border-white/10 bg-slate-950/55 p-4"><div class="text-xs uppercase tracking-[0.2em] text-slate-500">Order Expiry</div><div id="order-timer" class="mt-2 text-xl font-semibold text-white">25:00</div></div>
-                <div class="rounded-2xl border border-white/10 bg-slate-950/55 p-4"><div class="text-xs uppercase tracking-[0.2em] text-slate-500">Cancel Unlock</div><div id="order-cancel-timer" class="mt-2 text-xl font-semibold text-white">01:00</div></div>
+                <div class="rounded-2xl border border-white/10 bg-slate-950/55 p-3"><div class="text-xs uppercase tracking-[0.2em] text-slate-500">Order Expiry</div><div id="order-timer" class="mt-2 text-lg font-semibold text-white">25:00</div></div>
+                <div class="rounded-2xl border border-white/10 bg-slate-950/55 p-3"><div class="text-xs uppercase tracking-[0.2em] text-slate-500">Cancel Unlock</div><div id="order-cancel-timer" class="mt-2 text-lg font-semibold text-white">01:00</div></div>
             </div>
-            <div id="order-waiting" class="mt-5 rounded-[24px] border border-white/10 bg-slate-950/55 p-5">
-                <div class="flex items-center gap-4"><div class="flex h-12 w-12 items-center justify-center rounded-full border-4 border-white/10 border-t-blue-400 animate-spin"></div><div><div class="text-base font-semibold text-white">Waiting for OTP...</div><div class="mt-1 text-sm text-slate-400">The system checks automatically every 5 seconds. You can also trigger a manual check below.</div></div></div>
+            <div id="order-waiting" class="mt-4 rounded-[20px] border border-white/10 bg-slate-950/55 p-4">
+                <div class="flex items-center gap-3"><div class="flex h-10 w-10 items-center justify-center rounded-full border-4 border-white/10 border-t-blue-400 animate-spin"></div><div><div class="text-sm font-semibold text-white">Waiting for OTP...</div><div class="mt-1 text-xs leading-6 text-slate-400">The system checks automatically every 5 seconds. You can also trigger a manual check below.</div></div></div>
             </div>
-            <div id="order-otp" class="mt-5 hidden rounded-[24px] border border-emerald-400/20 bg-emerald-500/10 p-5">
+            <div id="order-otp" class="mt-4 hidden rounded-[20px] border border-emerald-400/20 bg-emerald-500/10 p-4">
                 <div class="text-xs uppercase tracking-[0.24em] text-emerald-200">Received OTP</div>
-                <div id="otp-value" class="mt-2 text-3xl font-bold tracking-[0.18em] text-white">------</div>
+                <div id="otp-value" class="mt-2 break-all text-2xl font-bold tracking-[0.12em] text-white">------</div>
             </div>
-            <button data-action="check-otp-now" class="mt-5 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Check OTP Now</button>
-            <div id="order-buttons" class="mt-5 grid gap-3 sm:grid-cols-3"></div>
+            <button data-action="check-otp-now" class="mt-4 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-white/10">Check OTP Now</button>
+            <div id="order-buttons" class="mt-4 grid gap-2 sm:grid-cols-3"></div>
         </div>
     </div>
 
