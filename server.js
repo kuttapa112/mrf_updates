@@ -933,4 +933,469 @@ app.post('/api/reset-password', async (req, res) => {
         const user = await findUserByResetToken(token);
         if (!user) return res.status(400).send('Reset link is invalid or expired');
         await updateUserPassword(user.id, newPassword);
-        await clearPasswor
+        await clearPasswordResetToken(user.id);
+        await updateUserLoginAttempts(user.id, 0);
+        await queryRun('UPDATE users SET is_active = TRUE WHERE id = $1', [user.id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).send(formatSafeError(err, 'Could not reset password'));
+    }
+});
+
+app.post('/api/register', async (req, res) => {
+    try {
+        const name = String(req.body.name || '').trim();
+        const email = sanitizeEmail(req.body.email);
+        const password = req.body.password;
+        if (!name) return res.status(400).send('Name is required');
+        if (!validateEmail(email)) return res.status(400).send('Valid email is required');
+        if (!validatePassword(password)) return res.status(400).send('Password must be at least 6 characters');
+        const existing = await findUser(email);
+        if (existing) return res.status(400).send('Email already exists');
+        await createUser(name, email, password);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).send(formatSafeError(err));
+    }
+});
+
+app.post('/api/login', async (req, res) => {
+    try {
+        const email = sanitizeEmail(req.body.email);
+        const password = req.body.password;
+        if (!validateEmail(email)) return res.status(400).send('Valid email is required');
+        if (typeof password !== 'string' || !password) return res.status(400).send('Password is required');
+        const user = await findUser(email);
+        if (!user) {
+            return res.status(401).send('Invalid credentials');
+        }
+        if (!user.is_active) {
+            return res.status(401).send('Account blocked');
+        }
+        const passwordCheck = await verifyPassword(password, user.password);
+        if (!passwordCheck.valid) {
+            const newAttempts = Number(user.login_attempts || 0) + 1;
+            await updateUserLoginAttempts(user.id, newAttempts);
+            if (newAttempts >= 5) {
+                await queryRun('UPDATE users SET is_active = FALSE WHERE id = $1', [user.id]);
+            }
+            return res.status(401).send('Invalid credentials');
+        }
+        if (passwordCheck.needsUpgrade) {
+            const upgradedHash = await hashPassword(password);
+            await updateUserPasswordHash(user.id, upgradedHash);
+        }
+        await updateUserLoginAttempts(user.id, 0);
+        await updateUserLastLogin(user.id);
+        req.session.regenerate((regenErr) => {
+            if (regenErr) {
+                console.error('Session regenerate error:', regenErr);
+                return res.status(500).send('Login failed');
+            }
+            req.session.userId = user.id;
+            req.session.save((saveErr) => {
+                if (saveErr) {
+                    console.error('Session save error:', saveErr);
+                    return res.status(500).send('Login failed');
+                }
+                return res.json({ success: true });
+            });
+        });
+    } catch (err) {
+        console.error('Login route error:', err);
+        res.status(500).send(formatSafeError(err));
+    }
+});
+
+app.post('/api/change-password', ensureAuth, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        if (typeof currentPassword !== 'string' || !currentPassword) {
+            return res.status(400).send('Current password is required');
+        }
+        if (!validatePassword(newPassword)) {
+            return res.status(400).send('New password must be at least 6 characters');
+        }
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(404).send('User not found');
+        const passwordCheck = await verifyPassword(currentPassword, user.password);
+        if (!passwordCheck.valid) {
+            return res.status(400).send('Current password is incorrect');
+        }
+        await updateUserPassword(user.id, newPassword);
+        res.send('OK');
+    } catch (err) {
+        res.status(500).send(formatSafeError(err));
+    }
+});
+
+app.get('/api/me', ensureAuth, async (req, res) => {
+    try {
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(401).send('User not found');
+        res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            balance: user.balance,
+            role: user.role,
+            referralCode: user.referralCode,
+            maskedPassword: '********'
+        });
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/api/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.clearCookie('mrf.sid');
+        res.send('OK');
+    });
+});
+
+app.post('/api/order', ensureAuth, async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const { countryName, countryId, service } = req.body;
+        const serviceConfig = getServiceConfig(service || 'whatsapp');
+        if (!serviceConfig) return res.status(400).send('Invalid service selected');
+        const countryObj = serviceConfig.countries.find((c) => c.name === countryName && Number(c.countryId) === Number(countryId));
+        if (!countryObj) return res.status(400).send('Invalid country selected');
+        await client.query('BEGIN');
+        const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [req.session.userId]);
+        const user = userRes.rows[0];
+        if (!user) {
+            await client.query('ROLLBACK');
+            return res.status(401).send('User not found');
+        }
+        const orderPrice = Number(countryObj.price || 0);
+        if (orderPrice <= 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).send('Price not configured for selected service');
+        }
+        if (Number(user.balance) < orderPrice) {
+            await client.query('ROLLBACK');
+            return res.status(400).send('Insufficient balance. Please add funds.');
+        }
+        const clientMaxUsd = pkrToUsd(orderPrice);
+        const result = await getBestAvailableNumber(countryObj.countryId, clientMaxUsd, serviceConfig.serviceCode);
+        if (!result.success) {
+            await client.query('ROLLBACK');
+            return res.status(500).send('No number available in current low-price tiers. Please try again.');
+        }
+        const providerCostPKR = Number((Number(result.provider_price || 0) * 280).toFixed(2));
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
+        const cancelAvailableAt = new Date(now.getTime() + 1 * 60 * 1000).toISOString();
+        await client.query('UPDATE users SET balance = $1 WHERE id = $2', [
+            Number(user.balance) - orderPrice,
+            user.id
+        ]);
+        const inserted = await client.query(`
+            INSERT INTO orders (
+                user_id, user_email, service_type, service_name, country, country_code, country_id, price, provider_cost_pkr,
+                payment_method, order_status, phone_number, activation_id,
+                expires_at, cancel_available_at, created_at
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+            RETURNING id
+        `, [
+            user.id,
+            user.email,
+            serviceConfig.serviceType,
+            serviceConfig.serviceName,
+            countryName,
+            countryObj.code,
+            countryObj.countryId,
+            orderPrice,
+            providerCostPKR,
+            'balance',
+            'active',
+            result.phoneNumber,
+            result.activationId,
+            expiresAt,
+            cancelAvailableAt,
+            now.toISOString()
+        ]);
+        await client.query('COMMIT');
+        res.json({ id: inserted.rows[0].id, number: result.phoneNumber });
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).send(formatSafeError(err, 'Order failed. Please try again.'));
+    } finally {
+        client.release();
+    }
+});
+
+app.get('/api/orders/:orderId', ensureAuth, async (req, res) => {
+    try {
+        const order = await getOrderById(Number(req.params.orderId));
+        if (!order) return res.status(404).send('Order not found');
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(401).send('User not found');
+        if (order.user_id !== user.id && user.role !== 'admin') {
+            return res.status(403).send('Unauthorized');
+        }
+        res.json(order);
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/api/orders', ensureAuth, async (req, res) => {
+    try {
+        const userOrders = await getOrdersByUser(req.session.userId);
+        res.json(userOrders);
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/api/orders/:orderId/replace', ensureAuth, async (req, res) => {
+    try {
+        const order = await getOrderById(Number(req.params.orderId));
+        if (!order) return res.status(404).send('Order not found');
+        const user = await findUserById(req.session.userId);
+        if (!user || order.user_id !== user.id) return res.status(403).send('Unauthorized');
+        if (order.order_status !== 'active') return res.status(400).send('Cannot replace number now');
+        if (order.otp_received) return res.status(400).send('OTP already received, cannot replace');
+        try {
+            const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
+            await axios.get(cancelUrl, { timeout: 15000 });
+        } catch {}
+        const clientMaxUsd = pkrToUsd(order.price);
+        const serviceConfig = getServiceConfig(order.service_type) || serviceCatalog.whatsapp;
+        const result = await getBestAvailableNumber(order.country_id, clientMaxUsd, serviceConfig.serviceCode);
+        if (!result.success) return res.status(500).send('No replacement number available right now');
+        const providerCostPKR = Number((Number(result.provider_price || 0) * 280).toFixed(2));
+        const now = new Date();
+        const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
+        const cancelAvailableAt = new Date(now.getTime() + 1 * 60 * 1000).toISOString();
+        await updateOrder(order.id, {
+            phone_number: result.phoneNumber,
+            activation_id: result.activationId,
+            provider_cost_pkr: providerCostPKR,
+            otp_received: false,
+            otp_code: null,
+            order_status: 'active',
+            created_at: now.toISOString(),
+            expires_at: expiresAt,
+            cancel_available_at: cancelAvailableAt
+        });
+        res.send('OK');
+    } catch (err) {
+        res.status(500).send(formatSafeError(err, 'Replace failed'));
+    }
+});
+
+app.post('/api/orders/:orderId/cancel', ensureAuth, async (req, res) => {
+    const client = await pool.connect();
+    try {
+        const orderId = Number(req.params.orderId);
+        await client.query('BEGIN');
+        const orderRes = await client.query('SELECT * FROM orders WHERE id = $1 FOR UPDATE', [orderId]);
+        const order = orderRes.rows[0];
+        if (!order) {
+            await client.query('ROLLBACK');
+            return res.status(404).send('Order not found');
+        }
+        const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [req.session.userId]);
+        const user = userRes.rows[0];
+        if (!user || order.user_id !== user.id) {
+            await client.query('ROLLBACK');
+            return res.status(403).send('Unauthorized');
+        }
+        if (order.order_status !== 'active') {
+            await client.query('ROLLBACK');
+            return res.status(400).send('Cannot cancel now');
+        }
+        if (order.otp_received) {
+            await client.query('ROLLBACK');
+            return res.status(400).send('OTP already received, cannot cancel');
+        }
+        const now = new Date();
+        const cancelAvailable = new Date(order.cancel_available_at);
+        if (now < cancelAvailable) {
+            await client.query('ROLLBACK');
+            return res.status(400).send(`Please wait ${Math.ceil((cancelAvailable - now) / 1000)} seconds before cancelling.`);
+        }
+        try {
+            const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
+            await axios.get(cancelUrl, { timeout: 15000 });
+        } catch {}
+        await client.query('UPDATE users SET balance = $1 WHERE id = $2', [
+            Number(user.balance || 0) + Number(order.price || 0),
+            user.id
+        ]);
+        await client.query('UPDATE orders SET order_status = $1 WHERE id = $2', ['cancelled', order.id]);
+        await client.query('COMMIT');
+        res.send('OK');
+    } catch (err) {
+        await client.query('ROLLBACK');
+        res.status(500).send(formatSafeError(err, 'Cancel failed'));
+    } finally {
+        client.release();
+    }
+});
+
+app.post('/api/orders/:orderId/complete', ensureAuth, async (req, res) => {
+    try {
+        const order = await getOrderById(Number(req.params.orderId));
+        if (!order) return res.status(404).send('Order not found');
+        const user = await findUserById(req.session.userId);
+        if (!user || order.user_id !== user.id) return res.status(403).send('Unauthorized');
+        if (!order.otp_received) return res.status(400).send('Cannot complete without OTP');
+        try {
+            const completeUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=6`;
+            await axios.get(completeUrl, { timeout: 15000 });
+        } catch {}
+        await updateOrder(order.id, {
+            order_status: 'completed',
+            completed_at: new Date().toISOString()
+        });
+        res.send('OK');
+    } catch (err) {
+        res.status(500).send(formatSafeError(err, 'Complete failed'));
+    }
+});
+
+app.post('/api/orders/:orderId/expire', ensureAuth, async (req, res) => {
+    try {
+        const order = await getOrderById(Number(req.params.orderId));
+        if (!order) return res.status(404).send('Order not found');
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(401).send('User not found');
+        if (order.user_id !== user.id && user.role !== 'admin') {
+            return res.status(403).send('Unauthorized');
+        }
+        if (order.order_status === 'active' && !order.otp_received) {
+            try {
+                const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
+                await axios.get(cancelUrl, { timeout: 15000 });
+            } catch {}
+            await updateOrder(order.id, { order_status: 'cancelled' });
+        }
+        res.send('OK');
+    } catch (err) {
+        res.status(500).send(formatSafeError(err, 'Expire failed'));
+    }
+});
+
+app.get('/api/orders/:orderId/otp', ensureAuth, async (req, res) => {
+    try {
+        const order = await getOrderById(Number(req.params.orderId));
+        if (!order) return res.status(404).send('Order not found');
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(401).send('User not found');
+        if (order.user_id !== user.id && user.role !== 'admin') {
+            return res.status(403).send('Unauthorized');
+        }
+        if (order.otp_received) {
+            return res.json({ received: true, code: order.otp_code });
+        }
+        if (!order.activation_id) {
+            return res.json({ received: false, error: 'No activation ID' });
+        }
+        const now = new Date();
+        const expiry = new Date(order.expires_at);
+        if (now >= expiry && !order.otp_received && order.order_status === 'active') {
+            try {
+                const cancelUrl = `${SMSBOWER_URL}?api_key=${SMSBOWER_API_KEY}&action=setStatus&id=${order.activation_id}&status=8`;
+                await axios.get(cancelUrl, { timeout: 15000 });
+            } catch {}
+            await updateOrder(order.id, { order_status: 'cancelled' });
+            return res.json({ received: false, expired: true });
+        }
+        const smsResult = await checkSmsStatus(order.activation_id);
+        if (smsResult.success && smsResult.code) {
+            await updateOrder(order.id, {
+                otp_received: true,
+                otp_code: smsResult.code,
+                order_status: 'otp_received'
+            });
+            return res.json({ received: true, code: smsResult.code });
+        }
+        if (smsResult.success && smsResult.waiting) {
+            return res.json({ received: false, waiting: true });
+        }
+        return res.json({ received: false, error: true });
+    } catch {
+        res.status(500).json({ received: false, error: true });
+    }
+});
+
+app.get('/api/admin/orders', ensureAdmin, async (req, res) => {
+    try {
+        const allOrders = await getAllOrders();
+        res.json(allOrders);
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/api/admin/transactions', ensureAdmin, async (req, res) => {
+    try {
+        const pending = await getPendingTransactions();
+        res.json(pending);
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/api/admin/transactions/history', ensureAdmin, async (req, res) => {
+    try {
+        const history = await getTransactionHistory();
+        res.json(history);
+    } catch {
+        res.status(500).send('Server error');
+    }
+});
+
+app.post('/api/admin/transactions/:txId/approve', ensureAdmin, async (req, res) => {
+    try {
+        await approveTransaction(Number(req.params.txId));
+        res.send('OK');
+    } catch (err) {
+        res.status(404).send(formatSafeError(err, 'Transaction not found'));
+    }
+});
+
+app.post('/api/admin/transactions/:txId/cancel', ensureAdmin, async (req, res) => {
+    try {
+        await cancelTransaction(Number(req.params.txId));
+        res.send('OK');
+    } catch (err) {
+        res.status(404).send(formatSafeError(err, 'Transaction not found'));
+    }
+});
+
+app.post('/api/add-funds', ensureAuth, upload.single('screenshot'), async (req, res) => {
+    try {
+        const amount = parseFloat(req.body.amount);
+        if (!amount || amount < 150) return res.status(400).send('Minimum amount 150 PKR');
+        const screenshot = req.file ? req.file.filename : null;
+        if (!screenshot) return res.status(400).send('Screenshot required');
+        const user = await findUserById(req.session.userId);
+        if (!user) return res.status(401).send('User not found');
+        await queryRun(
+            'INSERT INTO transactions (user_id, user_email, amount, screenshot) VALUES ($1, $2, $3, $4)',
+            [req.session.userId, user.email, amount, screenshot]
+        );
+        res.send('OK');
+    } catch (err) {
+        res.status(500).send(formatSafeError(err));
+    }
+});
+
+app.use('/uploads', express.static(UPLOAD_DIR));
+
+initDB()
+    .then(() => {
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`Server running on http://0.0.0.0:${PORT}`);
+        });
+    })
+    .catch((err) => {
+        console.error('Database initialization failed:', err);
+        process.exit(1);
+    });
