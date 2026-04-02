@@ -9,14 +9,15 @@ const state = {
     timerInterval: null,
     adminRefreshInterval: null,
     adminAlertInterval: null,
-    lastPendingCount: 0
+    lastPendingCount: 0,
+    theme: 'light'
 };
 
 const serviceMeta = {
     whatsapp: {
         label: 'WhatsApp',
         shortLabel: 'WA',
-        description: 'Fast WhatsApp activations with auto OTP polling and clean order tracking.',
+        description: 'Select a country below to get a number for OTP verification.',
         iconClass: 'fa-brands fa-whatsapp',
         iconTone: 'text-[#25D366]',
         wrapperTone: 'bg-emerald-500/10 ring-1 ring-emerald-400/20'
@@ -24,7 +25,7 @@ const serviceMeta = {
     facebook: {
         label: 'Facebook',
         shortLabel: 'FB',
-        description: 'Professional Facebook OTP ordering for low-latency delivery and clean status updates.',
+        description: 'Choose a country below to buy a number for OTP verification.',
         iconClass: 'fa-brands fa-facebook',
         iconTone: 'text-[#1877F2]',
         wrapperTone: 'bg-blue-500/10 ring-1 ring-blue-400/20'
@@ -32,7 +33,7 @@ const serviceMeta = {
     instagram: {
         label: 'Instagram',
         shortLabel: 'IG',
-        description: 'Instagram-ready numbers with polished ordering, responsive cards, and live OTP refresh.',
+        description: 'Pick a country below to get a number for OTP verification.',
         iconClass: 'fa-brands fa-instagram',
         iconTone: 'service-gradient-instagram',
         wrapperTone: 'bg-pink-500/10 ring-1 ring-pink-400/20'
@@ -40,7 +41,7 @@ const serviceMeta = {
     snapchat: {
         label: 'Snapchat',
         shortLabel: 'SC',
-        description: 'Snapchat activations with a simplified buying flow, quick order actions, and refund tools.',
+        description: 'Select a country below to purchase a number for OTP verification.',
         iconClass: 'fa-brands fa-snapchat',
         iconTone: 'text-[#FFFC00] drop-shadow-[0_0_10px_rgba(255,252,0,0.25)]',
         wrapperTone: 'bg-yellow-300/10 ring-1 ring-yellow-300/20'
@@ -48,7 +49,7 @@ const serviceMeta = {
     google: {
         label: 'Google / Gmail / YouTube',
         shortLabel: 'GO',
-        description: 'Google-family activation support with a dedicated catalog ready for your country-wise pricing.',
+        description: 'Select a country below to get a Google-family OTP number.',
         iconClass: 'fa-brands fa-google',
         iconTone: 'service-gradient-google',
         wrapperTone: 'bg-white/10 ring-1 ring-white/10'
@@ -59,6 +60,7 @@ const notificationSound = new Audio('https://www.soundjay.com/misc/sounds/bell-r
 
 const qs = (id) => document.getElementById(id);
 const qsa = (selector) => Array.from(document.querySelectorAll(selector));
+const THEME_STORAGE_KEY = 'mrf-theme';
 
 function escapeHtml(value) {
     return String(value ?? '')
@@ -90,6 +92,12 @@ function renderServiceLogo(serviceType, size = 'md') {
 
 function formatMoney(value) {
     return `${Number(value || 0).toFixed(0)} PKR`;
+}
+
+function formatMoneyPrecise(value) {
+    const amount = Number(value || 0);
+    if (!Number.isFinite(amount)) return '0 PKR';
+    return `${Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2)} PKR`;
 }
 
 function formatRelativeTime(value) {
@@ -250,6 +258,64 @@ function updateSidebarVisibility(forceClose = false) {
     }
     sidebar.classList.toggle('open');
     overlay.classList.toggle('hidden');
+}
+
+function getThemeIconMarkup(theme) {
+    if (theme === 'dark') {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2.5v2.5"></path><path d="M12 19v2.5"></path><path d="M4.93 4.93l1.77 1.77"></path><path d="M17.3 17.3l1.77 1.77"></path><path d="M2.5 12H5"></path><path d="M19 12h2.5"></path><path d="M4.93 19.07l1.77-1.77"></path><path d="M17.3 6.7l1.77-1.77"></path></svg>';
+    }
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"></path></svg>';
+}
+
+function applyTheme(theme) {
+    const normalized = theme === 'dark' ? 'dark' : 'light';
+    state.theme = normalized;
+    document.body.classList.toggle('dark-mode', normalized === 'dark');
+    qs('theme-toggle-icon').innerHTML = getThemeIconMarkup(normalized);
+    qs('theme-toggle').setAttribute('aria-label', normalized === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, normalized);
+    } catch {
+    }
+}
+
+function initializeTheme() {
+    let savedTheme = 'light';
+    try {
+        savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'light';
+    } catch {
+    }
+    applyTheme(savedTheme);
+}
+
+function toggleTheme() {
+    applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+}
+
+function syncAccountShortcutButtons() {
+    const isLoggedIn = Boolean(state.currentUser);
+    qs('header-support-button')?.classList.toggle('hidden', isLoggedIn);
+    qs('sidebar-support-button')?.classList.toggle('hidden', isLoggedIn);
+    qs('header-account-button')?.classList.toggle('hidden', !isLoggedIn);
+    qs('sidebar-account-button')?.classList.toggle('hidden', !isLoggedIn);
+}
+
+function openAccountDetails() {
+    if (!state.currentUser) {
+        showToast('Please login first', 'info');
+        return;
+    }
+    const card = qs('account-details-card');
+    if (!card) return;
+    updateSidebarVisibility(true);
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const previousShadow = card.style.boxShadow;
+    card.style.boxShadow = document.body.classList.contains('dark-mode')
+        ? '0 0 0 2px rgba(96,165,250,0.35), 0 20px 60px rgba(15,23,42,0.35)'
+        : '0 0 0 2px rgba(59,130,246,0.22), 0 20px 60px rgba(148,163,184,0.18)';
+    window.setTimeout(() => {
+        card.style.boxShadow = previousShadow;
+    }, 1600);
 }
 
 function syncServiceButtons() {
@@ -546,6 +612,11 @@ function renderAdminOrders(orders) {
     }
     const rows = orders.map((order) => {
         const meta = getServiceMeta(order.service_type);
+        const providerCostValue = Number(order.provider_cost_pkr || 0);
+        const hasProviderCost = providerCostValue > 0;
+        const providerCostText = hasProviderCost ? formatMoneyPrecise(providerCostValue) : 'N/A';
+        const profitText = hasProviderCost && order.profit_pkr != null ? formatMoneyPrecise(order.profit_pkr) : 'N/A';
+        const balanceText = order.client_balance_left == null ? '—' : formatMoneyPrecise(order.client_balance_left);
         return `
             <tr class="border-b border-slate-800/80 align-top last:border-b-0">
                 <td class="px-4 py-3 font-medium text-white break-all">${escapeHtml(order.user_email || '—')}</td>
@@ -555,549 +626,7 @@ function renderAdminOrders(orders) {
                         <span class="font-medium text-slate-100">${escapeHtml(meta.label)}</span>
                     </div>
                 </td>
-                <td class="px-4 py-3 text-slate-300">${escapeHtml(order.country || '—')}</td>
                 <td class="px-4 py-3 font-medium text-slate-200">${escapeHtml(order.phone_number || 'Pending')}</td>
-                <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">${formatMoney(order.price)}</td>
-                <td class="px-4 py-3">${renderStatusBadge(order.order_status)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-slate-400">${escapeHtml(formatRelativeTime(order.created_at))}</td>
-            </tr>
-        `;
-    }).join('');
-    container.innerHTML = renderAdminTable(
-        ['User Email', 'Service', 'Country', 'Number', 'Price', 'Status', 'Created'],
-        rows,
-        'min-w-[920px]'
-    );
-}
-
-function renderTransactionCards(transactions, mode) {
-    if (!transactions.length) {
-        return renderEmptyState(
-            mode === 'pending' ? 'No pending requests' : 'No transaction history',
-            mode === 'pending'
-                ? 'New payment proofs will appear here for screenshot review and approval.'
-                : 'Approved and cancelled payment requests will appear here once processed.'
-        );
-    }
-    const rows = transactions.map((transaction) => {
-        const displayName = transaction.user_name || 'Customer';
-        const displayEmail = transaction.user_email || 'Unknown email';
-        const status = transaction.status || (mode === 'pending' ? 'pending' : 'processed');
-        return `
-            <tr class="border-b border-slate-800/80 align-top last:border-b-0">
-                <td class="px-4 py-3 font-medium text-white">${escapeHtml(displayName)}</td>
-                <td class="px-4 py-3 break-all text-slate-300">${escapeHtml(displayEmail)}</td>
-                <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">${formatMoney(transaction.amount)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-slate-300">#${escapeHtml(transaction.id)}</td>
-                <td class="px-4 py-3 whitespace-nowrap text-slate-400">${escapeHtml(formatRelativeTime(transaction.created_at))}</td>
-                <td class="px-4 py-3">${renderStatusBadge(status)}</td>
-                <td class="px-4 py-3">
-                    <div class="flex flex-wrap gap-2">
-                        <button class="inline-flex items-center gap-1 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-100 transition hover:bg-white/10" data-action="view-screenshot" data-image="${escapeAttr(`/uploads/${transaction.screenshot}`)}" data-user="${escapeAttr(displayName)}" data-email="${escapeAttr(displayEmail)}" data-amount="${escapeAttr(formatMoney(transaction.amount))}" data-status="${escapeAttr(formatStatus(status))}">
-                            <i class="fa-regular fa-image"></i>
-                            <span>View</span>
-                        </button>
-                        ${mode === 'pending' ? `
-                            <button class="inline-flex items-center gap-1 rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-400" data-action="approve-transaction" data-tx-id="${escapeAttr(transaction.id)}">
-                                <i class="fa-solid fa-check"></i>
-                                <span>Approve</span>
-                            </button>
-                            <button class="inline-flex items-center gap-1 rounded-xl bg-rose-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-rose-400" data-action="cancel-transaction" data-tx-id="${escapeAttr(transaction.id)}">
-                                <i class="fa-solid fa-xmark"></i>
-                                <span>Cancel</span>
-                            </button>
-                        ` : ''}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
-    return renderAdminTable(
-        ['Customer', 'User Email', 'Amount', 'Reference', 'Submitted', 'Status', 'Actions'],
-        rows,
-        'min-w-[980px]'
-    );
-}
-
-async function loadAdminData() {
-    if (!state.currentUser || state.currentUser.role !== 'admin') return;
-    try {
-        const [orders, pendingTransactions, historyTransactions] = await Promise.all([
-            fetchJSON('/api/admin/orders'),
-            fetchJSON('/api/admin/transactions'),
-            fetchJSON('/api/admin/transactions/history')
-        ]);
-        renderAdminOrders(orders);
-        qs('pending-transactions-list').innerHTML = renderTransactionCards(pendingTransactions, 'pending');
-        qs('transaction-history-list').innerHTML = renderTransactionCards(historyTransactions, 'history');
-        qs('admin-order-count').textContent = String(orders.length);
-        qs('admin-pending-count').textContent = String(pendingTransactions.length);
-        qs('admin-history-count').textContent = String(historyTransactions.length);
-        qs('payment-badge').textContent = String(pendingTransactions.length);
-        qs('payment-badge').classList.toggle('hidden', pendingTransactions.length === 0);
-        if (pendingTransactions.length > 0) {
-            if (pendingTransactions.length > state.lastPendingCount) {
-                notificationSound.play().catch(() => {});
-                showToast(`New payment received. Pending approvals: ${pendingTransactions.length}`, 'success', 6000);
-                browserNotify('MRF SMS Admin Alert', `New payment received. Pending approvals: ${pendingTransactions.length}`);
-            }
-            startAdminAlertLoop();
-        } else {
-            stopAdminAlertLoop();
-        }
-        state.lastPendingCount = pendingTransactions.length;
-        setAdminTab(state.currentAdminTab);
-    } catch (err) {
-        showToast(err.message || 'Failed to load admin dashboard', 'error');
-    }
-}
-
-async function refreshUserInfo() {
-    if (!state.currentUser) return;
-    try {
-        const user = await fetchJSON('/api/me');
-        state.currentUser = user;
-        qs('login-prompt').classList.add('hidden');
-        qs('user-info').classList.remove('hidden');
-        qs('user-balance').textContent = formatMoney(user.balance);
-        qs('account-name').textContent = user.name || '—';
-        qs('account-email').textContent = user.email || '—';
-        qs('account-password').textContent = user.maskedPassword || '********';
-        qs('account-referral').textContent = user.referralCode || '—';
-        qs('account-role').textContent = formatStatus(user.role || 'user');
-        const orders = await fetchJSON('/api/orders');
-        renderActiveOrders(orders);
-        if (user.role === 'admin') {
-            qs('admin-panel').classList.remove('hidden');
-            await loadAdminData();
-            await requestBrowserNotificationPermission();
-            if (!state.adminRefreshInterval) {
-                state.adminRefreshInterval = window.setInterval(() => {
-                    if (state.currentUser && state.currentUser.role === 'admin') {
-                        loadAdminData();
-                    }
-                }, 10000);
-            }
-        } else {
-            qs('admin-panel').classList.add('hidden');
-            if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
-            state.adminRefreshInterval = null;
-            state.lastPendingCount = 0;
-            stopAdminAlertLoop();
-        }
-    } catch (err) {
-        showToast(err.message || 'Failed to refresh account info', 'error');
-    }
-}
-
-async function checkAuth() {
-    try {
-        const user = await fetchJSON('/api/me');
-        state.currentUser = user;
-        await refreshUserInfo();
-    } catch {
-        state.currentUser = null;
-        qs('login-prompt').classList.remove('hidden');
-        qs('user-info').classList.add('hidden');
-        qs('admin-panel').classList.add('hidden');
-        if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
-        state.adminRefreshInterval = null;
-        stopAdminAlertLoop();
-    }
-}
-
-function setAuthMode(mode) {
-    const loginTab = qs('show-login-tab');
-    const registerTab = qs('show-register-tab');
-    const loginPanel = qs('login-form-wrap');
-    const registerPanel = qs('register-form-wrap');
-    const isLogin = mode === 'login';
-    loginTab.classList.toggle('active', isLogin);
-    registerTab.classList.toggle('active', !isLogin);
-    loginPanel.classList.toggle('hidden', !isLogin);
-    registerPanel.classList.toggle('hidden', isLogin);
-}
-
-async function login(email, password) {
-    const button = qs('login-btn');
-    setLoading(button, 'Signing in...');
-    try {
-        const response = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
-        showToast('Logged in successfully', 'success');
-        await checkAuth();
-    } catch (err) {
-        showToast(err.message || 'Login failed', 'error');
-    } finally {
-        resetLoading(button);
-    }
-}
-
-async function register(name, email, password) {
-    const button = qs('register-btn');
-    setLoading(button, 'Creating account...');
-    try {
-        const response = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password }),
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
-        showToast('Account created successfully. Please login.', 'success');
-        qs('register-form').reset();
-        setAuthMode('login');
-    } catch (err) {
-        showToast(err.message || 'Registration failed', 'error');
-    } finally {
-        resetLoading(button);
-    }
-}
-
-async function savePassword() {
-    const button = qs('save-password-btn');
-    const currentPassword = qs('current-password').value;
-    const newPassword = qs('new-password').value;
-    setLoading(button, 'Saving...');
-    try {
-        const response = await fetch('/api/change-password', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ currentPassword, newPassword }),
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
-        qs('password-form').reset();
-        closeModal('password-modal');
-        showToast('Password updated successfully', 'success');
-    } catch (err) {
-        showToast(err.message || 'Could not change password', 'error');
-    } finally {
-        resetLoading(button);
-    }
-}
-
-async function logout() {
-    try {
-        const response = await fetch('/api/logout', { credentials: 'include' });
-        if (!response.ok) throw new Error('Logout failed');
-        state.currentUser = null;
-        state.activeOrder = null;
-        stopOrderIntervals();
-        if (state.adminRefreshInterval) window.clearInterval(state.adminRefreshInterval);
-        state.adminRefreshInterval = null;
-        stopAdminAlertLoop();
-        qs('user-info').classList.add('hidden');
-        qs('login-prompt').classList.remove('hidden');
-        qs('admin-panel').classList.add('hidden');
-        showToast('Logged out', 'success');
-    } catch (err) {
-        showToast(err.message || 'Logout failed', 'error');
-    }
-}
-
-async function orderCountry(name, id) {
-    if (!state.currentUser) {
-        showToast('Please login first', 'error');
-        return;
-    }
-    openModal('processing-modal');
-    try {
-        const response = await fetch('/api/order', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ countryName: name, countryId: Number(id), service: state.currentService }),
-            credentials: 'include'
-        });
-        closeModal('processing-modal');
-        if (!response.ok) throw new Error(await response.text());
-        const order = await response.json();
-        showToast('Number purchased successfully', 'success');
-        await refreshUserInfo();
-        await openOrderModal(order.id);
-    } catch (err) {
-        closeModal('processing-modal');
-        showToast(err.message || 'Order failed', 'error');
-    }
-}
-
-async function completeActiveOrder() {
-    if (!state.activeOrder) return;
-    try {
-        const response = await fetch(`/api/orders/${state.activeOrder.id}/complete`, { method: 'POST', credentials: 'include' });
-        if (!response.ok) throw new Error(await response.text());
-        showToast('Order completed', 'success');
-        closeOrderModal();
-        await refreshUserInfo();
-    } catch (err) {
-        showToast(err.message || 'Could not complete order', 'error');
-    }
-}
-
-async function replaceActiveOrder() {
-    if (!state.activeOrder) return;
-    if (!window.confirm('Replace the current number?')) return;
-    try {
-        const response = await fetch(`/api/orders/${state.activeOrder.id}/replace`, { method: 'POST', credentials: 'include' });
-        if (!response.ok) throw new Error(await response.text());
-        showToast('Number replaced successfully', 'success');
-        await openOrderModal(state.activeOrder.id);
-        await refreshUserInfo();
-    } catch (err) {
-        showToast(err.message || 'Replace failed', 'error');
-    }
-}
-
-async function cancelActiveOrder() {
-    if (!state.activeOrder) return;
-    if (!window.confirm('Cancel this order and refund the amount?')) return;
-    try {
-        const response = await fetch(`/api/orders/${state.activeOrder.id}/cancel`, { method: 'POST', credentials: 'include' });
-        if (!response.ok) throw new Error(await response.text());
-        showToast('Order cancelled and refunded', 'success');
-        closeOrderModal();
-        await refreshUserInfo();
-    } catch (err) {
-        showToast(err.message || 'Cancel failed', 'error');
-    }
-}
-
-async function handleTransactionAction(txId, action) {
-    const actionLabel = action === 'approve' ? 'approve' : 'cancel';
-    const confirmMessage = action === 'approve'
-        ? 'Approve this payment proof and add balance to the user?'
-        : 'Cancel this payment proof without adding funds?';
-    if (!window.confirm(confirmMessage)) return;
-    try {
-        const response = await fetch(`/api/admin/transactions/${txId}/${actionLabel}`, {
-            method: 'POST',
-            credentials: 'include'
-        });
-        if (!response.ok) throw new Error(await response.text());
-        showToast(action === 'approve' ? 'Payment approved successfully' : 'Payment cancelled successfully', 'success');
-        await loadAdminData();
-        if (state.currentUser) {
-            await refreshUserInfo();
-        }
-    } catch (err) {
-        showToast(err.message || 'Transaction update failed', 'error');
-    }
-}
-
-function openScreenshotModal({ image, user, email, amount, status }) {
-    qs('screenshot-preview').src = image;
-    qs('screenshot-preview').alt = `${user} payment proof`;
-    qs('screenshot-user').textContent = user;
-    qs('screenshot-email').textContent = email;
-    qs('screenshot-amount').textContent = amount;
-    qs('screenshot-status').textContent = status;
-    openModal('screenshot-modal');
-}
-
-function copyText(text) {
-    navigator.clipboard.writeText(text)
-        .then(() => showToast('Copied successfully', 'success'))
-        .catch(() => showToast('Copy failed', 'error'));
-}
-
-function openSupport() {
-    if (window.Tawk_API) {
-        window.Tawk_API.toggle();
-        return;
-    }
-    showToast('Support chat is loading...', 'info');
-}
-
-function showStartupMessages() {
-    const params = new URLSearchParams(window.location.search);
-    const googleError = params.get('google_error');
-    if (googleError) {
-        showToast(`Google sign-in error: ${googleError.replace(/_/g, ' ')}`, 'error', 6000);
-        params.delete('google_error');
-        const newUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
-        window.history.replaceState({}, document.title, newUrl);
-    }
-}
-
-function bindStaticEvents() {
-    qs('mobile-menu-btn').addEventListener('click', () => updateSidebarVisibility(false));
-    qs('sidebar-overlay').addEventListener('click', () => updateSidebarVisibility(true));
-    qsa('[data-support-trigger]').forEach((button) => {
-        button.addEventListener('click', openSupport);
-    });
-    qs('show-login-tab').addEventListener('click', () => setAuthMode('login'));
-    qs('show-register-tab').addEventListener('click', () => setAuthMode('register'));
-    qs('login-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        await login(qs('login-email').value.trim(), qs('login-password').value);
-    });
-    qs('register-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        await register(qs('reg-name').value.trim(), qs('reg-email').value.trim(), qs('reg-password').value);
-    });
-    qs('google-login-btn').addEventListener('click', () => {
-        window.location.href = '/api/auth/google';
-    });
-    qs('password-form').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        await savePassword();
-    });
-    qs('addFundsForm').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const button = qs('submit-payment-btn');
-        setLoading(button, 'Submitting payment...');
-        try {
-            const formData = new FormData(event.target);
-            const response = await fetch('/api/add-funds', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            });
-            if (!response.ok) throw new Error(await response.text());
-            event.target.reset();
-            closeModal('payment-modal');
-            showToast('Payment request submitted successfully', 'success', 6000);
-            if (state.currentUser && state.currentUser.role === 'admin') {
-                await loadAdminData();
-            }
-        } catch (err) {
-            showToast(err.message || 'Could not submit payment request', 'error');
-        } finally {
-            resetLoading(button);
-        }
-    });
-    qs('country-search').addEventListener('input', renderCountries);
-    qsa('[data-filter]').forEach((button) => {
-        button.addEventListener('click', () => {
-            state.currentFilter = button.dataset.filter;
-            qsa('[data-filter]').forEach((chip) => chip.classList.toggle('active', chip.dataset.filter === state.currentFilter));
-            renderCountries();
-        });
-    });
-    qsa('[data-admin-tab]').forEach((button) => {
-        button.addEventListener('click', () => setAdminTab(button.dataset.adminTab));
-    });
-    qsa('[data-service]').forEach((button) => {
-        button.addEventListener('click', async () => {
-            state.currentService = button.dataset.service;
-            syncServiceButtons();
-            qs('country-search').value = '';
-            state.currentFilter = 'all';
-            qsa('[data-filter]').forEach((chip) => chip.classList.toggle('active', chip.dataset.filter === 'all'));
-            updateSidebarVisibility(true);
-            await loadCountries();
-        });
-    });
-    document.addEventListener('click', async (event) => {
-        const actionTarget = event.target.closest('[data-action]');
-        if (!actionTarget) return;
-        const { action } = actionTarget.dataset;
-        if (action === 'buy-country') {
-            await orderCountry(actionTarget.dataset.countryName, actionTarget.dataset.countryId);
-            return;
-        }
-        if (action === 'view-order') {
-            await openOrderModal(actionTarget.dataset.orderId);
-            return;
-        }
-        if (action === 'copy-number') {
-            copyText(actionTarget.dataset.value || '');
-            return;
-        }
-        if (action === 'view-screenshot') {
-            openScreenshotModal({
-                image: actionTarget.dataset.image,
-                user: actionTarget.dataset.user,
-                email: actionTarget.dataset.email,
-                amount: actionTarget.dataset.amount,
-                status: actionTarget.dataset.status
-            });
-            return;
-        }
-        if (action === 'approve-transaction') {
-            await handleTransactionAction(actionTarget.dataset.txId, 'approve');
-            return;
-        }
-        if (action === 'cancel-transaction') {
-            await handleTransactionAction(actionTarget.dataset.txId, 'cancel');
-            return;
-        }
-        if (action === 'complete-order') {
-            await completeActiveOrder();
-            return;
-        }
-        if (action === 'replace-order') {
-            await replaceActiveOrder();
-            return;
-        }
-        if (action === 'cancel-order') {
-            await cancelActiveOrder();
-            return;
-        }
-        if (action === 'close-order-inline') {
-            closeOrderModal();
-            return;
-        }
-        if (action === 'copy-otp') {
-            if (state.activeOrder?.otp_code) copyText(state.activeOrder.otp_code);
-            return;
-        }
-        if (action === 'open-password-modal') {
-            openModal('password-modal');
-            return;
-        }
-        if (action === 'open-payment-modal') {
-            openModal('payment-modal');
-            return;
-        }
-        if (action === 'logout') {
-            await logout();
-            return;
-        }
-        if (action === 'check-otp-now') {
-            if (state.activeOrder) await pollOtp(state.activeOrder.id, false);
-            return;
-        }
-        if (action === 'copy-order-number') {
-            if (state.activeOrder?.phone_number) copyText(state.activeOrder.phone_number);
-            return;
-        }
-    });
-    qsa('[data-close-modal]').forEach((button) => {
-        button.addEventListener('click', () => {
-            if (button.dataset.closeModal === 'order-modal') {
-                closeOrderModal();
-                return;
-            }
-            closeModal(button.dataset.closeModal);
-        });
-    });
-    qsa('.app-modal').forEach((modal) => {
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                closeModal(modal.id);
-                if (modal.id === 'order-modal') {
-                    closeOrderModal();
-                }
-            }
-        });
-    });
-}
-
-async function init() {
-    hydrateStaticServiceIcons();
-    syncServiceButtons();
-    setAdminTab('pending');
-    setAuthMode('login');
-    bindStaticEvents();
-    showStartupMessages();
-    await loadCountries();
-    await checkAuth();
-}
-
-document.addEventListener('DOMContentLoaded', init);
+                <td class="px-4 py-3 font-semibold text-white whitespace-nowrap">${formatMoneyPrecise(order.price)}</td>
+                <td class="px-4 py-3 whitespace-nowrap ${hasProviderCost ? 'font-semibold text-slate-200' : 'text-slate-400'}">${escapeHtml(providerCostText)}</td>
+                <td class="px-4 py-3 whitespace-nowrap font-semibold text-emerald-300">${escapeHtml(profitTe
