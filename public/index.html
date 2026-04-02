@@ -215,6 +215,18 @@
                         <span class="nav-icon">📘</span>
                         <span>Facebook Numbers</span>
                     </button>
+                    <button class="nav-item" data-service="instagram">
+                        <span class="nav-icon">📸</span>
+                        <span>Instagram Numbers</span>
+                    </button>
+                    <button class="nav-item" data-service="snapchat">
+                        <span class="nav-icon">👻</span>
+                        <span>Snapchat Numbers</span>
+                    </button>
+                    <button class="nav-item" data-service="google">
+                        <span class="nav-icon">🔍</span>
+                        <span>Google / Gmail / YouTube</span>
+                    </button>
                     <button class="nav-item" id="contact-btn">
                         <span class="nav-icon">💬</span>
                         <span>Contact Support</span>
@@ -458,6 +470,13 @@
         let allCountries=[];
         let currentFilter='all';
         let currentService='whatsapp';
+        const serviceMeta={
+            whatsapp:{label:'WhatsApp',badge:'📱 WA'},
+            facebook:{label:'Facebook',badge:'📘 FB'},
+            instagram:{label:'Instagram',badge:'📸 IG'},
+            snapchat:{label:'Snapchat',badge:'👻 SC'},
+            google:{label:'Google / Gmail / YouTube',badge:'🔍 GO'}
+        };
         let notificationSound=new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
 
         const sidebar=document.getElementById('sidebar');
@@ -513,6 +532,10 @@
             if(Notification.permission==='granted'){try{new Notification(title,{body})}catch{}}
         }
 
+        function getServiceMeta(serviceType){
+            return serviceMeta[serviceType]||serviceMeta.whatsapp;
+        }
+
         function startAdminAlertLoop(){
             stopAdminAlertLoop();
             adminAlertInterval=setInterval(()=>{notificationSound.play().catch(()=>{})},5000);
@@ -533,7 +556,8 @@
             else if(currentFilter==='premium')filtered=filtered.filter(c=>c.price>=300);
             const container=qs('country-list');
             if(!filtered.length){
-                container.innerHTML=`<div class="panel-block" style="grid-column:1/-1;text-align:center;"><h3 style="font-size:18px;margin-bottom:8px;">No country found</h3><p style="color:var(--muted);">Try another search or filter.</p></div>`;
+                const emptyMessage=allCountries.length?'Try another search or filter.':'No countries added for this service yet.';
+                container.innerHTML=`<div class="panel-block" style="grid-column:1/-1;text-align:center;"><h3 style="font-size:18px;margin-bottom:8px;">No country found</h3><p style="color:var(--muted);">${emptyMessage}</p></div>`;
                 return;
             }
             container.innerHTML=filtered.map(c=>`
@@ -555,7 +579,7 @@
 
         async function loadCountries(){
             try{
-                const endpoint=currentService==='facebook'?'/api/facebook/countries':'/api/countries';
+                const endpoint=currentService==='whatsapp'?'/api/countries':`/api/services/${encodeURIComponent(currentService)}/countries`;
                 allCountries=await fetchJSON(endpoint);
                 renderCountries();
             }catch{showToast('Failed to load countries','error')}
@@ -686,7 +710,7 @@
                 const container=qs('active-orders-list');
                 if(!activeOrders.length){container.innerHTML=`<div class="sub-text">No active orders right now.</div>`}
                 else{
-                    container.innerHTML=activeOrders.map(o=>{const svcTag=o.service_type==='facebook'?'📘 FB':'📱 WA';return`
+                    container.innerHTML=activeOrders.map(o=>{const svcTag=getServiceMeta(o.service_type).badge;return`
                         <div class="order-item">
                             <div class="order-top"><div class="order-country">${svcTag} ${o.country}</div><div class="order-status">${o.otp_code?'OTP Ready':'Waiting'}</div></div>
                             <div class="order-number-small">${o.phone_number||'Processing...'}</div>
@@ -716,7 +740,7 @@
                 const orders=await fetchJSON('/api/admin/orders');
                 const transactions=await fetchJSON('/api/admin/transactions');
                 const ordersList=qs('admin-orders-list');
-                ordersList.innerHTML=orders.length?orders.map(o=>{const svcTag=o.service_type==='facebook'?'📘 FB':'📱 WA';return`<div class="admin-card"><div><strong>${o.user_email}</strong></div><div class="admin-meta">${svcTag} ${o.country} • ${o.price} PKR • ${o.order_status}</div></div>`}).join(''):`<div class="sub-text">No orders available.</div>`;
+                ordersList.innerHTML=orders.length?orders.map(o=>{const svcTag=getServiceMeta(o.service_type).badge;return`<div class="admin-card"><div><strong>${o.user_email}</strong></div><div class="admin-meta">${svcTag} ${o.country} • ${o.price} PKR • ${o.order_status}</div></div>`}).join(''):`<div class="sub-text">No orders available.</div>`;
                 const badge=qs('payment-badge');
                 const pendingCount=transactions.length;
                 if(pendingCount>0){badge.classList.remove('hidden');badge.textContent=pendingCount;startAdminAlertLoop();if(pendingCount>lastPendingCount){notificationSound.play().catch(()=>{});showToast(`New payment received. Pending: ${pendingCount}`,'success',6000);browserNotify('MRF SMS Admin Alert',`New payment received. Pending approvals: ${pendingCount}`)}}
@@ -852,7 +876,7 @@
                 item.classList.add('active');
                 const svc=item.dataset.service;
                 currentService=svc;
-                const label=svc==='facebook'?'Facebook':'WhatsApp';
+                const label=getServiceMeta(svc).label;
                 qs('hero-title').innerText=`Available ${label} Numbers`;
                 qs('hero-service-value').innerText=label;
                 allCountries=[];
