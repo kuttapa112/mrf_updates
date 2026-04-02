@@ -38,6 +38,9 @@ const SMSBOWER_URL = 'https://smsbower.page/stubs/handler_api.php';
 
 const SMSBOWER_WA_SERVICE = 'wa';
 const SMSBOWER_FB_SERVICE = 'fb';
+const SMSBOWER_IG_SERVICE = 'ig';
+const SMSBOWER_SNAPCHAT_SERVICE = 'fu';
+const SMSBOWER_GOOGLE_SERVICE = 'go';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -327,7 +330,7 @@ async function updateUserLastLogin(userId) {
     return queryRun('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = $1', [userId]);
 }
 
-const countries = [
+const whatsappCountries = [
     { name: 'South Africa', code: '+27', price: 170, countryId: 31, flag: '🇿🇦' },
     { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
     { name: 'Canada', code: '+1', price: 210, countryId: 36, flag: '🇨🇦' },
@@ -346,6 +349,56 @@ const facebookCountries = [
     { name: 'USA', code: '+1', price: 250, countryId: 187, flag: '🇺🇸' },
     { name: 'USA Virtual', code: '+1', price: 80, countryId: 189, flag: '🇺🇸' }
 ];
+
+const instagramCountries = [
+    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '🇮🇩' },
+    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '🇺🇸' },
+    { name: 'United Kingdom', code: '+44', price: 450, countryId: 16, flag: '🇬🇧' }
+];
+
+const snapchatCountries = [
+    { name: 'Indonesia', code: '+62', price: 200, countryId: 6, flag: '�🇩' },
+    { name: 'USA', code: '+1', price: 400, countryId: 187, flag: '�🇺🇸' }
+];
+
+const googleCountries = [];
+
+const serviceCatalog = {
+    whatsapp: {
+        serviceType: 'whatsapp',
+        serviceName: 'WhatsApp Number',
+        serviceCode: SMSBOWER_WA_SERVICE,
+        countries: whatsappCountries
+    },
+    facebook: {
+        serviceType: 'facebook',
+        serviceName: 'Facebook Number',
+        serviceCode: SMSBOWER_FB_SERVICE,
+        countries: facebookCountries
+    },
+    instagram: {
+        serviceType: 'instagram',
+        serviceName: 'Instagram Number',
+        serviceCode: SMSBOWER_IG_SERVICE,
+        countries: instagramCountries
+    },
+    snapchat: {
+        serviceType: 'snapchat',
+        serviceName: 'Snapchat Number',
+        serviceCode: SMSBOWER_SNAPCHAT_SERVICE,
+        countries: snapchatCountries
+    },
+    google: {
+        serviceType: 'google',
+        serviceName: 'Google / Gmail / YouTube Number',
+        serviceCode: SMSBOWER_GOOGLE_SERVICE,
+        countries: googleCountries
+    }
+};
+
+function getServiceConfig(serviceType) {
+    return serviceCatalog[String(serviceType || '').trim().toLowerCase()] || null;
+}
 
 function parseV1NumberResponse(text) {
     const raw = String(text || '').trim();
@@ -589,11 +642,17 @@ app.get('/', (req, res) => {
 });
 
 app.get('/api/countries', (req, res) => {
-    res.json(countries);
+    res.json(whatsappCountries);
 });
 
 app.get('/api/facebook/countries', (req, res) => {
-    res.json(facebookCountries);
+    res.json(serviceCatalog.facebook.countries);
+});
+
+app.get('/api/services/:service/countries', (req, res) => {
+    const serviceConfig = getServiceConfig(req.params.service);
+    if (!serviceConfig) return res.status(404).send('Service not found');
+    res.json(serviceConfig.countries);
 });
 
 app.get('/api/auth/google', (req, res) => {
@@ -796,13 +855,10 @@ app.get('/api/logout', (req, res) => {
 app.post('/api/order', ensureAuth, async (req, res) => {
     const client = await pool.connect();
     try {
-        const { countryName, price, countryId, service } = req.body;
-        const isFacebook = service === 'facebook';
-        const serviceType = isFacebook ? 'facebook' : 'whatsapp';
-        const serviceName = isFacebook ? 'Facebook Number' : 'WhatsApp Number';
-        const serviceCode = isFacebook ? SMSBOWER_FB_SERVICE : SMSBOWER_WA_SERVICE;
-        const countryList = isFacebook ? facebookCountries : countries;
-        const countryObj = countryList.find((c) => c.name === countryName && Number(c.countryId) === Number(countryId));
+        const { countryName, countryId, service } = req.body;
+        const serviceConfig = getServiceConfig(service || 'whatsapp');
+        if (!serviceConfig) return res.status(400).send('Invalid service selected');
+        const countryObj = serviceConfig.countries.find((c) => c.name === countryName && Number(c.countryId) === Number(countryId));
         if (!countryObj) return res.status(400).send('Invalid country selected');
         await client.query('BEGIN');
         const userRes = await client.query('SELECT * FROM users WHERE id = $1 FOR UPDATE', [req.session.userId]);
@@ -811,12 +867,17 @@ app.post('/api/order', ensureAuth, async (req, res) => {
             await client.query('ROLLBACK');
             return res.status(401).send('User not found');
         }
-        if (Number(user.balance) < Number(price)) {
+        const orderPrice = Number(countryObj.price || 0);
+        if (orderPrice <= 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).send('Price not configured for selected service');
+        }
+        if (Number(user.balance) < orderPrice) {
             await client.query('ROLLBACK');
             return res.status(400).send('Insufficient balance. Please add funds.');
         }
-        const clientMaxUsd = pkrToUsd(price);
-        const result = await getBestAvailableNumber(countryId, clientMaxUsd, serviceCode);
+        const clientMaxUsd = pkrToUsd(orderPrice);
+        const result = await getBestAvailableNumber(countryObj.countryId, clientMaxUsd, serviceConfig.serviceCode);
         if (!result.success) {
             await client.query('ROLLBACK');
             return res.status(500).send('No number available in current low-price tiers. Please try again.');
@@ -825,7 +886,7 @@ app.post('/api/order', ensureAuth, async (req, res) => {
         const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
         const cancelAvailableAt = new Date(now.getTime() + 1 * 60 * 1000).toISOString();
         await client.query('UPDATE users SET balance = $1 WHERE id = $2', [
-            Number(user.balance) - Number(price),
+            Number(user.balance) - orderPrice,
             user.id
         ]);
         const inserted = await client.query(`
@@ -838,12 +899,12 @@ app.post('/api/order', ensureAuth, async (req, res) => {
         `, [
             user.id,
             user.email,
-            serviceType,
-            serviceName,
+            serviceConfig.serviceType,
+            serviceConfig.serviceName,
             countryName,
             countryObj.code,
             countryObj.countryId,
-            price,
+            orderPrice,
             'balance',
             'active',
             result.phoneNumber,
@@ -899,8 +960,8 @@ app.post('/api/orders/:orderId/replace', ensureAuth, async (req, res) => {
             await axios.get(cancelUrl, { timeout: 15000 });
         } catch {}
         const clientMaxUsd = pkrToUsd(order.price);
-        const serviceCode = order.service_type === 'facebook' ? SMSBOWER_FB_SERVICE : SMSBOWER_WA_SERVICE;
-        const result = await getBestAvailableNumber(order.country_id, clientMaxUsd, serviceCode);
+        const serviceConfig = getServiceConfig(order.service_type) || serviceCatalog.whatsapp;
+        const result = await getBestAvailableNumber(order.country_id, clientMaxUsd, serviceConfig.serviceCode);
         if (!result.success) return res.status(500).send('No replacement number available right now');
         const now = new Date();
         const expiresAt = new Date(now.getTime() + 25 * 60 * 1000).toISOString();
