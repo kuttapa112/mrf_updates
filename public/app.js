@@ -1185,7 +1185,8 @@ function renderActiveOrders(orders) {
         const lifecycleStatus = getOrderLifecycleStatus(order);
         const countryFlag = getOrderCountryFlag(order);
         const isOtpReady = lifecycleStatus === 'otp_received';
-        const isVisibleInWaiting = isWaitingViewOrder(order);
+        // FIX: Hide spinner if OTP is received
+        const isVisibleInWaiting = isWaitingViewOrder(order) && !order.otp_code;
         const canCancel = isWaitingOrder(order) && isCancelAvailable(order);
         const waitingLabel = isOtpReady
             ? 'OTP Ready'
@@ -1463,7 +1464,7 @@ function renderAdminPaymentHistory(paymentRequests) {
         const proofButton = request.screenshot ? `
             <button class="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50" data-action="view-payment-proof" data-image="${escapeAttr(getUploadUrl(request.screenshot))}" data-user="${escapeAttr(request.user_name || 'Customer')}" data-email="${escapeAttr(request.user_email || 'Unknown email')}" data-amount="${escapeAttr(formatMoneyPrecise(request.amount))}" data-status="${escapeAttr(formatStatus(request.status || 'pending'))}">
                 <i class="fa-regular fa-image"></i>
-                <span>View Proof</span>
+                <span>Proof</span>
             </button>
         ` : '<span class="text-xs text-slate-500">No proof</span>';
         return `
@@ -1824,6 +1825,11 @@ async function completeActiveOrder(orderId) {
         if (state.activeOrder && String(state.activeOrder.id) === String(targetOrderId)) {
             closeOrderModal();
         }
+
+        // FIX: Remove order from state immediately so it disappears from list
+        state.orders = state.orders.filter(order => String(order.id) !== String(targetOrderId));
+        renderActiveOrders(state.orders);
+
         await refreshUserInfo();
     } catch (err) {
         showToast(err.message || 'Could not complete order', 'error');
