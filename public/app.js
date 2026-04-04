@@ -602,6 +602,7 @@ function isWaitingOrder(order) {
     return ['active', 'retry_requested'].includes(getOrderLifecycleStatus(order));
 }
 
+// FIX: Keep orders with OTP received in waiting view until user clicks Complete Order
 function isWaitingViewOrder(order) {
     return ['active', 'retry_requested', 'otp_received'].includes(getOrderLifecycleStatus(order));
 }
@@ -817,8 +818,6 @@ function updateTimerDisplay(order) {
     const cancelDiff = Math.max(0, cancelAt - now);
     const expiryMins = Math.floor(expiryDiff / 60000);
     const expirySecs = Math.floor((expiryDiff % 60000) / 1000);
-    const cancelMins = Math.floor(cancelDiff / 60000);
-    const cancelSecs = Math.floor((cancelDiff % 60000) / 1000);
     qs('order-timer').textContent = expiryDiff <= 0 ? 'Expired' : `${expiryMins}:${String(expirySecs).padStart(2, '0')}`;
     qs('order-cancel-timer').textContent = cancelDiff <= 0 ? '0:00' : `${cancelMins}:${String(cancelSecs).padStart(2, '0')}`;
 }
@@ -1444,8 +1443,8 @@ function renderAdminPaymentRequests(paymentRequests, legacyTransactions) {
                         ${item.transaction_id ? `<a class="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100" href="https://easypaisa.com.pk/ticket-check/?ticketNo=${escapeAttr(item.transaction_id)}" target="_blank" style="text-decoration:none;"><span>Verify TXID</span></a>` : ''}
                         ${actionButtons}
                     </div>
-                </td>
-            </tr>
+                 </td>
+             </tr>
         `;
     }).join('');
     return renderAdminTable(
@@ -1479,8 +1478,8 @@ function renderAdminPaymentHistory(paymentRequests) {
                         ${request.transaction_id ? `<a class="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100" href="https://easypaisa.com.pk/ticket-check/?ticketNo=${escapeAttr(request.transaction_id)}" target="_blank" style="text-decoration:none;"><span>Verify TXID</span></a>` : ''}
                         ${proofButton}
                     </div>
-                </td>
-            </tr>
+                 </td>
+             </tr>
         `;
     }).join('');
     return renderAdminTable(
@@ -1510,8 +1509,8 @@ function renderFinancialLedger(transactions) {
                 <td class="px-4 py-3">${renderStatusBadge(transaction.status || 'approved')}</td>
                 <td class="px-4 py-3">
                     ${transaction.transaction_id ? `<a class="inline-flex items-center gap-1 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100" href="https://easypaisa.com.pk/ticket-check/?ticketNo=${escapeAttr(transaction.transaction_id)}" target="_blank" style="text-decoration:none;"><span>Verify TXID</span></a>` : '<span class="text-xs text-slate-500">Internal Entry</span>'}
-                </td>
-            </tr>
+                 </td>
+             </tr>
         `;
     }).join('');
     return renderAdminTable(
@@ -1602,6 +1601,7 @@ async function refreshUserInfo() {
         state.orders = orders;
         renderActiveOrders(orders);
         await loadPaymentHistory();
+        // Preserve existing activation filter, do not reset to 'waiting'
         setActivationFilter(state.activationFilter);
         setHistoryView(state.historyView);
         if (!state.paymentHistoryRefreshInterval) {
