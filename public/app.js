@@ -1199,7 +1199,7 @@ function renderActiveOrders(orders) {
         const meta = getServiceMeta(order.service_type);
         const lifecycleStatus = getOrderLifecycleStatus(order);
         const countryFlag = getOrderCountryFlag(order);
-        const isOtpReady = lifecycleStatus === 'otp_received';
+        const isOtpReady = order.otp_code || lifecycleStatus === 'otp_received';
         const isVisibleInWaiting = isWaitingViewOrder(order);
         const canCancel = isWaitingOrder(order) && isCancelAvailable(order);
         const waitingLabel = isOtpReady
