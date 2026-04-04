@@ -1051,10 +1051,25 @@ async function pollOtp(orderId, silent = false, options = {}) {
     try {
         const result = await fetchJSON(`/api/orders/${orderId}/otp`);
         if (result.received) {
-            await refreshActiveOrderState(orderId, { updateModal: shouldUpdateModal });
-            if (shouldUpdateModal) {
-                stopOrderIntervals();
-            }
+
+    // ✅ ONLY UPDATE OTP - DO NOT CHANGE STATUS
+    const updatedOrder = await fetchJSON(`/api/orders/${orderId}`);
+
+    // 🔥 FORCE KEEP IN WAITING
+    updatedOrder.order_status = 'active';   // important fix
+    updatedOrder.otp_received = true;
+
+    // update local state manually
+    upsertOrderInState(updatedOrder);
+    renderActiveOrders(state.orders);
+
+    // ❌ DO NOT STOP INTERVALS (so it stays active)
+    // stopOrderIntervals();  ❌ removed
+
+    showToast('OTP received successfully', 'success');
+
+    return true;
+}
             if (!document.hasFocus()) {
                 playBackgroundOtpSound();
             }
