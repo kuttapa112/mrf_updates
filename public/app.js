@@ -1200,7 +1200,7 @@ function renderActiveOrders(orders) {
         const lifecycleStatus = getOrderLifecycleStatus(order);
         const countryFlag = getOrderCountryFlag(order);
         const isOtpReady = order.otp_code || lifecycleStatus === 'otp_received';
-        const isVisibleInWaiting = isWaitingViewOrder(order);
+        const isVisibleInWaiting = isWaitingViewOrder(order) || order.otp_code;
         const canCancel = isWaitingOrder(order) && isCancelAvailable(order);
         const waitingLabel = isOtpReady
             ? 'OTP Ready'
